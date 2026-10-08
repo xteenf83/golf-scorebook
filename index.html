@@ -288,6 +288,29 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .rhero .saved{display:inline-block;font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px;margin-bottom:10px}
 .tiles{border-radius:20px;box-shadow:var(--shadow)}
 .course .pars button{border-radius:10px}
+/* 골프장·코스: 목록 → 상세 */
+.clist{display:flex;flex-direction:column}
+.crow{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:56px;padding:12px 2px;border:0;border-top:1px solid var(--line);border-radius:0;background:none;text-align:left;font-weight:500;font-size:15px;color:var(--ink)}
+.crow:first-child{border-top:0}
+.crow .nm{min-width:0;overflow-wrap:anywhere}
+.crow .nm .cl{color:var(--muted)}
+.crow .rt{display:flex;align-items:center;gap:8px;white-space:nowrap;font-family:var(--f-num);font-size:13px;color:var(--muted)}
+.crow .rt.warn{color:var(--warn);font-weight:600}
+.crow .chev{font-size:20px}
+.backbtn{min-height:44px;padding:10px 16px}
+.cdhead{margin-bottom:8px}
+.hrow{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
+.hrow:first-of-type{border-top:0}
+.hrow .no{font-weight:700;font-size:15px}
+.parbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.parbtns button{min-height:48px;font-size:16px}
+.parbtns button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.parsum{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding:14px 16px;border-radius:14px;background:var(--accent-soft)}
+.parsum span{font-size:14px;font-weight:600}
+.parsum b{font-family:var(--f-display);font-size:30px;font-weight:500;line-height:1}
+.parsum.warn{background:transparent;border:1.5px solid var(--warn)}
+.parsum.warn b,.parsum.warn small{color:var(--warn)}
+.parsum small{flex-basis:100%;font-size:12px;font-weight:600}
 .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:46px;text-align:left}
 input[type=date]::-webkit-date-and-time-value{text-align:left}
@@ -498,11 +521,12 @@ table.card.n9{min-width:0}
 
   <!-- COURSES -->
   <section class="screen" id="scrCourses" hidden>
+    <div class="screen" id="courseListView">
     <section class="panel">
-      <p class="note" style="margin-top:0">홀 번호를 탭하면 파가 3 → 4 → 5 순서로 바뀌고 바로 저장됩니다. 새 골프장은 Claude에게 이름만 알려주면 앱 업데이트로 자동 등록해 드립니다.</p>
-      <div id="courseList"></div>
+      <p class="note" style="margin-top:0">코스를 누르면 홀별 파를 확인하고 고칠 수 있습니다. 새 골프장은 Claude에게 이름만 알려주면 앱 업데이트로 자동 등록해 드립니다.</p>
+      <div class="clist" id="courseList"></div>
     </section>
-    <section class="panel">
+    <section class="panel" id="courseAddPanel">
       <h2>코스 직접 추가</h2>
       <div class="grid2">
         <label>골프장<input id="cClub" list="clubList" autocomplete="off" placeholder="예: 서원힐스CC"></label>
@@ -511,6 +535,16 @@ table.card.n9{min-width:0}
       <div class="row" style="margin-top:10px"><button id="cAdd">기본 배치로 추가</button></div>
       <p class="msg" id="courseMsg" role="status"></p>
     </section>
+    </div>
+    <div class="screen" id="courseDetail" hidden>
+      <div class="row"><button class="ghost backbtn" id="courseBack">← 코스 목록</button></div>
+      <section class="panel">
+        <div class="cdhead"><span class="note" id="cdClub"></span><h2 id="cdName" style="margin:2px 0 0;font-size:20px"></h2></div>
+        <div id="cdHoles"></div>
+        <div class="parsum" id="cdSum"></div>
+        <p class="msg" id="cdMsg" role="status"></p>
+      </section>
+    </div>
   </section>
 </div>
 </div>
@@ -699,7 +733,7 @@ function startNewRound(){
 $("tabBar").onclick=e=>{const t=e.target.closest("[data-tab]"); if(!t) return; const k=t.dataset.tab;
   if(k==="new") return startNewRound();
   if(k==="Stats") renderStats();
-  if(k==="Courses"){renderCourses();$("courseMsg").textContent=""}
+  if(k==="Courses"){courseSel=null;renderCourses();$("courseMsg").textContent=""}
   if(k==="More") $("moreMsg").textContent="";
   show(k); if(k==="Home") renderHome();
 };
@@ -1161,18 +1195,39 @@ function renderTotalRound(r,fresh){
   };
 }
 
-/* ---------- COURSES ---------- */
+/* ---------- COURSES: 목록 → 상세 ---------- */
+let courseSel=null;
+const parSum=c=>c.pars.reduce((a,b)=>a+b,0);
 function renderCourses(){
   fillClubList();
-  const byClub={}; courses.forEach(c=>(byClub[c.club]=byClub[c.club]||[]).push(c));
-  const ks=Object.keys(byClub).sort();
-  $("courseList").innerHTML = ks.length ? ks.map(k=>`<div class="course"><b>${esc(k)}</b>${byClub[k].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`
-      <div><div class="row" style="justify-content:space-between"><span style="font-size:13px;font-weight:600">${esc(c.name)} · 파${c.pars.reduce((a,b)=>a+b,0)}${c.unverified?' <span class="tag">확인 필요</span>':''}</span></div>
-      <div class="pars" data-cid="${c.id}">${c.pars.map((p,i)=>`<button class="p${p}" data-i="${i}"><small>${i+1}</small>${p}</button>`).join("")}</div></div>`).join("")}</div>`).join("")
+  const c=courseSel&&courses.find(x=>x.id===courseSel);
+  if(!c) courseSel=null;
+  $("courseListView").hidden=!!c; $("courseDetail").hidden=!c;
+  if(c) return renderCourseDetail(c);
+  const list=[...courses].sort((a,b)=>a.club.localeCompare(b.club,"ko")||a.name.localeCompare(b.name,"ko"));
+  $("courseList").innerHTML = list.length ? list.map(c=>{const t=parSum(c);
+    return `<button class="crow" data-cid="${c.id}"><span class="nm"><span class="cl">${esc(c.club)} /</span> <b>${esc(c.name)}</b>${c.unverified?' <span class="tag">확인 필요</span>':''}</span>
+      <span class="rt ${t!==36?"warn":""}">파${t}<span class="chev">›</span></span></button>`}).join("")
     : `<div class="empty"><b>등록된 코스가 없습니다</b>아래에서 추가하거나 Claude에게 골프장 이름을 알려주세요.</div>`;
 }
-$("courseList").onclick=e=>{const b=e.target.closest("button[data-i]");if(!b)return;const cid=b.closest("[data-cid]").dataset.cid;
-  const c=courses.find(x=>x.id===cid);const i=+b.dataset.i;c.pars[i]=c.pars[i]===5?3:c.pars[i]+1;saveCoursePars(cid,c.pars);renderCourses()};
+function renderCourseDetail(c){
+  $("cdClub").textContent=c.club; $("cdName").textContent=c.name;
+  $("cdHoles").innerHTML=c.pars.map((p,i)=>`<div class="hrow"><span class="no">${i+1}번 홀</span>
+    <div class="parbtns">${[3,4,5].map(v=>`<button class="${p===v?"on":""}" data-i="${i}" data-p="${v}" aria-pressed="${p===v}">파${v}</button>`).join("")}</div></div>`).join("");
+  const t=parSum(c), ok=t===36;
+  $("cdSum").className="parsum"+(ok?"":" warn");
+  $("cdSum").innerHTML=`<span>9홀 파 합계</span><b>${t}</b>${ok?"":`<small>⚠ 보통 9홀 파 합계는 36입니다. 홀별 파를 다시 확인해 주세요.</small>`}`;
+}
+$("courseList").onclick=e=>{const b=e.target.closest("[data-cid]");if(!b)return;
+  courseSel=b.dataset.cid; $("cdMsg").textContent=""; renderCourses(); scrollTop()};
+$("courseBack").onclick=()=>{courseSel=null;renderCourses();scrollTop()};
+$("cdHoles").onclick=e=>{const b=e.target.closest("button[data-p]");if(!b)return;
+  const c=courses.find(x=>x.id===courseSel); if(!c) return;
+  const i=+b.dataset.i, v=+b.dataset.p; if(c.pars[i]===v) return;
+  c.pars[i]=v; clearTimeout(courseTimers[c.id]);
+  ccol.doc(c.id).update({pars:[...c.pars]});   // 누르는 즉시 저장 (오프라인이면 폰에 먼저 저장 후 업로드)
+  $("cdMsg").textContent=`${i+1}번 홀을 파${v}${v===3?"으로":"로"} 저장했습니다.`;
+  renderCourseDetail(c)};
 $("cAdd").onclick=async()=>{
   const club=$("cClub").value.trim(), name=$("cName").value.trim();
   if(!club||!name){$("courseMsg").textContent="골프장과 코스 이름을 입력하세요.";return}
