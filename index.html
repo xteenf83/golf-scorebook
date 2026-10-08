@@ -182,7 +182,8 @@ table.card td.sum{font-weight:700;background:var(--accent-soft)}
 html,body{height:100%;overflow:hidden}
 body{margin:0}
 #scroller{position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-top:env(safe-area-inset-top,0px)}
-.statusbar{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:20}
+/* 맨 위에 고정된 단색 띠: iOS 26+ 홈 화면 앱이 화면 위쪽 가장자리를 흐리게 처리하는 것을 막음 */
+.statusbar{position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,0px) + 6px);background:var(--bg);z-index:20}
 .who{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .who button{padding:6px 10px;font-size:12px}
 .linkbtn{border:0;background:none;padding:6px 0;font-size:13px;font-weight:500;color:var(--muted);text-decoration:underline}
@@ -190,12 +191,12 @@ body{margin:0}
 .mic.on{background:var(--danger);border-color:var(--danger);color:#fff}
 /* ===== A안 · 클럽하우스 스타일 ===== */
 body{background:var(--bg)}
-.wrap{gap:18px;padding-block:12px 40px}
+.wrap{gap:18px;padding-block:10px 40px}
 body.tabs .wrap{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
 .screen{gap:18px}
-header.top{align-items:center;flex-wrap:nowrap;padding-top:6px}
+header.top{align-items:center;flex-wrap:nowrap;padding-top:0}
 header.top .tt{min-width:0;display:flex;flex-direction:column;gap:2px}
-header.top small{font-size:12px;color:var(--muted);font-weight:500}
+header.top small{display:none}
 header.top h1{font-family:var(--f-body);font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.25;overflow-wrap:anywhere}
 header.top .sync{margin-top:2px;font-size:11.5px}
 .avatar{flex:0 0 auto;width:40px;height:40px;border-radius:50%;padding:0;border:0;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:16px}
@@ -247,7 +248,7 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .rounds .empty{background:var(--paper);border:1px dashed var(--line);border-radius:18px}
 
 /* tab bar */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--paper);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--paper);border-top:1px solid var(--line);padding:6px 8px max(6px, calc(env(safe-area-inset-bottom,0px) - 16px))}
 .tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:end}
 .tab{border:0;background:none;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--muted);font-weight:600;border-radius:10px}
 .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -286,6 +287,10 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .rhero .saved{display:inline-block;font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px;margin-bottom:10px}
 .tiles{border-radius:20px;box-shadow:var(--shadow)}
 .course .pars button{border-radius:10px}
+.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:46px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+.bottomnav{padding-bottom:max(10px, calc(env(safe-area-inset-bottom,0px) - 12px))}
 #resumeBox:empty,.msg:empty{display:none}
 table.card th,table.card td{white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
