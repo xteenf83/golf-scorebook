@@ -322,6 +322,10 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 #resumeBox:empty,.msg:empty{display:none}
 table.card th,table.card td{white-space:nowrap}
 table.card.n9{min-width:0}
+/* 스코어카드: 모든 칸 같은 폭 (18홀은 38px씩 고정 후 옆으로 스크롤, 9홀은 화면 폭을 똑같이 나눔) */
+table.card{table-layout:fixed;min-width:0}
+table.card td,table.card th{overflow:hidden}
+table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
 .yearbtn{min-height:40px;padding:8px 14px;font-size:13px;border-radius:10px}
 .yearbtn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .ytable{border-collapse:separate;border-spacing:0;font-size:13.5px;width:100%;font-variant-numeric:tabular-nums}
@@ -590,7 +594,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v14";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v15";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1228,7 +1232,8 @@ function openRound(id,fresh){
     : `<div><b>${c.tot??"–"}</b><span>총타</span></div><div><b>${relTxt(c.rel)}</b><span>파 대비</span></div><div><b>${c.par??"–"}</b><span>파</span></div>`;
   $("roundBox").innerHTML=`${roundHero(r,c,fresh)}
     <section class="panel">
-    <div class="scroll" style="margin-top:0"><table class="card${two?"":" n9"}">
+    <div class="scroll" style="margin-top:0"><table class="card${two?"":" n9"}" ${two?`style="width:${44+21*38}px"`:""}>
+      <colgroup><col style="width:44px">${two?'<col style="width:38px">'.repeat(21):'<col>'.repeat(10)}</colgroup>
       <tr><th>홀</th>${hs.map((_,i)=>(two&&i===9?`<th>전</th>`:"")+`<th>${i+1}</th>`).join("")}${two?"<th>후</th>":""}<th>계</th></tr>
       ${pk?row("파",agg(h=>h.par)):""}
       ${pk?row("타수",i=>typeof i==="string"?strokes(i):mark(hs[i])):""}
