@@ -301,7 +301,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .crow .rt{display:flex;align-items:center;gap:8px;white-space:nowrap;font-family:var(--f-num);font-size:13px;color:var(--muted)}
 .crow .rt.warn{color:var(--warn);font-weight:600}
 .crow .chev{font-size:20px}
-.backbtn{min-height:44px;padding:10px 16px}
 .cdhead{margin-bottom:8px}
 .hrow{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
 .hrow:first-of-type{border-top:0}
@@ -335,6 +334,16 @@ table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
 .ytable thead th:first-child{position:sticky;left:0;background:var(--paper);z-index:1}
 .ytable tr.hl td{font-weight:700;color:var(--accent)}
 .ytable tbody tr:last-child th,.ytable tbody tr:last-child td{border-bottom:0}
+/* UI 다듬기: 한글 문장은 본문 폰트(Plex Mono에는 한글이 없어 글자 간격이 벌어짐), 작은 뒤로 버튼, 홀 화면 세로 길이 줄이기 */
+.running,.crow .rt{font-family:var(--f-body);font-variant-numeric:tabular-nums}
+.back{border:0;background:none;padding:10px 4px;min-height:44px;margin-block:-10px -6px;color:var(--accent);font-size:15px;font-weight:700}
+.play.screen{gap:12px}
+.play .field{gap:4px}
+.holecard{padding:14px 18px 10px;gap:8px}
+.holecard .no{font-size:42px}
+.holecard .holefoot{padding-top:8px}
+.holecard .sync{margin-top:-4px}
+.opt{min-height:46px;padding:7px 2px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -426,10 +435,10 @@ table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
 
   <!-- SETUP -->
   <section class="screen" id="scrSetup" hidden>
-    <div class="row"><button class="ghost" data-go="home">← 홈</button></div>
+    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
     <section class="panel">
       <div class="row" style="justify-content:space-between;margin-bottom:12px">
-        <h2 style="margin:0">새 라운드</h2>
+        <h2 style="margin:0">입력 방식</h2>
         <div class="seg" id="modeSeg"><button data-m="hole" class="on">홀별 입력</button><button data-m="total">총 타수만</button></div>
       </div>
       <div class="row" style="margin-bottom:12px"><div class="seg" id="holesSeg"><button data-n="18" class="on">18홀</button><button data-n="9">9홀</button></div>
@@ -446,7 +455,7 @@ table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
           <label id="tInWrap">후반 (선택)<input type="number" id="tIn" inputmode="numeric" min="25" max="100" placeholder="예: 45"></label>
         </div>
       </div>
-      <p class="note" id="setupInfo" style="margin:10px 0 0"></p>
+      <p class="note" id="setupInfo" style="margin:10px 0 16px"></p>
       <p class="msg err" id="setupMsg" role="status"></p>
       <button class="primary big" id="startBtn">1번 홀부터 시작</button>
     </section>
@@ -501,9 +510,9 @@ table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
     </div>
     <div class="row" style="justify-content:space-between">
       <button class="ghost" id="playHome">← 홈 (자동 저장됨)</button>
-      <button class="ghost" id="toTotalBtn">총 타수만 기록하고 끝내기</button>
-      <span class="note">기본값: 파 · 2퍼트 · 적중 · 스트레이트</span>
+      <button class="linkbtn" id="toTotalBtn">총 타수만 기록하고 끝내기</button>
     </div>
+    <p class="note" style="margin:-8px 0 0">기본값: 파 · 2퍼트 · 적중 · 스트레이트</p>
     <div class="panel" id="toTotalBox" hidden>
       <h2>총 타수로 라운드 저장</h2>
       <p class="note" style="margin-top:0">홀별 점수를 다 챙기지 못했을 때 사용하세요. 이 라운드는 스코어 통계(평균·베스트·추이)에만 들어가고, 지금까지 입력한 홀별 기록은 사용되지 않습니다.</p>
@@ -524,13 +533,13 @@ table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
 
   <!-- ROUND DETAIL -->
   <section class="screen" id="scrRound" hidden>
-    <div class="row"><button class="ghost" data-go="home">← 홈</button></div>
+    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
     <div class="screen" id="roundBox"></div>
   </section>
 
   <!-- ROUND INFO EDIT -->
   <section class="screen" id="scrInfo" hidden>
-    <div class="row"><button class="ghost" id="infoBack">← 돌아가기</button></div>
+    <div class="row"><button class="back" id="infoBack">‹ 돌아가기</button></div>
     <section class="panel">
       <h2>라운드 정보 수정</h2>
       <div class="grid2">
@@ -563,7 +572,7 @@ table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
     </section>
     </div>
     <div class="screen" id="courseDetail" hidden>
-      <div class="row"><button class="ghost backbtn" id="courseBack">← 골프장 목록</button></div>
+      <div class="row"><button class="back" id="courseBack">‹ 골프장 목록</button></div>
       <section class="panel">
         <h2 id="cdClub" style="font-size:20px;margin:0 0 6px"></h2>
         <p class="note" style="margin:0 0 4px">홀 번호를 탭하면 파가 3 → 4 → 5 순서로 바뀌고 바로 저장됩니다.</p>
@@ -594,7 +603,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v16";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v17";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
