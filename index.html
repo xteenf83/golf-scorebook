@@ -11,8 +11,8 @@
 <!-- default(불투명) 상태바: black-translucent는 iOS 26+ 홈 화면 앱에서 화면 아래가 상태바 높이만큼 비는 WebKit 버그가 있음 -->
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="스코어북">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=2">
+<link rel="icon" href="icons/icon-192.png?v=2">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&family=Oswald:wght@500;600&display=swap">
@@ -594,7 +594,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v15";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v16";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
