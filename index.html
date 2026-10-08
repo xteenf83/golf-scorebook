@@ -395,8 +395,9 @@ table.card.n9{min-width:0}
       <p class="msg" id="importMsg" role="status"></p>
     </section>
     <section class="panel">
-      <h2>저장 방식</h2>
+      <h2>저장 방식 · 앱 정보</h2>
       <p class="note" style="margin:0">기록은 클라우드에 저장되어 폰을 바꾸거나 앱을 지워도 남아 있습니다. 본인 계정만 읽고 쓸 수 있습니다. 필드에서 신호가 약하면 폰에 먼저 저장했다가 연결되면 자동으로 올라갑니다.</p>
+      <p class="note" style="margin:10px 0 0">앱 버전 <b id="appVer"></b> · 새 버전이 나오면 앱을 열 때 자동으로 바뀝니다.</p>
     </section>
   </section>
 
@@ -586,6 +587,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
+const APP_VERSION = "v12";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -652,6 +654,7 @@ const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],St
 const TAB_SCREENS=["Home","Stats","Courses","More"];
 function scrollTop(){$("scroller").scrollTop=0}
 function show(name){
+  if(pendingReload && !["Play","Setup","Info"].includes(name)){ location.reload(); return; }
   ["Login","Home","Stats","Setup","Play","Round","Courses","Info","More"].forEach(n=>$("scr"+n).hidden = n!==name);
   $("bottomNav").hidden = name!=="Play";
   const tabs=TAB_SCREENS.includes(name);
@@ -1330,6 +1333,7 @@ $("exportBtn").onclick=async()=>{
 
 /* ---------- 기본 코스 다시 맞추기 ---------- */
 $("seedCount").textContent=DEFAULT_COURSES.length;
+$("appVer").textContent=APP_VERSION;
 $("reseedBtn").onclick=async()=>{
   const msg=t=>$("reseedMsg").textContent=t;
   if(!curUid||!ccol){msg("로그인한 뒤에 할 수 있습니다.");return}
@@ -1401,6 +1405,19 @@ $("importFile").onchange=async e=>{
   }
   msg(`${added}개 라운드를 가져왔습니다.`+(dup?` 이미 있는 ${dup}개는 건너뛰었습니다.`:"")+(bad.length?` 읽지 못한 ${bad.length}개: ${bad.slice(0,3).join(" / ")}${bad.length>3?" …":""}`:""));
 };
+
+/* ---------- 앱 업데이트: 새 버전이 배포되면 자동으로 받아서 다시 열기 ---------- */
+let pendingReload=false;
+function reloadForUpdate(){ if(["Play","Setup","Info"].some(n=>!$("scr"+n).hidden)){pendingReload=true;return} location.reload(); }
+if("serviceWorker" in navigator){
+  const hadController=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{
+    const check=()=>reg.update().catch(()=>{});
+    document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") check(); });
+  }).catch(()=>{});
+  // 홀 입력 중이면 바로 새로고침하지 않고, 홈으로 돌아갈 때 적용
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(hadController) reloadForUpdate(); });
+}
 
 /* ---------- Firebase: login · storage ---------- */
 let fs=null, auth=null, unsubs=[], curUid=null;
@@ -1479,7 +1496,8 @@ function loginRedirect(){
   signInWithRedirect(auth,new GoogleAuthProvider()).catch(e=>$("loginMsg").textContent=authErr(e));
 }
 
-(function boot(){
+(function boot(){ try{ bootInner(); }catch(e){ setSync("err","시작 오류: "+(e.message||e)); show("Login"); $("loginMsg").textContent="앱을 시작하지 못했습니다: "+(e.message||e); } })();
+function bootInner(){
   if(!firebaseConfig || !firebaseConfig.apiKey){
     setSync("err","설정 필요"); show("Login"); $("loginBtn").disabled=true; $("loginRedirectBtn").hidden=true;
     $("loginMsg").textContent="Firebase 설정값이 아직 없습니다. firebase-config.js 에 설정값을 넣어 주세요."; return;
@@ -1505,9 +1523,9 @@ function loginRedirect(){
   };
   $("loginRedirectBtn").onclick=loginRedirect;
   $("logoutBtn").onclick=async()=>{ await flush(); await signOut(auth); };
-})();
+}
 
-if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+
 </script>
 </body>
 </html>

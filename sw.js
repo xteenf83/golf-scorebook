@@ -1,12 +1,13 @@
 // 오프라인 캐시: 앱 화면 파일은 "인터넷 먼저, 안 되면 저장본", 라이브러리·글꼴은 "저장본 먼저".
 // 데이터(Firestore)와 로그인 요청은 건드리지 않습니다 — Firestore가 자체적으로 오프라인 저장을 합니다.
-const CACHE = "golf-scorebook-v11";
+const CACHE = "golf-scorebook-v12";
 const SHELL = ["./", "./index.html", "./firebase-config.js", "./manifest.webmanifest",
   "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 const CDN_HOSTS = ["www.gstatic.com", "fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache:"reload" = 새 버전 설치 때 보관된 옛 사본이 아니라 서버의 최신 파일을 받음
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys()
@@ -19,7 +20,8 @@ function timeout(ms) { return new Promise((_, rej) => setTimeout(() => rej(new E
 async function networkFirst(req) {
   const cache = await caches.open(CACHE);
   try {
-    const res = await Promise.race([fetch(req), timeout(4000)]);
+    // cache:"no-cache" = 브라우저에 보관된 사본(GitHub Pages는 10분 보관)을 쓰기 전에 항상 서버에 새 버전이 있는지 확인
+    const res = await Promise.race([fetch(req.url, { cache: "no-cache", credentials: "same-origin" }), timeout(4000)]);
     if (res.ok) cache.put(req, res.clone());
     return res;
   } catch (e) {
