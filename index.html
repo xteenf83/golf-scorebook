@@ -320,11 +320,12 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 .bottomnav{padding-bottom:max(10px, calc(env(safe-area-inset-bottom,0px) - 12px))}
 #resumeBox:empty,.msg:empty{display:none}
 table.card th,table.card td{white-space:nowrap}
-table.card.n9{min-width:0}
-/* 스코어카드: 모든 칸 같은 폭 (18홀은 38px씩 고정 후 옆으로 스크롤, 9홀은 화면 폭을 똑같이 나눔) */
+/* 스코어카드: 9홀씩 한 표(18홀은 전반·후반 두 표), 홀 칸은 화면 폭을 똑같이 나눔 */
 table.card{table-layout:fixed;min-width:0}
-table.card td,table.card th{overflow:hidden}
-table.card .mark{min-width:0;width:26px;padding:1px 0;box-sizing:border-box}
+table.card+table.card{margin-top:12px}
+table.card td,table.card th{overflow:hidden;padding:5px 0}
+table.card th:first-child{font-size:10.5px}
+table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:border-box}
 .yearbtn{min-height:40px;padding:8px 14px;font-size:13px;border-radius:10px}
 .yearbtn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .ytable{border-collapse:separate;border-spacing:0;font-size:13.5px;width:100%;font-variant-numeric:tabular-nums}
@@ -603,7 +604,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v17";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v18";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1221,12 +1222,24 @@ function openRound(id,fresh){
   pendingDel=null;
   if(isTotal(r)){ renderTotalRound(r,fresh); if(cur&&cur.status==="done") cur=null; show("Round"); return; }
   const hs=r.holes, N=hs.length, two=N===18, det=hasDetail(r), pk=parKnown(r), c=scoreOf(r);
-  const row=(label,fn)=>{let a=`<tr><th>${label}</th>`;for(let i=0;i<N;i++){if(two&&i===9)a+=`<td class="sum">${fn("out")}</td>`;a+=`<td>${fn(i)}</td>`}return a+(two?`<td class="sum">${fn("in")}</td>`:"")+`<td class="sum">${fn("tot")}</td></tr>`};
   const sumR=(a,b,k)=>hs.slice(a,b).reduce((s,h)=>s+k(h),0);
   const agg=(k)=>(i)=>i==="out"?sumR(0,9,k):i==="in"?sumR(9,18,k):i==="tot"?sumR(0,N,k):k(hs[i]);
   const mark=h=>{const s=h.par+h.d;return h.d<=-2?`<span class="mark e">${s}</span>`:h.d===-1?`<span class="mark b">${s}</span>`:h.d>=2?`<span class="mark o">${s}</span>`:s};
   const strokes=agg(h=>h.par+h.d);
   const relRow=i=>typeof i==="string"?relTxt(agg(h=>+h.d||0)(i)):relTxt(hs[i].d);
+  // 9홀씩 한 표: 18홀도 옆으로 스크롤하지 않고 전반·후반 두 표로 화면 폭에 맞춘다
+  const card=(a,sk,sl)=>{
+    const row=(label,fn)=>{let t=`<tr><th>${label}</th>`;for(let i=a;i<a+9;i++)t+=`<td>${fn(i)}</td>`;return t+`<td class="sum">${fn(sk)}</td></tr>`};
+    return `<table class="card">
+      <colgroup><col style="width:15%">${"<col>".repeat(10)}</colgroup>
+      <tr><th>홀</th>${hs.slice(a,a+9).map((_,i)=>`<th>${a+i+1}</th>`).join("")}<th>${sl}</th></tr>
+      ${pk?row("파",agg(h=>h.par)):""}
+      ${pk?row("타수",i=>typeof i==="string"?strokes(i):mark(hs[i])):""}
+      ${row("±",relRow)}
+      ${det?row("퍼트",agg(h=>h.putts)):""}
+      ${det?row("FW",i=>typeof i==="string"?"":hs[i].par<4?"–":({L:"◀",H:"●",R:"▶"})[hs[i].fw]||""):""}
+      ${det?row("구질",i=>typeof i==="string"?"":(SHAPE_NAME[hs[i].shape]||"").slice(0,2)):""}
+    </table>`};
   const notes=[];
   if(!pk) notes.push("홀별 파를 모르는 기록이라 홀마다 파 대비 점수(±)와 총타만 표시합니다.");
   else if(!det) notes.push("퍼팅·페어웨이·구질 없이 가져온 기록입니다.");
@@ -1241,16 +1254,7 @@ function openRound(id,fresh){
     : `<div><b>${c.tot??"–"}</b><span>총타</span></div><div><b>${relTxt(c.rel)}</b><span>파 대비</span></div><div><b>${c.par??"–"}</b><span>파</span></div>`;
   $("roundBox").innerHTML=`${roundHero(r,c,fresh)}
     <section class="panel">
-    <div class="scroll" style="margin-top:0"><table class="card${two?"":" n9"}" ${two?`style="width:${44+21*38}px"`:""}>
-      <colgroup><col style="width:44px">${two?'<col style="width:38px">'.repeat(21):'<col>'.repeat(10)}</colgroup>
-      <tr><th>홀</th>${hs.map((_,i)=>(two&&i===9?`<th>전</th>`:"")+`<th>${i+1}</th>`).join("")}${two?"<th>후</th>":""}<th>계</th></tr>
-      ${pk?row("파",agg(h=>h.par)):""}
-      ${pk?row("타수",i=>typeof i==="string"?strokes(i):mark(hs[i])):""}
-      ${row("±",relRow)}
-      ${det?row("퍼트",agg(h=>h.putts)):""}
-      ${det?row("FW",i=>typeof i==="string"?"":hs[i].par<4?"–":({L:"◀",H:"●",R:"▶"})[hs[i].fw]||""):""}
-      ${det?row("구질",i=>typeof i==="string"?"":(SHAPE_NAME[hs[i].shape]||"").slice(0,2)):""}
-    </table></div>
+    ${two?card(0,"out","전반")+card(9,"in","후반"):card(0,"tot","계")}
     <div class="kv" style="margin-top:14px">${kv}</div>
     ${notes.map(t=>`<p class="note" style="margin:12px 0 0">${t}</p>`).join("")}
     </section>
