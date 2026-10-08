@@ -375,6 +375,12 @@ table.card.n9{min-width:0}
       <p class="msg" id="moreMsg" role="status"></p>
     </section>
     <section class="panel">
+      <h2>기본 코스</h2>
+      <p class="note" style="margin:0 0 12px">앱에 들어 있는 기본 코스 목록(현재 <span id="seedCount"></span>개)으로 내 코스를 다시 맞춥니다. 같은 골프장·코스가 있으면 홀별 파만 덮어쓰고, 없으면 새로 만듭니다. 직접 추가한 다른 코스는 그대로 둡니다.</p>
+      <button id="reseedBtn" class="big">기본 코스 다시 맞추기</button>
+      <p class="msg" id="reseedMsg" role="status"></p>
+    </section>
+    <section class="panel">
       <h2>기록 가져오기</h2>
       <p class="note" style="margin:0 0 12px">예전 기록을 JSON 파일로 한 번에 넣습니다. 버튼을 누르고 아이폰 ‘파일’ 앱에서 파일을 고르세요. 날짜·골프장·총타가 같은 라운드가 이미 있으면 중복으로 보고 건너뜁니다.</p>
       <button id="importBtn" class="big">기록 가져오기 (JSON)</button>
@@ -567,9 +573,11 @@ table.card.n9{min-width:0}
 import { firebaseConfig } from "./firebase-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, getDocsFromServer, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-/* 첫 로그인 때(그리고 목록에 새로 추가될 때) 자동 등록되는 기본 코스. 홀별 파는 각 골프장 공식 홈페이지 기준. */
+/* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
+   같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
+const COURSES_SEED_VERSION = 2;
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -581,7 +589,37 @@ const DEFAULT_COURSES = [
  {"club":"오크밸리CC","name":"오크","pars":[4,5,4,5,3,4,3,4,4]},
  {"club":"오크밸리CC","name":"메이플","pars":[4,4,3,4,4,5,4,3,5]},
  {"club":"오크밸리CC","name":"파인","pars":[4,4,3,4,5,4,3,4,5]},
- {"club":"오크밸리CC","name":"체리","pars":[4,3,4,4,4,3,5,4,5]}
+ {"club":"오크밸리CC","name":"체리","pars":[4,3,4,4,4,3,5,4,5]},
+ {"club":"음성 힐데스하임CC","name":"Hill","pars":[4,3,4,5,4,4,5,3,4]},
+ {"club":"음성 힐데스하임CC","name":"Valley","pars":[4,4,3,4,4,5,4,3,5]},
+ {"club":"음성 힐데스하임CC","name":"Lake","pars":[4,3,5,4,3,5,4,4,4]},
+ {"club":"라비에벨CC","name":"올드OUT","pars":[5,4,4,3,5,4,3,4,4]},
+ {"club":"라비에벨CC","name":"올드IN","pars":[4,5,3,4,4,5,4,3,4]},
+ {"club":"실크밸리GC","name":"Silk","pars":[5,4,3,4,4,5,3,4,4]},
+ {"club":"실크밸리GC","name":"Lake","pars":[4,4,5,3,4,3,5,4,4]},
+ {"club":"자유로CC","name":"대한","pars":[5,4,3,4,4,3,4,5,4]},
+ {"club":"자유로CC","name":"민국","pars":[4,5,3,4,4,4,3,5,4]},
+ {"club":"포천 힐마루CC","name":"브리즈","pars":[4,4,3,4,4,5,3,4,5]},
+ {"club":"포천 힐마루CC","name":"선샤인","pars":[5,4,3,4,5,3,4,3,5]},
+ {"club":"블루원 용인CC","name":"Middle","pars":[4,4,3,5,4,3,4,4,5]},
+ {"club":"블루원 용인CC","name":"West","pars":[5,4,3,4,4,4,3,5,4]},
+ {"club":"킹즈락CC","name":"East","pars":[4,5,3,5,3,4,4,4,4]},
+ {"club":"킹즈락CC","name":"West","pars":[5,4,4,3,5,4,4,3,4]},
+ {"club":"킹즈락CC","name":"South","pars":[4,4,5,3,4,4,5,3,4]},
+ {"club":"골프클럽Q","name":"Valley","pars":[5,4,4,4,3,4,3,4,5]},
+ {"club":"골프클럽Q","name":"Pampas","pars":[4,5,4,3,5,4,3,4,4]},
+ {"club":"알펜시아CC","name":"Lake","pars":[4,3,5,4,3,4,5,3,5]},
+ {"club":"알펜시아CC","name":"Forest","pars":[4,3,4,4,5,3,5,4,4]},
+ {"club":"알펜시아CC","name":"Meadow","pars":[4,4,3,5,4,4,3,5,4]},
+ {"club":"세이지우드 여수경도","name":"돌산도","pars":[4,4,4,3,4,5,3,4,5]},
+ {"club":"세이지우드 여수경도","name":"오동도","pars":[4,3,5,4,4,5,4,4,3]},
+ {"club":"세이지우드 여수경도","name":"금오도","pars":[4,4,3,4,5,4,3,5,4]},
+ {"club":"베뉴지CC","name":"G","pars":[4,4,4,3,4,5,4,3,5]},
+ {"club":"베뉴지CC","name":"New","pars":[4,3,4,4,3,4,5,4,5]},
+ {"club":"베뉴지CC","name":"Hill","pars":[4,4,3,5,4,3,4,4,5]},
+ {"club":"남원상록GC","name":"춘향","pars":[4,4,5,3,4,5,3,4,4]},
+ {"club":"남원상록GC","name":"몽룡","pars":[4,3,4,4,5,3,4,4,5]},
+ {"club":"스프링힐스CC","name":"스프링힐스","pars":[4,4,4,3,5,5,4,3,4]}
 ];
 const $ = id => document.getElementById(id);
 const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5];
@@ -1256,6 +1294,18 @@ $("exportBtn").onclick=async()=>{
   }catch(e){$("moreMsg").textContent="파일을 만들지 못했습니다 ("+(e.message||"오류")+")."}
 };
 
+/* ---------- 기본 코스 다시 맞추기 ---------- */
+$("seedCount").textContent=DEFAULT_COURSES.length;
+$("reseedBtn").onclick=async()=>{
+  const msg=t=>$("reseedMsg").textContent=t;
+  if(!curUid||!ccol){msg("로그인한 뒤에 할 수 있습니다.");return}
+  $("reseedBtn").disabled=true; msg("맞추는 중…");
+  try{ const r=await seedCourses(curUid,true);
+    msg(`완료: 새로 등록 ${r.added}개 · 파 수정 ${r.fixed}개 · 변경 없음 ${r.same}개`); }
+  catch(e){ msg(e&&e.code==="unavailable"?"인터넷에 연결된 상태에서 다시 눌러 주세요.":"맞추지 못했습니다 ("+(e.code||e.message||"오류")+")."); }
+  $("reseedBtn").disabled=false;
+};
+
 /* ---------- 기록 가져오기 (JSON, golf-scorebook-import-v1) ---------- */
 function importRound(x){
   if(!x||typeof x!=="object") return {error:"라운드 형식이 아님"};
@@ -1319,7 +1369,7 @@ $("importFile").onchange=async e=>{
 };
 
 /* ---------- Firebase: login · storage ---------- */
-let fs=null, auth=null, unsubs=[];
+let fs=null, auth=null, unsubs=[], curUid=null;
 function bg(fn){ // 기기에 먼저 저장하고 서버 업로드는 뒤에서 진행 (오프라인에서도 멈추지 않도록)
   try{ fn().catch(e=>setSync("err","저장 실패: "+(e.message||e.code))); return Promise.resolve(); }
   catch(e){ setSync("err","저장 실패: "+(e.message||e.code)); return Promise.reject(e); }
@@ -1341,23 +1391,28 @@ function syncFrom(snap){
 window.addEventListener("online",()=>setSync("","다시 연결됨 · 동기화 중…"));
 window.addEventListener("offline",()=>setSync("","오프라인 · 폰에 저장됨 (연결되면 업로드)"));
 
-async function seedCourses(uid){
+// 기본 코스 맞추기. force=false면 저장된 버전이 최신일 때 아무것도 하지 않음.
+// 서버 목록을 확인할 수 없으면(오프라인) 중복 생성을 막기 위해 건너뛰고 다음에 다시 시도한다.
+async function seedCourses(uid,force=false){
   const uref=doc(fs,"users",uid);
-  let seeded=[];
-  try{ const us=await getDoc(uref); seeded=(us.exists()&&us.data().seededCourses)||[]; }catch(e){ return; }
-  const todo=DEFAULT_COURSES.filter(c=>!seeded.includes(c.club+"|"+c.name));
-  if(!todo.length) return;
-  let existing=[];
-  try{ existing=(await getDocs(ccol.ref)).docs.map(d=>d.data()); }catch(e){ return; }
-  const batch=writeBatch(fs); let n=0;
-  todo.forEach(c=>{ if(!existing.some(x=>x.club===c.club&&x.name===c.name)){ batch.set(doc(ccol.ref),{club:c.club,name:c.name,pars:[...c.pars],createdAt:Date.now()}); n++; } });
-  batch.set(uref,{seededCourses:[...seeded,...todo.map(c=>c.club+"|"+c.name)]},{merge:true});
-  try{ await batch.commit(); }catch(e){}
+  if(!force){
+    try{ const us=await getDoc(uref); if(us.exists()&&(us.data().coursesSeedVersion||0)>=COURSES_SEED_VERSION) return null; }catch(e){ return null; }
+  }
+  const existing=(await getDocsFromServer(ccol.ref)).docs.map(d=>({ref:d.ref,...d.data()}));
+  const batch=writeBatch(fs); let added=0, fixed=0, same=0;
+  DEFAULT_COURSES.forEach(c=>{
+    const ex=existing.filter(x=>x.club===c.club&&x.name===c.name);
+    if(!ex.length){ batch.set(doc(ccol.ref),{club:c.club,name:c.name,pars:[...c.pars],createdAt:Date.now()}); added++; return; }
+    ex.forEach(x=>{ if(Array.isArray(x.pars)&&x.pars.join()===c.pars.join()) same++; else { batch.update(x.ref,{pars:[...c.pars]}); fixed++; } });
+  });
+  batch.set(uref,{coursesSeedVersion:COURSES_SEED_VERSION},{merge:true});
+  await batch.commit();
+  return {added,fixed,same};
 }
 
 function start(user){
   unsubs.forEach(u=>u()); unsubs=[];
-  const base=`users/${user.uid}`;
+  const base=`users/${user.uid}`; curUid=user.uid;
   rcol=colApi(base+"/rounds"); ccol=colApi(base+"/courses");
   userName=(user.displayName||"").trim().split(/\s+/)[0]||"";
   const ini=(user.displayName||user.email||"?").trim().charAt(0).toUpperCase();
@@ -1375,7 +1430,7 @@ function start(user){
     if(!$("scrSetup").hidden) {fillClubList();fillCourseSelects();}
     if(!$("scrCourses").hidden) renderCourses();
   }));
-  seedCourses(user.uid);
+  seedCourses(user.uid).catch(()=>{});
 }
 
 function authErr(e){
@@ -1401,7 +1456,7 @@ function loginRedirect(){
   getRedirectResult(auth).catch(e=>{ $("loginMsg").textContent=authErr(e); });
   onAuthStateChanged(auth,user=>{
     if(user){ start(user); }
-    else { unsubs.forEach(u=>u()); unsubs=[]; rcol=null; ccol=null; rounds=[]; courses=[]; cur=null;
+    else { unsubs.forEach(u=>u()); unsubs=[]; rcol=null; ccol=null; curUid=null; rounds=[]; courses=[]; cur=null;
       setSync("","로그인 필요"); show("Login"); }
   });
   $("loginBtn").onclick=async()=>{
