@@ -322,6 +322,13 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 #resumeBox:empty,.msg:empty{display:none}
 table.card th,table.card td{white-space:nowrap}
 table.card.n9{min-width:0}
+.ytable{border-collapse:separate;border-spacing:0;font-size:13.5px;width:100%;font-variant-numeric:tabular-nums}
+.ytable th,.ytable td{padding:9px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+.ytable thead th{font-family:var(--f-display);font-size:16px;font-weight:500;color:var(--ink);border-bottom:1.5px solid var(--ink)}
+.ytable tbody th{text-align:left;font-weight:600;color:var(--muted);font-size:12.5px;position:sticky;left:0;background:var(--paper);z-index:1}
+.ytable thead th:first-child{position:sticky;left:0;background:var(--paper);z-index:1}
+.ytable tr.hl td{font-weight:700;color:var(--accent)}
+.ytable tbody tr:last-child th,.ytable tbody tr:last-child td{border-bottom:0}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -402,6 +409,7 @@ table.card.n9{min-width:0}
     </div>
     <section class="tiles" id="tiles"></section>
     <p class="note" id="statsBasis" style="margin:-6px 0 0"></p>
+    <section class="panel"><h2>연도별 집계</h2><div id="yearBox"></div></section>
     <section class="panel"><h2>스코어 추이</h2><div id="trend"></div></section>
     <section class="panel"><h2>홀 결과 분포</h2><div id="dist"></div></section>
     <section class="panel"><h2>티샷 · 페어웨이</h2><div id="fwBox"></div></section>
@@ -799,6 +807,7 @@ function renderStats(){
   if(!rs.length){
     $("trend").innerHTML=`<p class="note" style="margin:0">라운드를 기록하면 스코어 추이가 여기에 그려집니다.</p>`;
   } else renderTrend([...rs].reverse());
+  renderYearly();
   // distribution: 파 대비 점수(d)만 있으면 되므로 파를 모르는 과거 홀별 기록도 포함
   const bins=[["버디 이하",d=>d<=-1,"var(--under)"],["파",d=>d===0,"var(--accent-soft)"],["보기",d=>d===1,"var(--even)"],["더블",d=>d===2,"var(--over)"],["트리플+",d=>d>=3,"var(--danger)"]];
   const dH=rs.filter(r=>!isTotal(r)).flatMap(r=>r.holes).filter(h=>typeof h.d==="number");
@@ -822,6 +831,31 @@ function renderStats(){
       const hs=shots.filter(h=>h.shape===s[0]); const fwH=hs.filter(h=>h.par>=4&&h.fw==="H").length, fwT=hs.filter(h=>h.par>=4&&h.fw).length;
       return barRow(s[1],s[2],hs.length,tot,`${pct(hs.length,tot)} · FW ${fwT?pct(fwH,fwT):"–"}`)}).join("")}</div>
     <p class="note" style="margin:10px 0 0">막대 = 전체 티샷 중 비율 · FW = 그 구질일 때 페어웨이 적중률</p>`;
+}
+/* 연도별 집계: 위 '최근 5/10/전체' 선택과 상관없이 모든 연도. 9홀 라운드는 제외(따로 개수만 표시). */
+function renderYearly(){
+  const box=$("yearBox"), all=doneRounds();
+  const years=[...new Set(all.map(r=>r.date.slice(0,4)))].sort().reverse();
+  if(!years.length){box.innerHTML=`<p class="note" style="margin:0">라운드를 기록하면 연도별 라운드 수·평균·핸디·적중률이 여기에 정리됩니다.</p>`;return}
+  const f1=v=>v==null||isNaN(v)?"–":v.toFixed(1), pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
+  const cols=years.map(y=>{
+    const yr=all.filter(r=>r.date.startsWith(y)), rs=yr.filter(r=>!is9(r)), n9=yr.length-rs.length;
+    const sc=rs.map(scoreOf), tots=sc.map(c=>c.tot).filter(v=>typeof v==="number");
+    const rels=sc.map(c=>c.rel!=null?c.rel:(typeof c.tot==="number"?c.tot-72:null)).filter(v=>v!=null);
+    const cs=rs.filter(hasDetail).map(roundCalc), n=cs.length, sum=k=>cs.reduce((a,c)=>a+c[k],0);
+    const dH=rs.filter(r=>!isTotal(r)).flatMap(r=>r.holes).filter(h=>typeof h.d==="number");
+    const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+    return {y, rounds:rs.length, n9, avg:avg(tots), best:tots.length?Math.min(...tots):null, hdcp:avg(rels),
+      putts:n?sum("putts")/n:null, fw:pct(sum("fwH"),sum("fwN")), gir:pct(sum("gir"),sum("n")),
+      three:n?sum("three")/n:null, ob:n?sum("ob")/n:null, birdie:dH.length?dH.filter(h=>h.d<=-1).length:null,
+      parPct:pct(dH.filter(h=>h.d===0).length,dH.length), detail:n};
+  });
+  const rows=[["라운드 수",c=>c.rounds||"–"],["평균 타수",c=>f1(c.avg)],["베스트",c=>c.best??"–"],["핸디",c=>c.hdcp==null?"–":(c.hdcp>0?"+":"")+c.hdcp.toFixed(1)],
+    ["평균 퍼팅",c=>f1(c.putts)],["페어웨이 적중",c=>c.fw],["그린 적중",c=>c.gir],["3퍼트/라운드",c=>f1(c.three)],["OB/라운드",c=>f1(c.ob)],
+    ["버디 이하",c=>c.birdie??"–"],["파 비율",c=>c.parPct],["홀별 기록",c=>c.detail?c.detail+"라운드":"–"],["9홀 (제외)",c=>c.n9||"–"]];
+  box.innerHTML=`<div class="scroll"><table class="ytable"><thead><tr><th></th>${cols.map(c=>`<th>${c.y}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(([k,fn],i)=>`<tr class="${i===3?"hl":""}"><th>${k}</th>${cols.map(c=>`<td>${fn(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <p class="note" style="margin:10px 0 0">18홀 라운드 기준 · 핸디 = 평균 (타수 − 파), 파를 모르면 72로 계산 · 퍼팅·적중률·3퍼트·OB는 홀별로 기록한 라운드만 · 9홀 라운드는 개수만 표시</p>`;
 }
 function barRow(k,sub,v,max,txt){return `<div class="bar"><div class="k">${k}${sub?`<small>${sub}</small>`:""}</div><div class="t"><i style="width:${max?v/max*100:0}%"></i></div><div class="v">${txt}</div></div>`}
 
