@@ -177,7 +177,10 @@ table.card td.sum{font-weight:700;background:var(--accent-soft)}
 .pars button.p3{background:var(--accent-soft)}
 .pars button.p5{background:var(--bg);border-color:var(--ink)}
 /* PWA: status bar area (black-translucent) + login */
-body{margin:0;padding-top:env(safe-area-inset-top,0px)}
+/* 문서 전체가 아니라 #scroller 안에서만 스크롤: iOS 홈 화면 앱에서 하단 고정 바가 바닥에서 뜨는 문제 방지 */
+html,body{height:100%;overflow:hidden}
+body{margin:0}
+#scroller{position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-top:env(safe-area-inset-top,0px)}
 .statusbar{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:20}
 .who{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .who button{padding:6px 10px;font-size:12px}
@@ -289,6 +292,7 @@ table.card th,table.card td{white-space:nowrap}
 </head>
 <body>
 <div class="statusbar"></div>
+<div id="scroller">
 <div class="wrap">
   <header class="top" id="topBar">
     <div class="tt">
@@ -492,6 +496,7 @@ table.card th,table.card td{white-space:nowrap}
     </section>
   </section>
 </div>
+</div>
 
 <nav class="tabbar" id="tabBar" hidden>
   <div class="in">
@@ -544,6 +549,7 @@ let userName="";
 const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],
   Round:["Scorecard","라운드 기록"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"]};
 const TAB_SCREENS=["Home","Stats","Courses","More"];
+function scrollTop(){$("scroller").scrollTop=0}
 function show(name){
   ["Login","Home","Stats","Setup","Play","Round","Courses","Info","More"].forEach(n=>$("scr"+n).hidden = n!==name);
   $("bottomNav").hidden = name!=="Play";
@@ -554,7 +560,7 @@ function show(name){
   $("avatar").hidden = name!=="Home";
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
   $("topEyebrow").textContent=eb; $("topTitle").textContent=tt;
-  window.scrollTo(0,0);
+  scrollTop();
 }
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{show("Home");renderHome()});
 
@@ -866,7 +872,7 @@ $("scrPlay").addEventListener("click",e=>{
 });
 function goNext(){
   cur.holes[hole].done=true;
-  if(hole<17){hole++;queueSave();flush();renderPlay();$("heard").textContent="";window.scrollTo(0,0);return}
+  if(hole<17){hole++;queueSave();flush();renderPlay();$("heard").textContent="";scrollTop();return}
   const missing=cur.holes.map((x,i)=>x.done?null:i+1).filter(Boolean);
   if(missing.length){$("heard").className="heard err";$("heard").textContent=`아직 안 넘긴 홀: ${missing.join(", ")}번. 그대로 완료하려면 한 번 더 누르세요.`;
     if(!goNext.confirm){goNext.confirm=true;return}}
@@ -875,7 +881,7 @@ function goNext(){
   [cur.front.courseId,cur.back.courseId].forEach(cid=>{const c=courses.find(x=>x.id===cid); if(c&&c.unverified&&ccol){c.unverified=false; ccol.doc(cid).update({unverified:false}).catch(()=>{})}});
   const id=cur.id; setTimeout(()=>openRound(id,true),50);
 }
-$("nextBtn").onclick=()=>{ if(cur.status==="done"){ if(hole<17){hole++;flush();renderPlay();window.scrollTo(0,0)} } else goNext(); };
+$("nextBtn").onclick=()=>{ if(cur.status==="done"){ if(hole<17){hole++;flush();renderPlay();scrollTop()} } else goNext(); };
 $("doneEditBtn").onclick=async()=>{await flush();openRound(cur.id)};
 $("prevBtn").onclick=()=>{if(hole>0){hole--;flush();renderPlay();$("heard").textContent=""}};
 $("toTotalBtn").onclick=()=>{$("toTotalBox").hidden=false;$("ttMsg").textContent="";
