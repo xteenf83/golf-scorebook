@@ -372,6 +372,10 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
 .field.now>.lab>span:first-child::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px}
 #nextBtn.go{animation:gopulse 1.4s ease-in-out 2}
 @keyframes gopulse{50%{box-shadow:0 0 0 6px var(--accent-soft)}}
+/* 지우기(×) 버튼이 붙은 입력칸 */
+.clr{position:relative;display:block}
+.clr input{padding-right:40px}
+.clr .x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:var(--muted);font-size:20px;font-weight:500;line-height:1}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -473,7 +477,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
         <span class="note" id="holesNote" hidden>9홀 라운드는 기록 목록에만 남고 통계에는 들어가지 않습니다.</span></div>
       <div class="grid2">
         <label>날짜<input type="date" id="sDate"></label>
-        <label>골프장<input id="sClub" list="clubList" placeholder="예: 서원힐스CC" autocomplete="off"><datalist id="clubList"></datalist></label>
+        <label>골프장<span class="clr"><input id="sClub" list="clubList" placeholder="예: 서원힐스CC" autocomplete="off"><button type="button" class="x" aria-label="골프장 이름 지우기">×</button></span><datalist id="clubList"></datalist></label>
         <label><span id="sFrontLbl">전반 코스</span><select id="sFront"></select></label>
         <label id="sBackWrap">후반 코스<select id="sBack"></select></label>
         <label class="full" id="newCourseWrap" hidden>새 코스 이름 (9홀 단위)<input id="sNewCourse" placeholder="예: 레이크" autocomplete="off"></label>
@@ -572,7 +576,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
       <h2>라운드 정보 수정</h2>
       <div class="grid2">
         <label>날짜<input type="date" id="iDate"></label>
-        <label>골프장<input id="iClub" list="clubList" autocomplete="off"></label>
+        <label>골프장<span class="clr"><input id="iClub" list="clubList" autocomplete="off"><button type="button" class="x" aria-label="골프장 이름 지우기">×</button></span></label>
         <label><span id="iFrontLbl">전반 코스</span><select id="iFront"></select></label>
         <label id="iBackWrap">후반 코스<select id="iBack"></select></label>
       </div>
@@ -631,7 +635,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v30";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v31";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -876,6 +880,7 @@ function startNewRound(){
   if(!rcol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
   $("sDate").value=today(); fillClubList();
   const last=doneRounds()[0]; if(last && !$("sClub").value) $("sClub").value=last.club;
+  syncClears();
   fillCourseSelects(); $("setupMsg").textContent=""; show("Setup");
 }
 $("tabBar").onclick=e=>{const t=e.target.closest("[data-tab]"); if(!t) return; const k=t.dataset.tab;
@@ -1036,6 +1041,17 @@ $("modeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;setupMo
   [...$("modeSeg").children].forEach(x=>x.classList.toggle("on",x===b));
   $("totalBox").hidden=setupMode!=="total"; $("startBtn").textContent=setupMode==="total"?"라운드 저장":"1번 홀부터 시작"};
 $("sClub").addEventListener("input",fillCourseSelects);
+/* 미리 채워진 골프장 이름: 칸을 누르면 전체 선택(바로 타이핑하면 바뀜), 오른쪽 ×로 한 번에 지우기 */
+document.querySelectorAll(".clr").forEach(w=>{
+  const inp=w.querySelector("input"), x=w.querySelector(".x");
+  const sync=()=>x.hidden=!inp.value;
+  inp.addEventListener("input",sync);
+  inp.addEventListener("focus",()=>setTimeout(()=>{ try{inp.setSelectionRange(0,inp.value.length)}catch(e){} },0));
+  x.addEventListener("click",e=>{e.preventDefault(); inp.value=""; inp.dispatchEvent(new Event("input",{bubbles:true})); inp.focus()});
+  sync();
+  w.syncClear=sync;
+});
+const syncClears=()=>document.querySelectorAll(".clr").forEach(w=>w.syncClear&&w.syncClear());
 $("sFront").onchange=updSetupInfo; $("sBack").onchange=updSetupInfo;
 async function resolveCourse(sel, club, newName, fallback){
   if(sel!=="__new"){const c=courses.find(x=>x.id===sel);return {courseId:c.id,course:c.name,pars:[...c.pars]}}
@@ -1222,7 +1238,7 @@ function infoFill(){
 }
 function openInfo(from){
   infoFrom=from; fillClubList();
-  $("iDate").value=cur.date; $("iClub").value=cur.club; infoFill(); $("infoMsg").textContent=""; show("Info");
+  $("iDate").value=cur.date; $("iClub").value=cur.club; syncClears(); infoFill(); $("infoMsg").textContent=""; show("Info");
 }
 $("iClub").addEventListener("input",infoFill);
 $("playInfo").onclick=()=>{flush();openInfo("play")};
