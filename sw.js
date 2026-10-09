@@ -1,6 +1,6 @@
 // 오프라인 캐시: 앱 화면 파일은 "인터넷 먼저, 안 되면 저장본", 라이브러리·글꼴은 "저장본 먼저".
 // 데이터(Firestore)와 로그인 요청은 건드리지 않습니다 — Firestore가 자체적으로 오프라인 저장을 합니다.
-const CACHE = "golf-scorebook-v29";
+const CACHE = "golf-scorebook-v30";
 const SHELL = ["./", "./index.html", "./firebase-config.js", "./manifest.webmanifest",
   "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 const CDN_HOSTS = ["www.gstatic.com", "fonts.googleapis.com", "fonts.gstatic.com"];
@@ -51,4 +51,13 @@ self.addEventListener("fetch", e => {
              (url.hostname !== "www.gstatic.com" || url.pathname.startsWith("/firebasejs/"))) {
     e.respondWith(cacheFirst(req));
   }
+});
+
+// 라운드 진행 중 알림을 누르면: 열려 있는 앱 창이 있으면 그 창으로, 없으면 앱을 새로 연다
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    for (const c of list) if ("focus" in c) return c.focus();
+    return self.clients.openWindow("./");
+  }));
 });
