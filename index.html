@@ -345,6 +345,26 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
 .holecard .holefoot{padding-top:8px}
 .holecard .sync{margin-top:-4px}
 .opt{min-height:46px;padding:7px 2px}
+/* 홈 카드 묶음: 옆으로 넘기면 다음 카드 (scroll-snap) */
+.cards{display:grid;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
+.cards::-webkit-scrollbar{display:none}
+.cards>.hero{scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column}
+.cards>.hero .row3{margin-top:auto}
+.sparkbox{position:relative;display:flex;flex:1 1 60px;min-height:60px;margin:8px 0 10px}
+.sparkbox svg.spark{height:auto;margin:0;flex:1}
+.sparkdot{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--gold)}
+.dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+.dots:empty{display:none}
+.dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:width .2s}
+.dots i.on{width:16px;background:var(--accent)}
+.loss .herotitle{font-size:21px;margin:6px 0 2px}
+.loss .sub{font-size:12.5px;opacity:.75}
+.lbars{display:flex;flex-direction:column;gap:7px;margin:14px 0 12px}
+.lb{display:grid;grid-template-columns:52px 1fr 48px;gap:10px;align-items:center;font-size:12.5px}
+.lb span{opacity:.8}
+.lb i{height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
+.lb i b{display:block;height:100%;background:var(--gold);border-radius:4px}
+.lb em{font-style:normal;font-family:var(--f-display);font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -378,7 +398,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
   <!-- HOME -->
   <section class="screen" id="scrHome" hidden>
     <div id="resumeBox"></div>
-    <section class="hero" id="hero"></section>
+    <div><section class="cards" id="hero"></section><div class="dots" id="heroDots"></div></div>
     <p class="msg err" id="homeMsg" role="status"></p>
     <div class="sechead"><b>최근 라운드</b><button class="linkbtn acc" id="allToggle" hidden>전체 보기 ›</button></div>
     <div class="rounds" id="roundList"><div class="empty"><b>불러오는 중…</b></div></div>
@@ -604,7 +624,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v18";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v19";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -767,9 +787,10 @@ function renderHero(){
   const all=statRounds(), hero=$("hero");
   if(!all.length){
     const only9=doneRounds().length>0;
-    hero.innerHTML=`<div class="lab">Golf Scorebook</div><div class="herotitle">${only9?"18홀 라운드를<br>기록해 보세요":"첫 라운드를<br>기록해 보세요"}</div>
+    $("heroDots").innerHTML="";
+    hero.innerHTML=`<section class="hero"><div class="lab">Golf Scorebook</div><div class="herotitle">${only9?"18홀 라운드를<br>기록해 보세요":"첫 라운드를<br>기록해 보세요"}</div>
       <p class="herotext">${only9?"평균·베스트·흐름은 18홀 라운드로만 계산합니다. 9홀 라운드는 아래 기록 목록에서 볼 수 있어요.":"홀별로 스코어·퍼팅·페어웨이·구질을 남기면 평균 타수와 약점이 여기에 정리됩니다. 총 타수만 빠르게 기록할 수도 있어요."}</p>
-      <button class="light" id="heroStart">＋ 새 라운드 시작</button>`;
+      <button class="light" id="heroStart">＋ 새 라운드 시작</button></section>`;
     $("heroStart").onclick=startNewRound; return;
   }
   const sc=r=>scoreOf(r).tot, avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
@@ -789,16 +810,49 @@ function renderHero(){
     const x=i=>(W-8)*i/(pts.length-1)+4, y=v=>6+(H-12)*(v-lo)/rg;
     const line=pts.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
     const L=pts.length-1;
-    spark=`<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="최근 스코어 흐름">
+    // 카드 높이에 맞춰 늘어나는 그래프: 끝점은 SVG 밖의 원으로 그려 찌그러지지 않게 한다
+    spark=`<div class="sparkbox"><svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="최근 스코어 흐름">
       <path d="${line}L${x(L)},${H}L${x(0)},${H}Z" fill="rgba(255,255,255,.08)"/>
       <path d="${line}" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-      <circle cx="${x(L)}" cy="${y(pts[L])}" r="4" fill="var(--gold)"/></svg>`;
+      </svg><i class="sparkdot" style="left:${(x(L)/W*100).toFixed(2)}%;top:${(y(pts[L])/H*100).toFixed(2)}%"></i></div>`;
   }
-  hero.innerHTML=`<div class="lab">최근 ${last.length}라운드 평균</div>
+  const slides=[`<section class="hero"><div class="lab">최근 ${last.length}라운드 평균</div>
     <div class="big"><b>${a5.toFixed(1)}</b>${chip}</div>${spark}
     <div class="row3"><div><b>${Math.min(...all.map(sc))}</b><span>베스트</span></div>
       <div><b>${fwN?Math.round(fwH/fwN*100)+"%":"–"}</b><span>페어웨이</span></div>
-      <div><b>${putt}</b><span>평균 퍼팅</span></div></div>`;
+      <div><b>${putt}</b><span>평균 퍼팅</span></div></div></section>`, lossSlide(all)].filter(Boolean);
+  // 옆으로 넘기는 카드 묶음: 다시 그려도 보던 카드 위치를 유지
+  const keep=hero.scrollLeft;
+  hero.innerHTML=slides.join("");
+  hero.scrollLeft=keep;
+  const dots=()=>{const i=Math.round(hero.scrollLeft/Math.max(hero.clientWidth,1));
+    $("heroDots").innerHTML=slides.length>1?slides.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join(""):""};
+  hero.onscroll=dots; dots();
+}
+/* 두 번째 카드: 최근 라운드에서 타수를 어디서 잃었는지. 파 대비 점수(d)만 있는 기록으로도 계산되고,
+   홀별 파·퍼팅이 있으면 파3/4/5별 평균과 3퍼트까지 더한다. */
+function lossSlide(all){
+  const rs=all.slice(0,10).filter(r=>!isTotal(r)&&Array.isArray(r.holes)); if(!rs.length) return "";
+  const n=rs.length, hs=rs.flatMap(r=>r.holes), d=h=>+h.d||0;
+  const per=f=>hs.reduce((a,h)=>a+f(h),0)/n;
+  const bogey=per(h=>d(h)===1?1:0), dbl=per(h=>d(h)===2?2:0), tri=per(h=>d(h)>=3?d(h):0);
+  const lost=bogey+dbl+tri;
+  const saveDbl=per(h=>d(h)>=2?d(h)-1:0);
+  const det=rs.filter(hasDetail), save3=det.length?det.flatMap(r=>r.holes).reduce((a,h)=>a+Math.max(0,h.putts-2),0)/det.length:0;
+  const [head,sub]= save3>saveDbl
+    ? [`3퍼트를 2퍼트로 줄이면<br>라운드당 −${save3.toFixed(1)}타`,`홀별 퍼팅 기록 ${det.length}라운드 기준`]
+    : [`더블 이상을 보기로 막으면<br>라운드당 −${saveDbl.toFixed(1)}타`,`더블 이상에서 라운드당 ${(dbl+tri).toFixed(1)}타를 잃고 있어요`];
+  const bar=(k,v)=>`<div class="lb"><span>${k}</span><i><b style="width:${lost?Math.round(v/lost*100):0}%"></b></i><em>${v.toFixed(1)}타</em></div>`;
+  const avgD=list=>list.length?list.reduce((a,h)=>a+d(h),0)/list.length:null, sg=v=>v==null?"–":(v>0?"+":"")+v.toFixed(1);
+  const byPar=[3,4,5].map(p=>avgD(hs.filter(h=>h.par===p)));
+  const half=k=>sg(rs.reduce((a,r)=>a+r.holes.slice(k,k+9).reduce((x,h)=>x+d(h),0),0)/n);
+  const cells = byPar.some(v=>v!=null)
+    ? byPar.map((v,i)=>`<div><b>${sg(v)}</b><span>파${i+3} 홀 평균</span></div>`).join("")
+    : `<div><b>${half(0)}</b><span>전반 평균</span></div><div><b>${half(9)}</b><span>후반 평균</span></div><div><b>${Math.round(hs.filter(h=>d(h)<=0).length/hs.length*100)}%</b><span>파 이하 홀</span></div>`;
+  return `<section class="hero loss"><div class="lab">타수 잃는 곳 · 최근 ${n}라운드</div>
+    <div class="herotitle">${head}</div><div class="sub">${sub}</div>
+    <div class="lbars">${bar("보기",bogey)}${bar("더블",dbl)}${bar("트리플+",tri)}</div>
+    <div class="row3">${cells}</div></section>`;
 }
 function startNewRound(){
   if(!rcol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
