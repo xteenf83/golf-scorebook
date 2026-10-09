@@ -631,7 +631,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v24";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v25";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -819,11 +819,11 @@ function renderHero(){
   const full=last.filter(hasDetail).map(roundCalc);
   const fwN=full.reduce((a,c)=>a+c.fwN,0), fwH=full.reduce((a,c)=>a+c.fwH,0);
   const putt=full.length?(full.reduce((a,c)=>a+c.putts,0)/full.length).toFixed(1):"–";
-  // sparkline: 최근 10라운드, 좋은 스코어(낮은 타수)일수록 위
+  // sparkline: 최근 10라운드, 통계 그래프처럼 위로 갈수록 큰 타수
   const pts=all.slice(0,10).reverse().map(sc); let spark="";
   if(pts.length>=2){
     const W=300,H=60,lo=Math.min(...pts),hi=Math.max(...pts),rg=Math.max(hi-lo,4);
-    const x=i=>(W-8)*i/(pts.length-1)+4, y=v=>6+(H-12)*(v-lo)/rg;
+    const x=i=>(W-8)*i/(pts.length-1)+4, y=v=>H-6-(H-12)*(v-lo)/rg;
     const line=pts.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
     const L=pts.length-1;
     // 카드 높이에 맞춰 늘어나는 그래프: 끝점은 SVG 밖의 원으로 그려 찌그러지지 않게 한다
