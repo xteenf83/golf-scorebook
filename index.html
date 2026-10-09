@@ -631,7 +631,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v29";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v30";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1144,7 +1144,29 @@ function setPar(p){
   const half=hole<9?"front":"back"; cur[half].pars[hole%9]=p; saveCoursePars(cur[half].courseId,cur[half].pars);
   const crs=courses.find(c=>c.id===cur[half].courseId); if(crs) crs.pars[hole%9]=p;
 }
+/* 잠금 화면 알림(실험): 라운드 중 앱을 벗어나거나 폰을 잠그면 "N번 홀 — 눌러서 이어서 입력" 알림을 띄우고,
+   다시 앱으로 돌아오면 지운다. 알림을 누르면 sw.js가 앱을 열고, 앱은 보던 홀로 바로 간다(autoResume).
+   서버 없이 앱이 직접 띄우는 방식이라 아이폰이 앱을 너무 빨리 멈추면 알림이 안 뜰 수 있다. */
+const canNotify = "Notification" in window && "serviceWorker" in navigator;
+let notifyAsked=false;
+function askNotify(){   // 권한 요청은 버튼을 누를 때만 가능 → 홀 화면에서 처음 버튼을 누를 때 한 번 묻는다
+  if(notifyAsked||!canNotify||Notification.permission!=="default") return;
+  notifyAsked=true; try{ Notification.requestPermission().catch(()=>{}) }catch(e){}
+}
+function roundNotify(show){
+  if(!canNotify||Notification.permission!=="granted") return;
+  navigator.serviceWorker.ready.then(reg=>{
+    if(show&&cur&&cur.status==="playing"&&cur.holes)
+      return reg.showNotification("라운드 진행 중",{tag:"round",body:`${cur.club} · ${hole+1}번 홀 — 눌러서 이어서 입력`,icon:"icons/icon-192.png",badge:"icons/icon-192.png"});
+    return reg.getNotifications({tag:"round"}).then(ns=>ns.forEach(n=>n.close()));
+  }).catch(()=>{});
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden"){ if(!$("scrPlay").hidden) { flush(); roundNotify(true); } }
+  else roundNotify(false);
+});
 $("scrPlay").addEventListener("click",e=>{
+  askNotify();
   const b=e.target.closest("button"); if(!b||b.disabled||!cur||!cur.holes) return; const h=cur.holes[hole];
   if(b.dataset.h!==undefined){hole=+b.dataset.h;flush();renderPlay();$("heard").textContent="";return}
   if(b.dataset.par){setPar(+b.dataset.par);touch();markStep(false);return}
