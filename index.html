@@ -624,7 +624,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v20";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v21";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -777,8 +777,17 @@ function renderHome(){
   const playing = rounds.filter(r=>r.status==="playing").sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
   if(playing){
     const n=playing.holes.filter(h=>h.done).length;
-    $("resumeBox").innerHTML=`<div class="resume"><div><span class="live"><i></i>진행 중</span><b>${esc(playing.club)}</b><span class="note">${[playing.date, esc(courseTxt(playing)), n+"/"+playing.holes.length+"홀 입력"].filter(Boolean).join(" · ")}</span></div><button class="primary" id="resumeBtn">이어서 입력</button></div>`;
-    $("resumeBtn").onclick=()=>openPlay(playing.id);
+    // 진행 중 라운드: 이어서 입력 / 삭제 (삭제는 한 번 더 확인)
+    const acts=confirm=>{ $("resumeActs").innerHTML = confirm
+        ? `<span class="note" style="flex-basis:100%">이 라운드를 삭제할까요? 되돌릴 수 없어요.</span><button class="danger" id="resumeDelYes">삭제</button><button class="ghost" id="resumeDelNo">취소</button>`
+        : `<button class="primary" id="resumeBtn">이어서 입력</button><button class="ghost" id="resumeDel">삭제</button>`;
+      if(confirm){
+        $("resumeDelYes").onclick=async()=>{ if(cur&&cur.id===playing.id) cur=null; try{await rcol.doc(playing.id).delete()}catch(e){};
+          rounds=rounds.filter(r=>r.id!==playing.id); renderHome() };
+        $("resumeDelNo").onclick=()=>acts(false);
+      } else { $("resumeBtn").onclick=()=>openPlay(playing.id); $("resumeDel").onclick=()=>acts(true) } };
+    $("resumeBox").innerHTML=`<div class="resume"><div><span class="live"><i></i>진행 중</span><b>${esc(playing.club)}</b><span class="note">${[playing.date, esc(courseTxt(playing)), n+"/"+playing.holes.length+"홀 입력"].filter(Boolean).join(" · ")}</span></div><div class="row" id="resumeActs"></div></div>`;
+    acts(false);
   } else $("resumeBox").innerHTML="";
   renderHero();
   renderRoundList();
