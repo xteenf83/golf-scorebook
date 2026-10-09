@@ -631,7 +631,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
 const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v23";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v24";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -962,16 +962,17 @@ function renderTrend(pts){
   const W=600,H=190,L=34,R=14,T=16,B=24;
   let lo=Math.floor((Math.min(...s)-2)/5)*5, hi=Math.ceil((Math.max(...s)+2)/5)*5; if(hi-lo<10)hi=lo+10;
   const x=i=>L+(W-L-R)*i/(pts.length-1), y=v=>T+(H-T-B)*(v-lo)/(hi-lo); // lower score drawn higher
-  const yy=y;   // 낮은 타수(좋은 스코어)가 위 — 홈 카드 그래프·캡션과 같은 방향
+  const yy=v=>H-B-(y(v)-T);   // 일반 그래프처럼 위로 갈수록 큰 숫자 (좋은 스코어는 아래)
   let g=""; const step=(hi-lo)>30?10:5;
   for(let v=lo;v<=hi;v+=step) g+=`<line x1="${L}" x2="${W-R}" y1="${yy(v)}" y2="${yy(v)}" stroke="var(--line)"/><text x="${L-6}" y="${yy(v)+3}" text-anchor="end">${v}</text>`;
   const line=s.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${yy(v).toFixed(1)}`).join("");
   const last=s.length-1;
   // 추세선: 라운드 순서에 대한 최소제곱 직선 (4라운드 이상일 때)
-  let trend="", trendTxt="";
+  let trend="", trendTxt="", trendEnd=null;
   if(s.length>=4){
     const n=s.length, mx=(n-1)/2, my=s.reduce((a,v)=>a+v,0)/n;
     const k=s.reduce((a,v,i)=>a+(i-mx)*(v-my),0)/s.reduce((a,_,i)=>a+(i-mx)**2,0), at=i=>my+k*(i-mx);
+    trendEnd=yy(at(last));
     trend=`<line x1="${x(0)}" y1="${yy(at(0)).toFixed(1)}" x2="${x(last)}" y2="${yy(at(last)).toFixed(1)}" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="6 5" stroke-linecap="round"/>`;
     const per10=k*10;
     trendTxt = Math.abs(per10)<0.5 ? "점선은 추세 · 거의 변화 없음"
@@ -982,9 +983,9 @@ function renderTrend(pts){
     ${trend}
     <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/>
     ${s.map((v,i)=>`<circle cx="${x(i)}" cy="${yy(v)}" r="${i===last?5:2.8}" fill="${i===last?"var(--accent)":"var(--paper)"}" stroke="var(--accent)" stroke-width="1.6"><title>${pts[i].date} ${esc(pts[i].club)} ${v}</title></circle>`).join("")}
-    <text x="${x(last)-8}" y="${yy(s[last])-10}" text-anchor="end" style="fill:var(--ink);font-weight:600">${s[last]}</text>
+    <text x="${x(last)-8}" y="${(()=>{const py=yy(s[last]);return trendEnd!=null&&trendEnd>py-24&&trendEnd<py?py+17:py-10})()}" text-anchor="end" style="fill:var(--ink);font-weight:600">${s[last]}</text>
     <text x="${x(0)}" y="${H-6}">${pts[0].date.slice(2).replace(/-/g,".")}</text><text x="${x(last)}" y="${H-6}" text-anchor="end">${pts[last].date.slice(2).replace(/-/g,".")}</text>
-  </svg><p class="note" style="margin:4px 0 0">위로 갈수록 좋은 스코어${trendTxt?" · "+trendTxt:""}</p>`;
+  </svg><p class="note" style="margin:4px 0 0">아래로 갈수록 좋은 스코어${trendTxt?" · "+trendTxt:""}</p>`;
 }
 
 let showAll=false;
