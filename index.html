@@ -334,6 +334,8 @@ table.card{table-layout:fixed;min-width:0}
 table.card+table.card{margin-top:12px}
 table.card td,table.card th{overflow:hidden;padding:5px 0}
 table.card th:first-child{font-size:10.5px}
+table.card tr.drow td{font-size:10px;letter-spacing:-.4px;color:var(--muted)}
+table.card th .dl{display:block;font-size:9px;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
 table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:border-box}
 .yearbtn{min-height:40px;padding:8px 14px;font-size:13px;border-radius:10px}
 .yearbtn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -489,6 +491,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
         <label>골프장<span class="clr"><input id="sClub" list="clubList" placeholder="예: 서원힐스CC" autocomplete="off"><button type="button" class="x" aria-label="골프장 이름 지우기">×</button></span><datalist id="clubList"></datalist></label>
         <label><span id="sFrontLbl">전반 코스</span><select id="sFront"></select></label>
         <label id="sBackWrap">후반 코스<select id="sBack"></select></label>
+        <label>티<select id="sTee"></select></label>
         <label class="full" id="newCourseWrap" hidden>새 코스 이름 (9홀 단위)<input id="sNewCourse" placeholder="예: 레이크" autocomplete="off"></label>
         <div class="full grid2" id="totalBox" hidden>
           <label class="full">총 타수<input type="number" id="tTotal" inputmode="numeric" min="50" max="200" placeholder="예: 92"></label>
@@ -589,6 +592,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
         <label>골프장<span class="clr"><input id="iClub" list="clubList" autocomplete="off"><button type="button" class="x" aria-label="골프장 이름 지우기">×</button></span></label>
         <label><span id="iFrontLbl">전반 코스</span><select id="iFront"></select></label>
         <label id="iBackWrap">후반 코스<select id="iBack"></select></label>
+        <label>티<select id="iTee"></select></label>
       </div>
       <p class="note" id="infoNote" style="margin:10px 0 0">코스를 바꾸면 해당 9홀의 파가 새 코스 기준으로 바뀝니다. 이미 입력한 결과(보기·퍼팅·구질 등)는 그대로 유지돼요.</p>
       <p class="msg err" id="infoMsg" role="status"></p>
@@ -646,7 +650,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 3;
-const APP_VERSION = "v32";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v33";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -780,6 +784,22 @@ const TEE_ORDER = ["Black","Gold","Blue","Green","White","Yellow","Silver","Red"
 // 티 순서: 긴 티부터 (골프장마다 Gold 등의 위치가 달라서 이름이 아니라 합계 거리로 정렬)
 const teeLen = a => {const v=a.filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};   // 빈 홀은 빼고 평균
 const teesOf = dist => dist&&typeof dist==="object" ? Object.keys(dist).filter(t=>Array.isArray(dist[t])).sort((a,b)=>teeLen(dist[b])-teeLen(dist[a])||TEE_ORDER.indexOf(a)-TEE_ORDER.indexOf(b)) : [];
+const DEFAULT_TEE = "White";
+// 라운드 전반·후반의 코스 찾기 (courseId가 없던 예전 기록은 골프장+코스명으로)
+const courseOf = (r,half) => half&&(courses.find(c=>c.id===half.courseId)||courses.find(c=>c.club===r.club&&c.name===half.course))||null;
+// 고른 코스들의 거리 데이터에 있는 티 (긴 티부터). 거리 데이터가 없으면 흔한 티 목록
+function teeChoices(cs, keep){
+  const len={}; cs.forEach(c=>c&&teesOf(c.dist).forEach(t=>{len[t]=Math.max(len[t]||0,teeLen(c.dist[t]))}));
+  let ts=Object.keys(len).sort((a,b)=>len[b]-len[a]||TEE_ORDER.indexOf(a)-TEE_ORDER.indexOf(b));
+  if(!ts.length) ts=["Black","Blue","White","Yellow","Red"];
+  if(keep&&!ts.includes(keep)) ts.push(keep);
+  return ts;
+}
+function fillTeeSelect(sel, cs, want, allowNone){
+  const ts=teeChoices(cs, want);
+  sel.innerHTML=(allowNone?`<option value="">(모름)</option>`:"")+ts.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  sel.value = want&&ts.includes(want) ? want : allowNone&&!want ? "" : ts.includes(DEFAULT_TEE) ? DEFAULT_TEE : ts[0];
+}
 const FW = [["L","◀ 좌 미스"],["H","● 적중"],["R","우 미스 ▶"]];
 
 let db=null, rcol=null, ccol=null, rounds=[], courses=[], cur=null, hole=0, range=10;
@@ -974,7 +994,7 @@ function lossSlide(all){
 }
 function startNewRound(){
   if(!rcol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
-  $("sDate").value=today(); fillClubList();
+  $("sDate").value=today(); fillClubList(); $("sTee").value=""; $("sTee").innerHTML=`<option>${DEFAULT_TEE}</option>`;
   const last=doneRounds()[0]; if(last && !$("sClub").value) $("sClub").value=last.club;
   syncClears();
   fillCourseSelects(); $("setupMsg").textContent=""; show("Setup");
@@ -1119,6 +1139,7 @@ function fillCourseSelects(){
 }
 function updSetupInfo(){
   const club=$("sClub").value.trim(); const isNew=$("sFront").value==="__new"||(setupHoles===18&&$("sBack").value==="__new");
+  fillTeeSelect($("sTee"), (setupHoles===18?[$("sFront").value,$("sBack").value]:[$("sFront").value]).map(id=>courses.find(c=>c.id===id)), $("sTee").value||DEFAULT_TEE);
   $("newCourseWrap").hidden=!isNew || !club;
   $("setupInfo").textContent = !club ? "골프장을 입력하세요. 등록된 골프장은 목록에서 고를 수 있습니다."
     : isNew ? "새 코스는 기본 배치(파 4·4·3·5·4·4·3·4·5)로 시작합니다. 홀마다 파를 탭해 고치면 코스에 함께 저장됩니다."
@@ -1172,13 +1193,13 @@ $("startBtn").onclick=async()=>{
       const tot=+$("tTotal").value, o=nine?null:(+$("tOut").value||null), i=nine?null:(+$("tIn").value||null);
       if(!(nine?(tot>=20&&tot<=100):(tot>=40&&tot<=200))){$("setupMsg").textContent="총 타수를 입력해 주세요.";$("startBtn").disabled=false;return}
       if(o&&i&&o+i!==tot){$("setupMsg").textContent=`전반 ${o} + 후반 ${i} = ${o+i}타로 총 타수 ${tot}타와 다릅니다.`;$("startBtn").disabled=false;return}
-      const body={date,club,front,back,holesPlayed:setupHoles,type:"total",total:tot,par:pars.reduce((a,b)=>a+b,0),status:"done",createdAt:Date.now(),updatedAt:Date.now()};
+      const body={date,club,front,back,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,type:"total",total:tot,par:pars.reduce((a,b)=>a+b,0),status:"done",createdAt:Date.now(),updatedAt:Date.now()};
       if(o) body.out=o; if(i) body.in=i;
       const ref=await rcol.add(body); ["tTotal","tOut","tIn"].forEach(k=>$(k).value="");
       $("startBtn").disabled=false; rounds.push({id:ref.id,...body}); openRound(ref.id,true); return;
     }
     const holes=pars.map(newHole);
-    const body={date,club,front,back,holes,holesPlayed:setupHoles,status:"playing",createdAt:Date.now(),updatedAt:Date.now()};
+    const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"playing",createdAt:Date.now(),updatedAt:Date.now()};
     const ref=await rcol.add(body);
     cur={id:ref.id,...body}; hole=0; $("sNewCourse").value="";
     renderPlay(); show("Play");
@@ -1210,7 +1231,7 @@ function renderPlay(){
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
   const half=hole<9?cur.front:cur.back;
   $("hNo").innerHTML=`${hole+1}<small>번 홀 · ${esc(half.course)} ${hole%9+1}</small>`;
-  const dist=(courses.find(c=>c.id===half.courseId)||courses.find(c=>c.club===cur.club&&c.name===half.course)||{}).dist, tees=teesOf(dist);
+  const dist=(courseOf(cur,half)||{}).dist, tees=teesOf(dist);
   $("hDist").hidden=!tees.length;
   $("hDist").innerHTML=tees.map(t=>{const m=dist[t][hole%9];return `<span class="${cur.tee===t?"on":""}">${esc(t)} <b>${m==null?"–":m}</b></span>`}).join("")+(tees.length?`<small>m</small>`:"");
   $("parPick").innerHTML=`PAR `+[3,4,5].map(p=>`<button class="${h.par===p?"on":""}" data-par="${p}">${p}</button>`).join("");
@@ -1334,12 +1355,19 @@ function infoFill(){
       + `<option value="__new">＋ 새 코스 (기본 배치)</option>`;
     $(sid).innerHTML=o; $(sid).value = inList?curC.courseId:"__keep";
   });
+  infoTee();
 }
+function infoTee(){   // 고른 코스의 티 목록. 직접 고른 티가 있으면 유지
+  const sel=[["iFront","front"],["iBack","back"]].filter(([,h])=>cur[h]).map(([k,h])=>$(k).value==="__keep"?courseOf(cur,cur[h]):courses.find(c=>c.id===$(k).value));
+  fillTeeSelect($("iTee"), sel, $("iTee").dataset.touched?$("iTee").value:cur.tee, true);
+}
+$("iFront").addEventListener("change",infoTee); $("iBack").addEventListener("change",infoTee);
 function openInfo(from){
   infoFrom=from; fillClubList();
-  $("iDate").value=cur.date; $("iClub").value=cur.club; syncClears(); infoFill(); $("infoMsg").textContent=""; show("Info");
+  $("iDate").value=cur.date; $("iClub").value=cur.club; delete $("iTee").dataset.touched; syncClears(); infoFill(); $("infoMsg").textContent=""; show("Info");
 }
 $("iClub").addEventListener("input",infoFill);
+$("iTee").onchange=()=>{$("iTee").dataset.touched="1"};
 $("playInfo").onclick=()=>{flush();openInfo("play")};
 function infoReturn(){
   if(infoFrom==="play"){renderPlay();show("Play")} else openRound(cur.id);
@@ -1351,6 +1379,7 @@ $("infoSave").onclick=async()=>{
   $("infoSave").disabled=true;
   try{
     cur.date=date; cur.club=club;
+    if($("iTee").value) cur.tee=$("iTee").value; else delete cur.tee;
     for(const [sid,half,off,fb] of [["iFront","front",0,"전반"],["iBack","back",9,"후반"]]){
       if(!cur[half]) continue;
       const sel=$(sid).value; if(sel==="__keep") continue;
@@ -1481,12 +1510,17 @@ function openRound(id,fresh){
   const strokes=agg(h=>h.par+h.d);
   const relRow=i=>typeof i==="string"?relTxt(agg(h=>+h.d||0)(i)):relTxt(hs[i].d);
   // 9홀씩 한 표: 18홀도 옆으로 스크롤하지 않고 전반·후반 두 표로 화면 폭에 맞춘다
+  // 거리 행: 라운드의 티(없으면 White) 거리 데이터가 있는 9홀만
+  const distOf=half=>{const d=(courseOf(r,half)||{}).dist, ts=teesOf(d); if(!ts.length) return null;
+    const t=ts.includes(r.tee)?r.tee:ts.includes(DEFAULT_TEE)?DEFAULT_TEE:ts[0]; return {t,a:d[t]}};
   const card=(a,sk,sl)=>{
+    const dd=pk&&distOf(a<9?r.front:r.back);
     const row=(label,fn)=>{let t=`<tr><th>${label}</th>`;for(let i=a;i<a+9;i++)t+=`<td>${fn(i)}</td>`;return t+`<td class="sum">${fn(sk)}</td></tr>`};
     return `<table class="card">
       <colgroup><col style="width:15%">${"<col>".repeat(10)}</colgroup>
       <tr><th>홀</th>${hs.slice(a,a+9).map((_,i)=>`<th>${a+i+1}</th>`).join("")}<th>${sl}</th></tr>
       ${pk?row("파",agg(h=>h.par)):""}
+      ${dd?row(`<span class="dl">${esc(dd.t)}</span>`,i=>typeof i==="string"?(dd.a.some(v=>v==null)?"":dd.a.reduce((x,y)=>x+y,0)):dd.a[i-a]??"–").replace("<tr>",`<tr class="drow">`):""}
       ${pk?row("타수",i=>typeof i==="string"?strokes(i):mark(hs[i])):""}
       ${row("±",relRow)}
       ${det?row("퍼트",agg(h=>h.putts)):""}
