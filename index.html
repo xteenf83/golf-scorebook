@@ -136,7 +136,11 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .btns.s8{grid-template-columns:repeat(4,1fr)}
 .btns.s5{grid-template-columns:repeat(5,1fr)}
 .btns.s3{grid-template-columns:1fr 1.3fr 1fr}
-.btns.s7{grid-template-columns:repeat(4,1fr)}
+.btns.s7{grid-template-columns:repeat(7,1fr);gap:4px}
+.opt.shp{padding:6px 0 5px;min-height:0;gap:2px}
+.opt.shp svg{width:22px;height:28px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.opt.shp svg circle{fill:currentColor;stroke:none}
+.opt.shp small{font-size:10.5px;letter-spacing:-.5px;white-space:nowrap}
 .opt{padding:10px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;min-height:52px;justify-content:center}
 .opt b{font-family:var(--f-num);font-size:17px}
 .opt small{font-size:11px;font-weight:500;color:var(--muted)}
@@ -149,7 +153,18 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .step b{font-family:var(--f-num);font-size:17px;min-width:1.4em;text-align:center}
 .step button{padding:8px 12px}
 .voice{display:flex;gap:6px}
-.voice input{flex:1}
+.voice input,.voice textarea{flex:1}
+.memos h2,.diary h2{margin:0 0 8px}
+.diary textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;line-height:1.5;resize:vertical;min-height:76px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.diary .note{margin-top:4px;min-height:1.2em}
+.mrow{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:10px 2px}
+.mrow:first-of-type{border-top:0}
+.mrow b{flex:0 0 26px;font-family:var(--f-num);color:var(--muted)}
+.mrow span{flex:1;white-space:pre-wrap;line-height:1.4;font-weight:400}
+.mrow small{flex:0 0 auto;color:var(--accent);font-size:12px}
+.voice textarea{font:inherit;font-size:16px;resize:vertical;min-height:52px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
+.strip button.memo{position:relative}
+.strip button.memo::after{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--warn)}
 .heard{font-size:12px;color:var(--accent);min-height:1.2em}
 .heard.err{color:var(--warn)}
 .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--paper);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
@@ -536,7 +551,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
       <div class="btns s3" id="fwBtns"></div>
     </div>
     <div class="field" data-step="shape">
-      <div class="lab"><span>티샷 구질</span><span>좌타 기준 휘는 방향</span></div>
+      <div class="lab"><span>티샷 구질</span><span>공이 간 방향 (좌타)</span></div>
       <div class="btns s7" id="shapeBtns"></div>
     </div>
     <div class="field" data-step="pen">
@@ -555,12 +570,11 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
       <div class="btns s8" id="scoreBtns"></div>
     </div>
     <div class="field">
-      <div class="lab"><span id="voiceLbl">한 줄 입력 · 키보드 🎤로 말하기</span></div>
-      <form class="voice" id="voiceForm">
+      <div class="lab"><span id="voiceLbl">홀 메모 · 키보드 🎤로 말하기</span><span class="note" id="memoSaved"></span></div>
+      <div class="voice">
         <button type="button" class="mic" id="micBtn" hidden aria-label="말하기">🎤</button>
-        <input id="voiceIn" placeholder="예: 보기 투퍼트 오른쪽 슬라이스 다음" autocomplete="off" enterkeyhint="done">
-        <button type="submit">적용</button>
-      </form>
+        <textarea id="memoIn" rows="2" placeholder="샷 메모나 그날의 생각을 자유롭게. 바쁠 땐 말로 대충 남기고 나중에 보며 입력하세요." autocomplete="off"></textarea>
+      </div>
       <div class="heard" id="heard" role="status"></div>
     </div>
     <div class="row" style="justify-content:space-between">
@@ -660,7 +674,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 3;
-const APP_VERSION = "v35";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v36";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -790,6 +804,16 @@ const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5];
 const SCORE_OPTS = [[-2,"이글"],[-1,"버디"],[0,"파"],[1,"보기"],[2,"더블"],[3,"트리플"],[4,"쿼드"],[5,"+5"]];
 const SHAPES = [["hook","훅","↷ 크게 우"],["draw","드로우","↗ 살짝 우"],["straight","스트레이트","↑ 직진"],["fade","페이드","↖ 살짝 좌"],["slice","슬라이스","↶ 크게 좌"],["push","푸시","← 좌로 직진"],["pull","풀","→ 우로 직진"]];
 const SHAPE_NAME = Object.fromEntries(SHAPES.map(s=>[s[0],s[1]]));
+// 홀 화면 구질 버튼: 공이 가는 방향대로 왼쪽→오른쪽 한 줄 (좌타 기준). 가운데 셋은 곧게 가는 공, 바깥은 휘는 공
+// [키, 짧은 이름, 공 궤적(아래 가운데에서 출발)]
+const SHAPE_ROW = [
+  ["slice","슬라이스","M12 27 Q16 5 1 10"],
+  ["fade","페이드","M12 27 Q12 9 6 3"],
+  ["push","푸시","M12 27 L5 3"],
+  ["straight","직진","M12 27 L12 3"],
+  ["pull","풀","M12 27 L19 3"],
+  ["draw","드로우","M12 27 Q12 9 18 3"],
+  ["hook","훅","M12 27 Q8 5 23 10"]];
 const TEE_ORDER = ["Black","Gold","Blue","Green","White","Yellow","Silver","Red"];
 // 티 순서: 긴 티부터 (골프장마다 Gold 등의 위치가 달라서 이름이 아니라 합계 거리로 정렬)
 const teeLen = a => {const v=a.filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};   // 빈 홀은 빼고 평균
@@ -1237,7 +1261,8 @@ function renderPlay(){
   // strip
   let s=""; cur.holes.forEach((x,i)=>{ if(i===9) s+=`<span class="gap"></span>`;
     s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""}" data-h="${i}"><span>${i+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.par+x.d):"·"}</b></button>`});
-  $("strip").innerHTML=s;
+  $("strip").innerHTML=s; markStrip();
+  if(document.activeElement!==$("memoIn")){ $("memoIn").value=h.memo||""; requestAnimationFrame(growMemo) } $("memoSaved").textContent="";
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
   const half=hole<9?cur.front:cur.back;
   $("hNo").innerHTML=`${hole+1}<small>번 홀 · ${esc(half.course)} ${hole%9+1}</small>`;
@@ -1258,7 +1283,7 @@ function renderPlay(){
   $("fwField").hidden=h.par<4;
   $("fwBtns").innerHTML=FW.map(([k,n])=>`<button class="opt ${h.fw===k?"on":""}" data-fw="${k}"><b style="font-family:var(--f-body);font-size:14px">${n}</b></button>`).join("");
   // shape
-  $("shapeBtns").innerHTML=SHAPES.map(([k,n,sub])=>`<button class="opt ${h.shape===k?"on":""}" data-sh="${k}"><b style="font-family:var(--f-body);font-size:14px">${n}</b><small>${sub}</small></button>`).join("");
+  $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="opt shp ${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="27" r="2"/></svg><small>${n}</small></button>`).join("");
   $("obV").textContent=h.ob||0; $("hzV").textContent=h.hz||0;
   $("prevBtn").disabled=hole===0;
   const editing=cur.status==="done";
@@ -1404,66 +1429,14 @@ $("infoSave").onclick=async()=>{
   $("infoSave").disabled=false;
 };
 
-/* ---------- voice / one-line parser ---------- */
-function parseLine(text, h){
-  const c=text.replace(/\s+/g,"").toLowerCase(); const out={}, said=[];
-  const nums={"한":1,"하나":1,"일":1,"원":1,"두":2,"둘":2,"이":2,"투":2,"세":3,"셋":3,"삼":3,"쓰리":3,"네":4,"넷":4,"사":4,"포":4};
-  // score
-  let m;
-  if(/이글/.test(c)) out.d=-2;
-  else if(/버디/.test(c)) out.d=-1;
-  else if(/쿼드/.test(c)) out.d=4;
-  else if(/트리플/.test(c)) out.d=3;
-  else if(/(더블파|양파)/.test(c)) out.d=Math.min(5,h.par);
-  else if(/(더블|따블)/.test(c)) out.d=2;
-  else if(/보기/.test(c)) out.d=1;
-  else if((m=c.match(/(?:\+|플러스)([1-5])/))) out.d=+m[1];
-  else if((m=c.match(/(\d{1,2})타/))) out.d=Math.max(-2,Math.min(5,+m[1]-h.par));
-  else if(/(^|[^더양])파/.test(c.replace(/파[345](?!퍼|펏)/g,""))) out.d=0;
-  // putts
-  if(/(노퍼트|노펏|0퍼트|영퍼트|칩인)/.test(c)) out.putts=0;
-  else if((m=c.match(/(원|1|일|한|투|2|두|쓰리|3|세|삼|포|4|네)(퍼트|퍼팅|펏)/))) out.putts=({"원":1,"1":1,"일":1,"한":1,"투":2,"2":2,"두":2,"쓰리":3,"3":3,"세":3,"삼":3,"포":4,"4":4,"네":4})[m[1]];
-  // fairway
-  if(/(왼쪽|좌측|레프트|좌로|좌미스)/.test(c)) out.fw="L";
-  else if(/(오른쪽|우측|라이트|우로|우미스)/.test(c)) out.fw="R";
-  else if(/(페어웨이|적중|fw)/.test(c)) out.fw="H";
-  // shape
-  if(/(훅|훜)/.test(c)) out.shape="hook";
-  else if(/드로/.test(c)) out.shape="draw";
-  else if(/(스트레이트|스트레잇|똑바로)/.test(c)) out.shape="straight";
-  else if(/페이드/.test(c)) out.shape="fade";
-  else if(/슬라/.test(c)) out.shape="slice";
-  else if(/(푸시|푸쉬)/.test(c)) out.shape="push";
-  else if(/풀(?!스윙)/.test(c.replace(/풀스윙/g,""))) out.shape="pull";
-  // penalties
-  const cnt=(re)=>{const mm=c.match(re);if(!mm)return null;const t=mm[2]||"";const k=t.replace(/개|번|방/g,"");return /^\d$/.test(k)?+k:(nums[k]||1)};
-  const ob=cnt(/(오비|ob)(\d|한|하나|두|둘|세|셋)?(개|번|방)?/); if(ob!==null) out.ob=ob;
-  const hz=cnt(/(해저드|패널티|페널티|워터|물에)(\d|한|하나|두|둘|세|셋)?(개|번|방)?/); if(hz!==null) out.hz=hz;
-  out.next=/(다음|넥스트|넘겨)/.test(c);
-  if(out.d!==undefined) said.push(SCORE_OPTS.find(o=>o[0]===out.d)[1]);
-  if(out.putts!==undefined) said.push(out.putts===0?"칩인":out.putts+"퍼트");
-  if(out.fw) said.push({L:"좌 미스",H:"페어웨이 적중",R:"우 미스"}[out.fw]);
-  if(out.shape) said.push(SHAPE_NAME[out.shape]);
-  if(out.ob!==undefined) said.push("OB "+out.ob);
-  if(out.hz!==undefined) said.push("해저드 "+out.hz);
-  return {out,said};
-}
-$("voiceForm").onsubmit=e=>{
-  e.preventDefault(); const t=$("voiceIn").value.trim(); if(!t) return;
-  const h=cur.holes[hole]; const {out,said}=parseLine(t,h);
-  if(!said.length && !out.next){$("heard").className="heard err";$("heard").textContent=`알아듣지 못했어요: “${t}” — 예) 보기 투퍼트 오른쪽 슬라이스`;return}
-  if(out.d!==undefined) h.d=out.d;
-  if(out.putts!==undefined) h.putts=out.putts;
-  if(out.fw && h.par>=4) h.fw=out.fw;
-  if(out.shape) h.shape=out.shape;
-  if(out.ob!==undefined) h.ob=out.ob;
-  if(out.hz!==undefined) h.hz=out.hz;
-  clampPutts(h); h.done=true; $("voiceIn").value="";
-  const msg=`${hole+1}번 홀: ${said.join(" · ")||"변경 없음"}`;
-  queueSave();
-  if(out.next){goNext(); if(cur&&cur.status!=="done"){$("heard").className="heard";$("heard").textContent="✓ "+msg}}
-  else {renderPlay();$("heard").className="heard";$("heard").textContent="✓ "+msg}
-};
+/* ---------- 홀 메모: 바쁠 때 말·글로 대충 남기고, 나중에 보면서 구질 등을 입력 ---------- */
+$("memoIn").addEventListener("input",()=>{
+  const h=cur&&cur.holes[hole]; if(!h) return;
+  const v=$("memoIn").value; if(v.trim()) h.memo=v; else delete h.memo;
+  $("memoSaved").textContent="저장됨"; queueSave(); markStrip(); growMemo();
+});
+function growMemo(){const t=$("memoIn"); t.style.height="auto"; t.style.height=Math.max(52,t.scrollHeight+2)+"px"}
+function markStrip(){ [...$("strip").querySelectorAll("button[data-h]")].forEach(b=>b.classList.toggle("memo",!!cur.holes[+b.dataset.h].memo)) }
 
 /* ---------- 🎤 speech (Web Speech API) ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1472,28 +1445,44 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const iosHomeApp = (navigator.standalone===true || matchMedia("(display-mode: standalone)").matches)
   && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1));
 if(SR && !iosHomeApp){
-  $("micBtn").hidden=false; $("voiceLbl").textContent="한 줄 입력 · 🎤 누르고 말하기";
+  $("micBtn").hidden=false; $("voiceLbl").textContent="홀 메모 · 🎤 누르고 말하기";
   let rec=null;
   $("micBtn").onclick=()=>{
     if(rec){rec.abort();return}   // stop()은 결과를 기다리다 멈출 수 있어 바로 끊는다
     rec=new SR(); rec.lang="ko-KR"; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
     let finalText="";
     $("micBtn").classList.add("on"); $("heard").className="heard"; $("heard").textContent="듣는 중… 말씀하세요";
-    rec.onresult=e=>{let t="";for(const r of e.results){t+=r[0].transcript;if(r.isFinal)finalText=t} $("voiceIn").value=t};
+    const base=$("memoIn").value.replace(/\s+$/,""), join=t=>(base?base+" ":"")+t;
+    rec.onresult=e=>{let t="";for(const r of e.results){t+=r[0].transcript;if(r.isFinal)finalText=t} $("memoIn").value=join(t)};
     rec.onerror=e=>{$("heard").className="heard err";
       $("heard").textContent = e.error==="not-allowed"||e.error==="service-not-allowed" ? "마이크 권한이 없습니다. 아이폰 설정에서 마이크·Siri 허용을 확인하거나 키보드의 🎤를 쓰세요."
         : e.error==="no-speech" ? "말소리를 듣지 못했어요. 다시 눌러 주세요." : "음성 인식 오류 ("+e.error+")"};
     // 10초 안에 끝나지 않으면 강제로 끊어 "듣는 중"에 갇히지 않게 한다
     const guard=setTimeout(()=>{ if(rec){ try{rec.abort()}catch(e){} } },10000);
     rec.onend=()=>{clearTimeout(guard); $("micBtn").classList.remove("on"); rec=null;
-      const t=(finalText||$("voiceIn").value).trim();
-      if(t){$("voiceIn").value=t; const f=$("voiceForm"); f.requestSubmit?f.requestSubmit():f.dispatchEvent(new Event("submit",{cancelable:true}))}
-      else if($("heard").textContent==="듣는 중… 말씀하세요") $("heard").textContent=""};
+      const t=finalText.trim();
+      $("memoIn").value=t?join(t):base; $("memoIn").dispatchEvent(new Event("input"));
+      if($("heard").textContent==="듣는 중… 말씀하세요") $("heard").textContent=""};
     try{rec.start()}catch(e){clearTimeout(guard);$("micBtn").classList.remove("on");rec=null;$("heard").textContent=""}
   };
 }
 
 /* ---------- ROUND DETAIL ---------- */
+/* 라운드 일기: 라운드를 마친 뒤 기록 화면에서 남기는 총평. 입력하는 대로 저장 */
+function diaryHtml(r){
+  return `<section class="panel diary"><h2>라운드 일기</h2>
+    <textarea id="diaryIn" rows="3" placeholder="오늘 라운드는 어땠나요? 잘된 점, 아쉬운 점, 다음에 해볼 것">${esc(r.diary||"")}</textarea>
+    <div class="note" id="diarySaved"></div></section>`;
+}
+function bindDiary(r){
+  const t=$("diaryIn"); let timer=null;
+  const grow=()=>{t.style.height="auto";t.style.height=Math.max(76,t.scrollHeight+2)+"px"}; requestAnimationFrame(grow);
+  t.addEventListener("input",()=>{ grow(); $("diarySaved").textContent="저장 중…"; clearTimeout(timer);
+    timer=setTimeout(()=>{ const v=t.value.trim()?t.value:""; r.diary=v||undefined;
+      const x=rounds.find(y=>y.id===r.id); if(x){ if(v) x.diary=v; else delete x.diary; }
+      rcol.doc(r.id).update({diary:v}).then(()=>{$("diarySaved").textContent="저장됨"},()=>{});
+      $("diarySaved").textContent="저장됨"; },500) });
+}
 function delActs(id,editHtml,bind){
   const acts=()=>{ $("roundActs").innerHTML = pendingDel
       ? `<span class="note">이 라운드를 영구 삭제할까요?</span><button class="danger" id="delYes">삭제</button><button class="ghost" id="delNo">취소</button>`
@@ -1559,7 +1548,10 @@ function openRound(id,fresh){
     </div>`:"";
   const byPar=pk?[3,4,5].map(p=>{const x=hs.filter(h=>h.par===p);return x.length?[p,x.reduce((a,h)=>a+h.par+h.d,0)/x.length,x.length]:null}).filter(Boolean):[];
   const parHtml=byPar.length?`<div class="kv" style="margin-top:14px">${byPar.map(([p,avg,n])=>
-      `<div><b>${avg.toFixed(1)} <em class="${relCls(Math.round((avg-p)*10))}">${avg-p>=0.05?"+":""}${(avg-p).toFixed(1)}</em></b><span>파${p} 평균 · ${n}홀</span></div>`).join("")}</div>`:"";
+      `<div><b>${avg.toFixed(1)} <em class="${relCls(Math.round((avg-p)*10))}">${Math.abs(avg-p)<0.05?"E":(avg-p>0?"+":"")+(avg-p).toFixed(1)}</em></b><span>파${p} 평균 · ${n}홀</span></div>`).join("")}</div>`:"";
+  const memos=hs.map((h,i)=>h.memo&&h.memo.trim()?[i,h.memo.trim()]:null).filter(Boolean);
+  const memoHtml=memos.length?`<section class="panel memos"><h2>홀 메모</h2>${memos.map(([i,t])=>
+      `<button class="mrow" data-h="${i}"><b>${i+1}</b><span>${esc(t)}</span><small>${det?"수정 ›":""}</small></button>`).join("")}</section>`:"";
   $("roundBox").innerHTML=`${roundHero(r,c,fresh)}
     <section class="panel">
     ${two?card(0,"out","전반")+card(9,"in","후반"):card(0,"tot","계")}
@@ -1567,7 +1559,12 @@ function openRound(id,fresh){
     ${kv?`<div class="kv" style="margin-top:14px">${kv}</div>`:""}
     ${notes.map(t=>`<p class="note" style="margin:12px 0 0">${t}</p>`).join("")}
     </section>
+    ${memoHtml}
+    ${diaryHtml(r)}
     <div class="row" id="roundActs"></div>`;
+  bindDiary(r);
+  // 메모를 누르면 그 홀 수정 화면으로 (메모를 보며 구질 등 입력)
+  if(det) $("roundBox").querySelectorAll(".mrow").forEach(b=>b.onclick=()=>{cur=clone(r);hole=+b.dataset.h;renderPlay();show("Play");scrollTop()});
   delActs(id, `${det?`<button id="editRound">홀별 수정</button>`:""}<button id="editInfo">코스·날짜 수정</button>`, ()=>{
     if(det) $("editRound").onclick=()=>{cur=clone(r);hole=0;renderPlay();show("Play")};
     $("editInfo").onclick=()=>{cur=clone(r);openInfo("round")};
@@ -1595,7 +1592,9 @@ function renderTotalRound(r,fresh){
       <div class="row full"><button class="primary" id="teSave">저장</button><button class="ghost" id="teCancel">취소</button></div>
     </div>
     </section>
+    ${diaryHtml(r)}
     <div class="row" id="roundActs"></div>`;
+  bindDiary(r);
   delActs(id, `<button id="editTot">타수 수정</button><button id="editInfo">코스·날짜 수정</button>`, ()=>{
     $("editTot").onclick=()=>{$("totEdit").hidden=false;$("teTotal").focus()};
     $("editInfo").onclick=()=>{cur=clone(r);openInfo("round")};
