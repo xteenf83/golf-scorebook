@@ -273,6 +273,9 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 @keyframes pulse{50%{opacity:.3}}
 
 /* recent rounds */
+.rlfilter{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
+.rlfilter select{min-width:110px}
+.ygrp{font-family:var(--f-num);font-size:13px;font-weight:700;color:var(--muted);margin:6px 2px -4px}
 .sechead{display:flex;justify-content:space-between;align-items:center;margin-bottom:-8px}
 .sechead b{font-size:16px}
 .rounds{display:flex;flex-direction:column;gap:10px}
@@ -620,9 +623,20 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
     </div></div>
   </section>
 
+  <!-- ALL ROUNDS -->
+  <section class="screen" id="scrRounds" hidden>
+    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
+    <div class="rlfilter">
+      <select id="rlYear" aria-label="연도"></select>
+      <span class="clr"><input id="rlSearch" type="search" placeholder="골프장·코스 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
+    </div>
+    <p class="note" id="rlSummary" style="margin:0"></p>
+    <div class="rounds" id="rlList"></div>
+  </section>
+
   <!-- ROUND DETAIL -->
   <section class="screen" id="scrRound" hidden>
-    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
+    <div class="row"><button class="back" id="roundBack">‹ 홈</button></div>
     <div class="screen" id="roundBox"></div>
   </section>
 
@@ -694,7 +708,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 4;
-const APP_VERSION = "v39";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v40";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -877,12 +891,12 @@ function clone(o){return JSON.parse(JSON.stringify(o))}
 
 let userName="";
 const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],
-  Round:["Scorecard","라운드 기록"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"]};
+  Round:["Scorecard","라운드 기록"],Rounds:["All Rounds","전체 라운드"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"]};
 const TAB_SCREENS=["Home","Stats","Courses","More"];
 function scrollTop(){$("scroller").scrollTop=0}
 function show(name){
   if(pendingReload && !["Play","Setup","Info"].includes(name)){ location.reload(); return; }
-  ["Login","Home","Stats","Setup","Play","Round","Courses","Info","More"].forEach(n=>$("scr"+n).hidden = n!==name);
+  ["Login","Home","Stats","Setup","Play","Round","Rounds","Courses","Info","More"].forEach(n=>$("scr"+n).hidden = n!==name);
   $("bottomNav").hidden = name!=="Play";
   const tabs=TAB_SCREENS.includes(name);
   $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs);
@@ -1169,19 +1183,43 @@ function renderTrend(pts){
   </svg><p class="note" style="margin:4px 0 0">아래로 갈수록 좋은 스코어${trendTxt?" · "+trendTxt:""}</p>`;
 }
 
-let showAll=false;
+function rcHtml(r){const c=scoreOf(r); const [,m,d]=r.date.split("-");
+  return `<button class="rc" data-id="${r.id}"><div class="date"><b>${d}</b><small>${+m}월</small></div>
+      <div class="m"><b>${esc(r.club)}${is9(r)?`<span class="tag9">9홀</span>`:""}</b><small>${[esc(courseTxt(r," · ")), isTotal(r)?"총타만 기록":c.putts!=null?c.putts+"퍼트":"파 대비 점수만"].filter(Boolean).join(" · ")}</small></div>
+      <div class="s"><b>${c.tot??"–"}</b><small class="${relCls(c.rel)}">${relTxt(c.rel)}</small></div></button>`}
 function renderRoundList(){
   const all=doneRounds();
-  $("allToggle").hidden=all.length<=5; $("allToggle").textContent=showAll?"접기":`전체 보기 (${all.length}) ›`;
+  $("allToggle").hidden=all.length<=5; $("allToggle").textContent=`전체 보기 (${all.length}) ›`;
   if(!all.length){$("roundList").innerHTML=`<div class="empty"><b>아직 기록한 라운드가 없습니다</b>아래 ＋ 버튼으로 시작하세요.</div>`;return}
-  const rs=showAll?all:all.slice(0,5);
-  $("roundList").innerHTML=rs.map(r=>{const c=scoreOf(r); const [,m,d]=r.date.split("-");
-    return `<button class="rc" data-id="${r.id}"><div class="date"><b>${d}</b><small>${+m}월</small></div>
-      <div class="m"><b>${esc(r.club)}${is9(r)?`<span class="tag9">9홀</span>`:""}</b><small>${[esc(courseTxt(r," · ")), isTotal(r)?"총타만 기록":c.putts!=null?c.putts+"퍼트":"파 대비 점수만"].filter(Boolean).join(" · ")}</small></div>
-      <div class="s"><b>${c.tot??"–"}</b><small class="${relCls(c.rel)}">${relTxt(c.rel)}</small></div></button>`}).join("");
+  $("roundList").innerHTML=all.slice(0,5).map(rcHtml).join("");
 }
-$("allToggle").onclick=()=>{showAll=!showAll;renderRoundList()};
-$("roundList").onclick=e=>{const b=e.target.closest("[data-id]");if(b)openRound(b.dataset.id)};
+/* 전체 라운드 화면: 연도 선택 + 골프장·코스 검색 */
+let roundFrom="Home";
+function openAllRounds(){
+  const ys=[...new Set(doneRounds().map(r=>r.date.slice(0,4)))].sort().reverse(), cur=$("rlYear").value;
+  $("rlYear").innerHTML=`<option value="">전체 연도</option>`+ys.map(y=>`<option value="${y}">${y}년</option>`).join("");
+  $("rlYear").value=ys.includes(cur)?cur:"";
+  renderAllRounds(); show("Rounds");
+}
+function renderAllRounds(){
+  const y=$("rlYear").value, q=$("rlSearch").value.trim().toLowerCase().replace(/\s+/g,"");
+  const hit=r=>!q||(r.club+courseTxt(r,"")).toLowerCase().replace(/\s+/g,"").includes(q);
+  const rs=doneRounds().filter(r=>(!y||r.date.startsWith(y))&&hit(r));
+  const full=rs.filter(r=>!is9(r)).map(r=>scoreOf(r).tot).filter(t=>t!=null);
+  $("rlSummary").textContent=rs.length
+    ? `${rs.length}라운드`+(full.length?` · 18홀 평균 ${(full.reduce((a,b)=>a+b,0)/full.length).toFixed(1)} · 베스트 ${Math.min(...full)}`:"")
+    : "";
+  if(!rs.length){$("rlList").innerHTML=`<div class="empty"><b>조건에 맞는 라운드가 없습니다</b>연도나 검색어를 바꿔 보세요.</div>`;return}
+  let h="", last="";   // 전체 연도일 때는 연도 머리글로 나눔
+  rs.forEach(r=>{const yy=r.date.slice(0,4); if(!y&&yy!==last){h+=`<div class="ygrp">${yy}</div>`;last=yy} h+=rcHtml(r)});
+  $("rlList").innerHTML=h;
+}
+$("allToggle").onclick=openAllRounds;
+$("rlYear").onchange=renderAllRounds;
+$("rlSearch").addEventListener("input",renderAllRounds);
+$("roundList").onclick=e=>{const b=e.target.closest("[data-id]");if(b){roundFrom="Home";openRound(b.dataset.id)}};
+$("rlList").onclick=e=>{const b=e.target.closest("[data-id]");if(b){roundFrom="Rounds";openRound(b.dataset.id)}};
+$("roundBack").onclick=()=>{ if(roundFrom==="Rounds") openAllRounds(); else {show("Home");renderHome()} };
 
 /* ---------- SETUP ---------- */
 function clubs(){return [...new Set(courses.map(c=>c.club))].sort()}
@@ -1546,7 +1584,7 @@ function delActs(id,editHtml,bind){
   const acts=()=>{ $("roundActs").innerHTML = pendingDel
       ? `<span class="note">이 라운드를 영구 삭제할까요?</span><button class="danger" id="delYes">삭제</button><button class="ghost" id="delNo">취소</button>`
       : `${editHtml}<button class="ghost" id="delRound">삭제</button>`;
-    if(pendingDel){ $("delYes").onclick=async()=>{try{await rcol.doc(id).delete();}catch(e){}; cur=null; show("Home"); renderHome()}; $("delNo").onclick=()=>{pendingDel=null;acts()} }
+    if(pendingDel){ $("delYes").onclick=async()=>{try{await rcol.doc(id).delete();}catch(e){}; cur=null; rounds=rounds.filter(x=>x.id!==id); if(roundFrom==="Rounds") openAllRounds(); else {show("Home"); renderHome()}}; $("delNo").onclick=()=>{pendingDel=null;acts()} }
     else { bind(); $("delRound").onclick=()=>{pendingDel=id;acts()} } };
   acts();
 }
@@ -1558,6 +1596,8 @@ function roundHero(r,c,fresh){
     </section>`;
 }
 function openRound(id,fresh){
+  if(fresh) roundFrom="Home";
+  $("roundBack").textContent = roundFrom==="Rounds" ? "‹ 전체 라운드" : "‹ 홈";
   const r = (cur&&cur.id===id)?cur:rounds.find(x=>x.id===id); if(!r) {show("Home");renderHome();return}
   pendingDel=null;
   if(isTotal(r)){ renderTotalRound(r,fresh); if(cur&&cur.status==="done") cur=null; show("Round"); return; }
