@@ -171,6 +171,15 @@ table.card td.sum{font-weight:700;background:var(--accent-soft)}
 .kv div{min-width:0}
 .kv b{display:block;font-family:var(--f-display);font-size:22px;font-weight:500}
 .kv span{font-size:11px;color:var(--muted)}
+.kv b em{font-style:normal;font-family:var(--f-num);font-size:13px;font-weight:700}
+.sdist{margin-top:16px}
+.sbar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px}
+.sbar i{display:block;min-width:4px}
+.sleg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:12px;color:var(--muted)}
+.sleg span{display:inline-flex;align-items:center;gap:4px}
+.sleg span.z{opacity:.45}
+.sleg i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.sleg b{color:var(--ink);font-family:var(--f-num)}
 
 /* courses */
 .course{border-top:1px solid var(--line);padding-block:12px;display:flex;flex-direction:column;gap:8px}
@@ -651,7 +660,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 3;
-const APP_VERSION = "v34";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v35";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1532,18 +1541,30 @@ function openRound(id,fresh){
   if(!pk) notes.push("홀별 파를 모르는 기록이라 홀마다 파 대비 점수(±)와 총타만 표시합니다.");
   else if(!det) notes.push("퍼팅·페어웨이·구질 없이 가져온 기록입니다.");
   if(is9(r)) notes.push("9홀 라운드는 기록 목록에만 남고 통계에는 들어가지 않습니다.");
+  // 총타·파 대비·전반/후반은 위 카드와 표에 이미 있으니, 아래에는 표에서 바로 안 보이는 것만
   const kv = det ? `
       <div><b>${c.fwN?Math.round(c.fwH/c.fwN*100):0}%</b><span>페어웨이 ${c.fwH}/${c.fwN}</span></div>
       <div><b>${Math.round(c.gir/N*100)}%</b><span>그린 적중 ${c.gir}/${N}</span></div>
-      <div><b>${c.putts}</b><span>퍼팅 (3퍼트 ${c.three})</span></div>
-      <div><b>${two?`${c.front} / ${c.back}`:N+"홀"}</b><span>${two?"전반 / 후반":"홀 수"}</span></div>
+      <div><b>${c.putts}</b><span>퍼팅</span></div>
+      <div><b>${c.three}</b><span>3퍼트</span></div>
       <div><b>${c.ob}</b><span>OB</span></div>
       <div><b>${c.hz}</b><span>해저드</span></div>`
-    : `<div><b>${c.tot??"–"}</b><span>총타</span></div><div><b>${relTxt(c.rel)}</b><span>파 대비</span></div><div><b>${c.par??"–"}</b><span>파</span></div>`;
+    : pk ? "" : `<div><b>${c.tot??"–"}</b><span>총타</span></div><div><b>${relTxt(c.rel)}</b><span>파 대비</span></div><div><b>${c.par??"–"}</b><span>파</span></div>`;
+  // 스코어 분포 (한 줄 막대 + 개수)와 파별 평균
+  const BINS=[["버디↓",d=>d<=-1,"var(--under)"],["파",d=>d===0,"var(--accent-soft)"],["보기",d=>d===1,"var(--even)"],["더블",d=>d===2,"var(--over)"],["트리플+",d=>d>=3,"var(--danger)"]];
+  const dist=pk?BINS.map(([k,f,col])=>[k,hs.filter(h=>f(h.d)).length,col]):[];
+  const distHtml=pk?`<div class="sdist">
+      <div class="sbar">${dist.filter(x=>x[1]).map(([k,n,col])=>`<i style="flex:${n};background:${col}"></i>`).join("")}</div>
+      <div class="sleg">${dist.map(([k,n,col])=>`<span class="${n?"":"z"}"><i style="background:${col}"></i>${k} <b>${n}</b></span>`).join("")}</div>
+    </div>`:"";
+  const byPar=pk?[3,4,5].map(p=>{const x=hs.filter(h=>h.par===p);return x.length?[p,x.reduce((a,h)=>a+h.par+h.d,0)/x.length,x.length]:null}).filter(Boolean):[];
+  const parHtml=byPar.length?`<div class="kv" style="margin-top:14px">${byPar.map(([p,avg,n])=>
+      `<div><b>${avg.toFixed(1)} <em class="${relCls(Math.round((avg-p)*10))}">${avg-p>=0.05?"+":""}${(avg-p).toFixed(1)}</em></b><span>파${p} 평균 · ${n}홀</span></div>`).join("")}</div>`:"";
   $("roundBox").innerHTML=`${roundHero(r,c,fresh)}
     <section class="panel">
     ${two?card(0,"out","전반")+card(9,"in","후반"):card(0,"tot","계")}
-    <div class="kv" style="margin-top:14px">${kv}</div>
+    ${distHtml}${parHtml}
+    ${kv?`<div class="kv" style="margin-top:14px">${kv}</div>`:""}
     ${notes.map(t=>`<p class="note" style="margin:12px 0 0">${t}</p>`).join("")}
     </section>
     <div class="row" id="roundActs"></div>`;
