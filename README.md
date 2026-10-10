@@ -17,7 +17,7 @@
 | `reference/golf-scorebook-v5.html` | 이전(claude.ai 아티팩트) 버전 원본 |
 
 ## 기본 코스
-`index.html`의 `DEFAULT_COURSES`(현재 41개)가 기본 코스 목록입니다. 앱이 열릴 때 계정에 저장된 `coursesSeedVersion`이 `COURSES_SEED_VERSION`보다 낮으면 한 번 맞춥니다: 같은 골프장+코스명이 있으면 홀별 파(와 `dist`의 티별 거리)만 덮어쓰고, 없으면 새로 만듭니다. 목록을 바꾸면 `COURSES_SEED_VERSION`을 1 올리세요. 더보기 → "기본 코스 다시 맞추기"로 수동 실행도 됩니다.
+`index.html`의 `DEFAULT_COURSES`(현재 43개)가 기본 코스 목록입니다. 앱이 열릴 때 계정에 저장된 `coursesSeedVersion`이 `COURSES_SEED_VERSION`보다 낮으면 한 번 맞춥니다: 같은 골프장+코스명이 있으면 홀별 파(와 `dist`의 티별 거리)만 덮어쓰고, 없으면 새로 만듭니다. 목록을 바꾸면 `COURSES_SEED_VERSION`을 1 올리세요. 더보기 → "기본 코스 다시 맞추기"로 수동 실행도 됩니다.
 
 ## 9홀 라운드
 새 라운드에서 "9홀"을 고르면 9개 홀만 입력합니다(홀별 또는 총타만). 9홀 라운드는 기록 목록에 "9홀" 표시로만 남고 평균·베스트·추이·분포·퍼팅·적중률·구질 등 모든 통계에서 빠집니다.
