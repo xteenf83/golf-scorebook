@@ -334,6 +334,7 @@ table.card{table-layout:fixed;min-width:0}
 table.card+table.card{margin-top:12px}
 table.card td,table.card th{overflow:hidden;padding:5px 0}
 table.card th:first-child{font-size:10.5px}
+table.card td.sum small.rel{display:block;font-size:10px;font-weight:600;color:var(--muted);line-height:1.1}
 table.card tr.drow td{font-size:10px;letter-spacing:-.4px;color:var(--muted)}
 table.card th .dl{display:block;font-size:9px;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
 table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:border-box}
@@ -650,7 +651,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 3;
-const APP_VERSION = "v33";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v34";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1519,10 +1520,10 @@ function openRound(id,fresh){
     return `<table class="card">
       <colgroup><col style="width:15%">${"<col>".repeat(10)}</colgroup>
       <tr><th>홀</th>${hs.slice(a,a+9).map((_,i)=>`<th>${a+i+1}</th>`).join("")}<th>${sl}</th></tr>
-      ${pk?row("파",agg(h=>h.par)):""}
       ${dd?row(`<span class="dl">${esc(dd.t)}</span>`,i=>typeof i==="string"?(dd.a.some(v=>v==null)?"":dd.a.reduce((x,y)=>x+y,0)):dd.a[i-a]??"–").replace("<tr>",`<tr class="drow">`):""}
-      ${pk?row("타수",i=>typeof i==="string"?strokes(i):mark(hs[i])):""}
-      ${row("±",relRow)}
+      ${pk?row("파",agg(h=>h.par)):""}
+      ${pk?row("타수",i=>typeof i==="string"?`${strokes(i)}<small class="rel">${relRow(i)}</small>`:mark(hs[i])):""}
+      ${pk?"":row("±",relRow)}
       ${det?row("퍼트",agg(h=>h.putts)):""}
       ${det?row("FW",i=>typeof i==="string"?"":hs[i].par<4?"–":({L:"◀",H:"●",R:"▶"})[hs[i].fw]||""):""}
       ${det?row("구질",i=>typeof i==="string"?"":(SHAPE_NAME[hs[i].shape]||"").slice(0,2)):""}
