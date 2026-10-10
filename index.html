@@ -125,6 +125,10 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .parpick{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .parpick button{padding:6px 10px;font-family:var(--f-num)}
 .parpick button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dists{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:10px;font-size:12px;color:var(--heroInk);align-items:baseline}
+.dists span{opacity:.8} .dists span.on{opacity:1;color:var(--gold)}
+.dists b{font-family:var(--f-num);font-size:15px;font-weight:600}
+.dists small{font-size:11px;opacity:.6}
 .running{font-family:var(--f-num);font-size:13px;color:var(--muted)}
 .field{display:flex;flex-direction:column;gap:6px}
 .field > .lab{font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
@@ -288,6 +292,11 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .rhero .saved{display:inline-block;font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px;margin-bottom:10px}
 .tiles{border-radius:20px;box-shadow:var(--shadow)}
 .course .pars button{border-radius:10px}
+.dtable{overflow-x:auto;margin-top:8px}
+.dtable table{width:100%;border-collapse:collapse;font-family:var(--f-num);font-size:11px;font-variant-numeric:tabular-nums}
+.dtable th,.dtable td{padding:4px 2px;text-align:center;border-bottom:1px solid var(--line)}
+.dtable th{color:var(--muted);font-weight:500}
+.dtable tr>th:first-child{text-align:left;padding-right:6px}
 .course .cname{font-size:15px;font-weight:700}
 .course .cname.warn{color:var(--warn)}
 .course .pars button{min-height:52px;font-size:17px}
@@ -501,6 +510,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
         <div class="no" id="hNo">1<small></small></div>
         <div class="parpick" id="parPick"></div>
       </div>
+      <div class="dists" id="hDist" hidden></div>
       <div class="holefoot">
         <div class="running" id="running"></div>
         <button class="ghost" id="playInfo">코스·날짜 수정</button>
@@ -633,17 +643,22 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signI
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, getDocsFromServer, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
-   같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
-const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v31";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+   같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
+   dist: 티별 홀 거리(m). 모르는 홀은 null. */
+const COURSES_SEED_VERSION = 3;
+const APP_VERSION = "v32";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
  {"club":"서원힐스CC","name":"이스트","pars":[4,3,4,4,5,4,4,3,5]},
  {"club":"베르힐CC 영종","name":"베르힐","pars":[4,5,3,4,4,5,4,3,4]},
  {"club":"베르힐CC 영종","name":"스카이","pars":[4,3,5,4,4,3,4,5,4]},
- {"club":"베르힐CC 영종","name":"오션","pars":[5,4,4,3,4,3,4,4,5]},
- {"club":"베르힐CC 영종","name":"레이크","pars":[4,5,4,3,5,4,3,4,4]},
+ {"club":"베르힐CC 영종","name":"오션","pars":[5,4,4,3,4,3,4,4,5],"dist":{
+   "Black":[513,379,403,156,331,185,420,425,526],"Blue":[497,350,372,143,313,170,401,395,507],
+   "White":[473,318,352,129,287,155,381,371,485],"Red":[392,267,258,105,236,124,299,288,397]}},
+ {"club":"베르힐CC 영종","name":"레이크","pars":[4,5,4,3,5,4,3,4,4],"dist":{
+   "Black":[312,533,423,197,532,340,165,380,400],"Blue":[291,null,396,179,513,322,149,362,363],
+   "White":[271,475,373,160,492,301,137,339,338],"Red":[211,394,286,103,403,240,112,267,292]}},
  {"club":"오크밸리CC","name":"오크","pars":[4,5,4,5,3,4,3,4,4]},
  {"club":"오크밸리CC","name":"메이플","pars":[4,4,3,4,4,5,4,3,5]},
  {"club":"오크밸리CC","name":"파인","pars":[4,4,3,4,5,4,3,4,5]},
@@ -684,6 +699,8 @@ const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5];
 const SCORE_OPTS = [[-2,"이글"],[-1,"버디"],[0,"파"],[1,"보기"],[2,"더블"],[3,"트리플"],[4,"쿼드"],[5,"+5"]];
 const SHAPES = [["hook","훅","↷ 크게 우"],["draw","드로우","↗ 살짝 우"],["straight","스트레이트","↑ 직진"],["fade","페이드","↖ 살짝 좌"],["slice","슬라이스","↶ 크게 좌"],["push","푸시","← 좌로 직진"],["pull","풀","→ 우로 직진"]];
 const SHAPE_NAME = Object.fromEntries(SHAPES.map(s=>[s[0],s[1]]));
+const TEE_ORDER = ["Black","Blue","White","Red"];
+const teesOf = dist => dist&&typeof dist==="object" ? Object.keys(dist).filter(t=>Array.isArray(dist[t])).sort((a,b)=>{const i=TEE_ORDER.indexOf(a),j=TEE_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j)}) : [];
 const FW = [["L","◀ 좌 미스"],["H","● 적중"],["R","우 미스 ▶"]];
 
 let db=null, rcol=null, ccol=null, rounds=[], courses=[], cur=null, hole=0, range=10;
@@ -1114,6 +1131,9 @@ function renderPlay(){
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
   const half=hole<9?cur.front:cur.back;
   $("hNo").innerHTML=`${hole+1}<small>번 홀 · ${esc(half.course)} ${hole%9+1}</small>`;
+  const dist=(courses.find(c=>c.id===half.courseId)||courses.find(c=>c.club===cur.club&&c.name===half.course)||{}).dist, tees=teesOf(dist);
+  $("hDist").hidden=!tees.length;
+  $("hDist").innerHTML=tees.map(t=>{const m=dist[t][hole%9];return `<span class="${cur.tee===t?"on":""}">${esc(t)} <b>${m==null?"–":m}</b></span>`}).join("")+(tees.length?`<small>m</small>`:"");
   $("parPick").innerHTML=`PAR `+[3,4,5].map(p=>`<button class="${h.par===p?"on":""}" data-par="${p}">${p}</button>`).join("");
   // running total over done holes
   const dn=cur.holes.filter(x=>x.done); const tot=dn.reduce((a,x)=>a+x.par+x.d,0), rel=dn.reduce((a,x)=>a+x.d,0);
@@ -1470,11 +1490,17 @@ function renderCourses(){
       <span class="rt ${warn?"warn":""}">${list.length}개 코스${warn?" · 확인 필요":""}<span class="chev">›</span></span></button>`}).join("")
     : `<div class="empty"><b>등록된 골프장이 없습니다</b>아래에서 추가하거나 Claude에게 골프장 이름을 알려주세요.</div>`;
 }
+function distTable(c){
+  const tees=teesOf(c.dist); if(!tees.length) return "";
+  const tot=a=>a.some(v=>v==null)?"–":a.reduce((x,y)=>x+y,0).toLocaleString();
+  return `<div class="dtable"><table><tr><th>m</th>${c.pars.map((_,i)=>`<th>${i+1}</th>`).join("")}<th>T</th></tr>`+
+    tees.map(t=>`<tr><th>${esc(t)}</th>${c.dist[t].map(v=>`<td>${v==null?"–":v}</td>`).join("")}<td>${tot(c.dist[t])}</td></tr>`).join("")+`</table></div>`;
+}
 function renderClubDetail(cs){
   $("cdClub").textContent=clubSel;
   $("cdCourses").innerHTML=cs.sort((a,b)=>a.name.localeCompare(b.name,"ko")).map(c=>{const t=parSum(c);
     return `<div class="course"><span class="cname ${t!==36?"warn":""}">${esc(c.name)} · 파${t}${t!==36?" ⚠ 36이 아님":""}${c.unverified?' <span class="tag">확인 필요</span>':''}</span>
-      <div class="pars" data-cid="${c.id}">${c.pars.map((p,i)=>`<button class="p${p}" data-i="${i}" aria-label="${i+1}번 홀 파${p}"><small>${i+1}</small>${p}</button>`).join("")}</div></div>`}).join("");
+      <div class="pars" data-cid="${c.id}">${c.pars.map((p,i)=>`<button class="p${p}" data-i="${i}" aria-label="${i+1}번 홀 파${p}"><small>${i+1}</small>${p}</button>`).join("")}</div>${distTable(c)}</div>`}).join("");
 }
 $("courseList").onclick=e=>{const b=e.target.closest("[data-club]");if(!b)return;
   clubSel=b.dataset.club; $("cdMsg").textContent=""; renderCourses(); scrollTop()};
@@ -1520,7 +1546,7 @@ $("reseedBtn").onclick=async()=>{
   if(!curUid||!ccol){msg("로그인한 뒤에 할 수 있습니다.");return}
   $("reseedBtn").disabled=true; msg("맞추는 중…");
   try{ const r=await seedCourses(curUid,true);
-    msg(`완료: 새로 등록 ${r.added}개 · 파 수정 ${r.fixed}개 · 변경 없음 ${r.same}개`); }
+    msg(`완료: 새로 등록 ${r.added}개 · 파·거리 수정 ${r.fixed}개 · 변경 없음 ${r.same}개`); }
   catch(e){ msg(e&&e.code==="unavailable"?"인터넷에 연결된 상태에서 다시 눌러 주세요.":"맞추지 못했습니다 ("+(e.code||e.message||"오류")+")."); }
   $("reseedBtn").disabled=false;
 };
@@ -1646,6 +1672,7 @@ window.addEventListener("offline",()=>setSync("","오프라인 · 폰에 저장�
 
 // 기본 코스 맞추기. force=false면 저장된 버전이 최신일 때 아무것도 하지 않음.
 // 서버 목록을 확인할 수 없으면(오프라인) 중복 생성을 막기 위해 건너뛰고 다음에 다시 시도한다.
+const distKey=d=>JSON.stringify(teesOf(d).map(t=>[t,d[t]]));   // Firestore가 키 순서를 바꿔도 같게 비교
 async function seedCourses(uid,force=false){
   const uref=doc(fs,"users",uid);
   if(!force){
@@ -1655,8 +1682,13 @@ async function seedCourses(uid,force=false){
   const batch=writeBatch(fs); let added=0, fixed=0, same=0;
   DEFAULT_COURSES.forEach(c=>{
     const ex=existing.filter(x=>x.club===c.club&&x.name===c.name);
-    if(!ex.length){ batch.set(doc(ccol.ref),{club:c.club,name:c.name,pars:[...c.pars],createdAt:Date.now()}); added++; return; }
-    ex.forEach(x=>{ if(Array.isArray(x.pars)&&x.pars.join()===c.pars.join()) same++; else { batch.update(x.ref,{pars:[...c.pars]}); fixed++; } });
+    if(!ex.length){ batch.set(doc(ccol.ref),{club:c.club,name:c.name,pars:[...c.pars],...(c.dist?{dist:clone(c.dist)}:{}),createdAt:Date.now()}); added++; return; }
+    ex.forEach(x=>{
+      const up={};
+      if(!(Array.isArray(x.pars)&&x.pars.join()===c.pars.join())) up.pars=[...c.pars];
+      if(c.dist&&distKey(x.dist)!==distKey(c.dist)) up.dist=clone(c.dist);
+      if(Object.keys(up).length){ batch.update(x.ref,up); fixed++; } else same++;
+    });
   });
   batch.set(uref,{coursesSeedVersion:COURSES_SEED_VERSION},{merge:true});
   await batch.commit();
