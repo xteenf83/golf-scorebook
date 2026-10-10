@@ -531,15 +531,6 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
       <div class="sync"><span class="dot" id="dot2"></span><span id="syncText2"></span></div>
     </section>
 
-    <div class="field">
-      <div class="lab"><span id="voiceLbl">홀 메모 · 키보드 🎤로 말하기</span><span class="note" id="memoSaved"></span></div>
-      <div class="voice">
-        <button type="button" class="mic" id="micBtn" hidden aria-label="말하기">🎤</button>
-        <textarea id="memoIn" rows="2" placeholder="바쁠 땐 대충 말로 남기고 나중에 보고 입력하세요. 예: 드라이버 오른쪽 러프, 세컨 짧음, 투퍼트" autocomplete="off"></textarea>
-      </div>
-      <div class="heard" id="heard" role="status"></div>
-    </div>
-
     <div class="field" id="fwField" data-step="fw">
       <div class="lab"><span>티샷 페어웨이</span></div>
       <div class="btns s3" id="fwBtns"></div>
@@ -562,6 +553,14 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
     <div class="field" data-step="score">
       <div class="lab"><span>스코어 (벌타 포함)</span><span id="strokesLbl"></span></div>
       <div class="btns s8" id="scoreBtns"></div>
+    </div>
+    <div class="field">
+      <div class="lab"><span id="voiceLbl">홀 메모 · 키보드 🎤로 말하기</span><span class="note" id="memoSaved"></span></div>
+      <div class="voice">
+        <button type="button" class="mic" id="micBtn" hidden aria-label="말하기">🎤</button>
+        <textarea id="memoIn" rows="2" placeholder="샷 메모나 그날의 생각을 자유롭게. 바쁠 땐 말로 대충 남기고 나중에 보며 입력하세요." autocomplete="off"></textarea>
+      </div>
+      <div class="heard" id="heard" role="status"></div>
     </div>
     <div class="row" style="justify-content:space-between">
       <button class="ghost" id="playHome">← 홈 (자동 저장됨)</button>
@@ -1238,7 +1237,7 @@ function renderPlay(){
   let s=""; cur.holes.forEach((x,i)=>{ if(i===9) s+=`<span class="gap"></span>`;
     s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""}" data-h="${i}"><span>${i+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.par+x.d):"·"}</b></button>`});
   $("strip").innerHTML=s; markStrip();
-  if(document.activeElement!==$("memoIn")) $("memoIn").value=h.memo||""; $("memoSaved").textContent="";
+  if(document.activeElement!==$("memoIn")){ $("memoIn").value=h.memo||""; requestAnimationFrame(growMemo) } $("memoSaved").textContent="";
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
   const half=hole<9?cur.front:cur.back;
   $("hNo").innerHTML=`${hole+1}<small>번 홀 · ${esc(half.course)} ${hole%9+1}</small>`;
@@ -1409,8 +1408,9 @@ $("infoSave").onclick=async()=>{
 $("memoIn").addEventListener("input",()=>{
   const h=cur&&cur.holes[hole]; if(!h) return;
   const v=$("memoIn").value; if(v.trim()) h.memo=v; else delete h.memo;
-  $("memoSaved").textContent="저장됨"; queueSave(); markStrip();
+  $("memoSaved").textContent="저장됨"; queueSave(); markStrip(); growMemo();
 });
+function growMemo(){const t=$("memoIn"); t.style.height="auto"; t.style.height=Math.max(52,t.scrollHeight+2)+"px"}
 function markStrip(){ [...$("strip").querySelectorAll("button[data-h]")].forEach(b=>b.classList.toggle("memo",!!cur.holes[+b.dataset.h].memo)) }
 
 /* ---------- 🎤 speech (Web Speech API) ---------- */
