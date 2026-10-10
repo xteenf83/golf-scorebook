@@ -125,6 +125,10 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .parpick{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .parpick button{padding:6px 10px;font-family:var(--f-num)}
 .parpick button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dists{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:10px;font-size:12px;color:var(--heroInk);align-items:baseline}
+.dists span{opacity:.8} .dists span.on{opacity:1;color:var(--gold)}
+.dists b{font-family:var(--f-num);font-size:15px;font-weight:600}
+.dists small{font-size:11px;opacity:.6}
 .running{font-family:var(--f-num);font-size:13px;color:var(--muted)}
 .field{display:flex;flex-direction:column;gap:6px}
 .field > .lab{font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
@@ -288,6 +292,11 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .rhero .saved{display:inline-block;font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px;margin-bottom:10px}
 .tiles{border-radius:20px;box-shadow:var(--shadow)}
 .course .pars button{border-radius:10px}
+.dtable{overflow-x:auto;margin-top:8px}
+.dtable table{width:100%;border-collapse:collapse;font-family:var(--f-num);font-size:11px;font-variant-numeric:tabular-nums}
+.dtable th,.dtable td{padding:4px 2px;text-align:center;border-bottom:1px solid var(--line)}
+.dtable th{color:var(--muted);font-weight:500}
+.dtable tr>th:first-child{text-align:left;padding-right:6px}
 .course .cname{font-size:15px;font-weight:700}
 .course .cname.warn{color:var(--warn)}
 .course .pars button{min-height:52px;font-size:17px}
@@ -501,6 +510,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
         <div class="no" id="hNo">1<small></small></div>
         <div class="parpick" id="parPick"></div>
       </div>
+      <div class="dists" id="hDist" hidden></div>
       <div class="holefoot">
         <div class="running" id="running"></div>
         <button class="ghost" id="playInfo">코스·날짜 수정</button>
@@ -633,57 +643,143 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signI
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, getDocsFromServer, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
-   같은 골프장+코스명이 있으면 pars만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것. */
-const COURSES_SEED_VERSION = 2;
-const APP_VERSION = "v31";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+   같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
+   dist: 티별 홀 거리(m). 모르는 홀은 null. */
+const COURSES_SEED_VERSION = 3;
+const APP_VERSION = "v32";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
  {"club":"서원힐스CC","name":"이스트","pars":[4,3,4,4,5,4,4,3,5]},
  {"club":"베르힐CC 영종","name":"베르힐","pars":[4,5,3,4,4,5,4,3,4]},
  {"club":"베르힐CC 영종","name":"스카이","pars":[4,3,5,4,4,3,4,5,4]},
- {"club":"베르힐CC 영종","name":"오션","pars":[5,4,4,3,4,3,4,4,5]},
- {"club":"베르힐CC 영종","name":"레이크","pars":[4,5,4,3,5,4,3,4,4]},
+ {"club":"베르힐CC 영종","name":"오션","pars":[5,4,4,3,4,3,4,4,5],"dist":{
+   "Black":[513,379,403,156,331,185,420,425,526],"Blue":[497,350,372,143,313,170,401,395,507],
+   "White":[473,318,352,129,287,155,381,371,485],"Red":[392,267,258,105,236,124,299,288,397]}},
+ {"club":"베르힐CC 영종","name":"레이크","pars":[4,5,4,3,5,4,3,4,4],"dist":{
+   "Black":[312,533,423,197,532,340,165,380,400],"Blue":[291,null,396,179,513,322,149,362,363],
+   "White":[271,475,373,160,492,301,137,339,338],"Red":[211,394,286,103,403,240,112,267,292]}},
  {"club":"오크밸리CC","name":"오크","pars":[4,5,4,5,3,4,3,4,4]},
  {"club":"오크밸리CC","name":"메이플","pars":[4,4,3,4,4,5,4,3,5]},
  {"club":"오크밸리CC","name":"파인","pars":[4,4,3,4,5,4,3,4,5]},
  {"club":"오크밸리CC","name":"체리","pars":[4,3,4,4,4,3,5,4,5]},
- {"club":"음성 힐데스하임CC","name":"Hill","pars":[4,3,4,5,4,4,5,3,4]},
- {"club":"음성 힐데스하임CC","name":"Valley","pars":[4,4,3,4,4,5,4,3,5]},
- {"club":"음성 힐데스하임CC","name":"Lake","pars":[4,3,5,4,3,5,4,4,4]},
- {"club":"라비에벨CC","name":"올드OUT","pars":[5,4,4,3,5,4,3,4,4]},
- {"club":"라비에벨CC","name":"올드IN","pars":[4,5,3,4,4,5,4,3,4]},
- {"club":"실크밸리GC","name":"Silk","pars":[5,4,3,4,4,5,3,4,4]},
- {"club":"실크밸리GC","name":"Lake","pars":[4,4,5,3,4,3,5,4,4]},
- {"club":"자유로CC","name":"대한","pars":[5,4,3,4,4,3,4,5,4]},
- {"club":"자유로CC","name":"민국","pars":[4,5,3,4,4,4,3,5,4]},
- {"club":"포천 힐마루CC","name":"브리즈","pars":[4,4,3,4,4,5,3,4,5]},
- {"club":"포천 힐마루CC","name":"선샤인","pars":[5,4,3,4,5,3,4,3,5]},
- {"club":"블루원 용인CC","name":"Middle","pars":[4,4,3,5,4,3,4,4,5]},
- {"club":"블루원 용인CC","name":"West","pars":[5,4,3,4,4,4,3,5,4]},
- {"club":"킹즈락CC","name":"East","pars":[4,5,3,5,3,4,4,4,4]},
- {"club":"킹즈락CC","name":"West","pars":[5,4,4,3,5,4,4,3,4]},
+ {"club":"음성 힐데스하임CC","name":"Hill","pars":[4,3,4,5,4,4,5,3,4],"dist":{
+   "Blue":[378,145,350,485,337,360,531,165,362],"White":[368,131,342,478,328,350,508,153,346],
+   "Red":[252,82,253,355,236,264,399,116,259]}},
+ {"club":"음성 힐데스하임CC","name":"Valley","pars":[4,4,3,4,4,5,4,3,5],"dist":{
+   "Blue":[313,487,187,341,340,513,365,166,514],"White":[303,457,174,332,334,501,357,157,482],
+   "Red":[243,375,110,250,232,374,274,114,395]}},
+ {"club":"음성 힐데스하임CC","name":"Lake","pars":[4,3,5,4,3,5,4,4,4],"dist":{
+   "Blue":[346,150,433,364,186,438,398,360,374],"White":[331,144,415,353,173,435,385,333,360],
+   "Red":[253,88,330,280,100,363,292,258,279]}},
+ {"club":"라비에벨CC","name":"올드OUT","pars":[5,4,4,3,5,4,3,4,4],"dist":{
+   "Black":[503,401,389,169,491,383,210,346,415],"Gold":[474,377,365,167,470,362,172,325,387],
+   "White":[422,353,326,167,470,362,172,325,362],"Silver":[397,330,326,154,433,340,150,290,340],
+   "Red":[377,301,280,103,404,309,123,251,301]}},
+ {"club":"라비에벨CC","name":"올드IN","pars":[4,5,3,4,4,5,4,3,4],"dist":{
+   "Black":[339,483,152,412,386,532,358,160,403],"Gold":[324,455,130,384,358,505,327,143,382],
+   "White":[301,415,116,333,326,477,327,142,356],"Silver":[272,415,116,302,289,442,297,123,319],
+   "Red":[240,368,94,256,264,415,266,84,258]}},
+ {"club":"실크밸리GC","name":"Silk","pars":[5,4,3,4,4,5,3,4,4],"dist":{
+   "Black":[520,400,180,380,330,475,220,360,410],"Blue":[498,378,153,366,313,449,200,338,389],
+   "White":[468,351,120,351,296,420,175,318,368],"Yellow":[428,328,98,338,284,386,152,288,342],
+   "Red":[396,306,80,323,249,350,130,263,320]}},
+ {"club":"실크밸리GC","name":"Lake","pars":[4,4,5,3,4,3,5,4,4],"dist":{
+   "Black":[380,375,500,190,360,215,525,340,385],"Blue":[360,358,476,171,328,198,513,317,363],
+   "White":[334,331,447,139,298,170,495,290,334],"Yellow":[307,313,419,122,253,142,475,266,306],
+   "Red":[295,290,394,91,229,112,413,242,287]}},
+ {"club":"실크밸리GC","name":"Valley","pars":[5,4,4,5,4,3,4,3,4],"dist":{
+   "Black":[505,390,430,560,325,170,395,178,360],"Blue":[480,361,402,528,302,146,372,160,323],
+   "White":[458,326,378,497,275,123,341,140,297],"Yellow":[436,292,354,463,255,100,314,119,280],
+   "Red":[400,254,333,420,236,82,287,119,257]}},
+ {"club":"자유로CC","name":"대한","pars":[5,4,3,4,4,3,4,5,4],"dist":{
+   "Black":[528,367,185,319,409,168,414,534,429],"Blue":[514,350,170,302,391,148,388,519,415],
+   "White":[491,337,151,286,366,130,364,499,396],"Gold":[439,312,128,267,333,114,341,482,350],
+   "Red":[360,288,103,252,306,96,297,403,258]}},
+ {"club":"자유로CC","name":"민국","pars":[4,5,3,4,4,4,3,5,4],"dist":{
+   "Black":[344,489,185,402,416,400,208,460,407],"Blue":[327,475,172,383,387,371,189,449,393],
+   "White":[311,451,155,359,366,357,166,431,381],"Gold":[290,409,133,311,311,295,145,386,338],
+   "Red":[244,372,113,286,275,248,130,367,312]}},
+ {"club":"포천 힐마루CC","name":"브리즈","pars":[4,4,3,4,4,5,3,4,5],"dist":{
+   "Black":[368,380,160,392,315,505,125,348,525],"Blue":[338,350,140,372,295,480,110,323,485],
+   "White":[303,320,125,342,265,450,110,303,465],"Yellow":[273,295,125,282,240,415,100,283,425],
+   "Red":[258,255,105,242,205,360,90,238,390]}},
+ {"club":"포천 힐마루CC","name":"선샤인","pars":[5,4,3,4,5,3,4,3,5],"dist":{
+   "Black":[490,360,150,397,488,190,372,205,525],"Blue":[450,335,135,382,463,170,347,180,505],
+   "White":[405,310,135,337,443,150,297,160,475],"Yellow":[365,290,120,312,368,135,282,135,450],
+   "Red":[345,225,105,252,338,105,257,115,380]}},
+ {"club":"블루원 용인CC","name":"Middle","pars":[4,4,3,5,4,3,4,4,5],"dist":{
+   "Black":[375,393,174,518,339,182,370,338,503],"Blue":[352,379,162,491,326,171,347,326,473],
+   "White":[334,358,149,471,306,144,327,312,458],"Red":[292,289,124,391,265,135,305,287,406]}},
+ {"club":"블루원 용인CC","name":"West","pars":[5,4,3,4,4,4,3,5,4],"dist":{
+   "Black":[528,372,190,339,362,329,176,465,429],"Blue":[510,356,172,307,342,316,149,450,400],
+   "White":[495,343,152,284,321,305,133,430,378],"Red":[439,296,116,262,285,280,114,385,274]}},
+ {"club":"킹즈락CC","name":"East","pars":[4,5,3,5,3,4,4,4,4],"dist":{
+   "Blue":[400,515,207,577,171,385,312,383,340],"White":[386,486,183,557,150,363,290,358,317],
+   "Yellow":[344,407,127,502,125,320,238,324,271],"Red":[318,381,101,475,98,280,212,300,253]}},
+ {"club":"킹즈락CC","name":"West","pars":[5,4,4,3,5,4,4,3,4],"dist":{
+   "Blue":[522,396,373,157,502,391,382,190,360],"White":[490,367,352,131,466,364,356,150,332],
+   "Yellow":[450,323,288,117,410,296,310,131,276],"Red":[426,271,265,103,387,235,283,93,201]}},
  {"club":"킹즈락CC","name":"South","pars":[4,4,5,3,4,4,5,3,4]},
- {"club":"골프클럽Q","name":"Valley","pars":[5,4,4,4,3,4,3,4,5]},
- {"club":"골프클럽Q","name":"Pampas","pars":[4,5,4,3,5,4,3,4,4]},
- {"club":"알펜시아CC","name":"Lake","pars":[4,3,5,4,3,4,5,3,5]},
+ {"club":"골프클럽Q","name":"Valley","pars":[5,4,4,4,3,4,3,4,5],"dist":{
+   "Black":[537,365,360,379,202,310,172,348,518],"Blue":[537,342,321,351,164,310,172,348,491],
+   "White":[509,318,306,331,140,281,136,324,461],"Red":[443,258,263,283,98,234,112,286,419]}},
+ {"club":"골프클럽Q","name":"Pampas","pars":[4,5,4,3,5,4,3,4,4],"dist":{
+   "Black":[353,563,469,196,591,429,171,332,385],"Blue":[330,544,440,173,556,394,153,332,368],
+   "White":[302,513,414,152,516,366,135,309,353],"Red":[246,439,341,97,425,302,105,248,297]}},
+ {"club":"알펜시아CC","name":"Lake","pars":[4,3,5,4,3,4,5,3,5],"dist":{
+   "Black":[344,212,560,286,187,320,580,212,532],"Green":[314,185,528,189,172,277,550,162,491],
+   "White":[283,162,500,174,145,250,505,134,448],"Gold":[264,138,475,164,139,235,495,124,426],
+   "Red":[243,109,433,149,117,200,469,104,395]}},
  {"club":"알펜시아CC","name":"Forest","pars":[4,3,4,4,5,3,5,4,4]},
- {"club":"알펜시아CC","name":"Meadow","pars":[4,4,3,5,4,4,3,5,4]},
+ {"club":"알펜시아CC","name":"Meadow","pars":[4,4,3,5,4,4,3,5,4],"dist":{
+   "Black":[395,460,174,454,273,408,162,507,369],"Green":[377,426,138,429,254,387,137,486,354],
+   "White":[328,385,102,405,235,355,94,466,331],"Gold":[295,366,92,371,208,324,84,438,307],
+   "Red":[252,338,77,322,178,301,64,413,270]}},
  {"club":"세이지우드 여수경도","name":"돌산도","pars":[4,4,4,3,4,5,3,4,5]},
- {"club":"세이지우드 여수경도","name":"오동도","pars":[4,3,5,4,4,5,4,4,3]},
- {"club":"세이지우드 여수경도","name":"금오도","pars":[4,4,3,4,5,4,3,5,4]},
+ {"club":"세이지우드 여수경도","name":"오동도","pars":[4,3,5,4,4,5,4,4,3],"dist":{
+   "Black":[377,160,498,344,313,505,405,336,161],"Blue":[354,142,492,335,290,487,374,321,143],
+   "White":[329,123,473,322,280,461,340,299,118],"Yellow":[305,105,461,301,252,451,328,299,118],
+   "Red":[282,96,425,291,203,425,290,261,100]}},
+ {"club":"세이지우드 여수경도","name":"금오도","pars":[4,4,3,4,5,4,3,5,4],"dist":{
+   "Black":[394,409,124,373,514,343,145,485,368],"Blue":[366,382,124,352,486,323,137,456,359],
+   "White":[353,350,116,342,476,306,112,428,337],"Yellow":[353,340,116,319,443,306,112,419,325],
+   "Red":[323,309,83,280,421,270,90,386,299]}},
  {"club":"베뉴지CC","name":"G","pars":[4,4,4,3,4,5,4,3,5]},
- {"club":"베뉴지CC","name":"New","pars":[4,3,4,4,3,4,5,4,5]},
- {"club":"베뉴지CC","name":"Hill","pars":[4,4,3,5,4,3,4,4,5]},
- {"club":"남원상록GC","name":"춘향","pars":[4,4,5,3,4,5,3,4,4]},
- {"club":"남원상록GC","name":"몽룡","pars":[4,3,4,4,5,3,4,4,5]},
- {"club":"스프링힐스CC","name":"스프링힐스","pars":[4,4,4,3,5,5,4,3,4]}
+ {"club":"베뉴지CC","name":"New","pars":[4,3,4,4,3,4,5,4,5],"dist":{
+   "Blue":[340,182,302,378,185,337,498,327,475],"White":[324,150,262,351,153,323,478,309,442],
+   "Yellow":[284,140,244,327,153,323,448,282,413],"Red":[259,135,223,299,120,284,430,264,394]}},
+ {"club":"베뉴지CC","name":"Hill","pars":[4,4,3,5,4,3,4,4,5],"dist":{
+   "Blue":[375,365,140,543,356,166,327,403,477],"White":[342,343,121,515,325,166,301,329,452],
+   "Yellow":[313,315,105,480,299,135,284,299,434],"Red":[294,278,92,438,277,110,238,277,370]}},
+ {"club":"남원상록GC","name":"춘향","pars":[4,4,5,3,4,5,3,4,4],"dist":{
+   "Blue":[410,390,528,177,375,498,178,380,370],"White":[389,382,497,152,359,476,172,371,347],
+   "Yellow":[369,357,475,152,359,443,160,340,333],"Red":[285,297,438,136,286,404,125,283,289]}},
+ {"club":"남원상록GC","name":"몽룡","pars":[4,3,4,4,5,3,4,4,5],"dist":{
+   "Blue":[375,210,370,360,516,211,397,416,509],"White":[360,194,336,338,498,181,377,398,493],
+   "Yellow":[345,140,301,293,470,143,356,350,474],"Red":[285,130,194,225,416,126,292,291,407]}},
+ {"club":"스프링힐스CC","name":"스프링힐스","pars":[4,4,4,3,5,5,4,3,4],"dist":{
+   "Blue":[387,425,386,172,482,520,357,122,354],"White":[355,412,343,153,473,485,323,122,332],
+   "Red":[325,364,317,134,441,442,275,102,293]}},
+ {"club":"강화웰빙CC","name":"웰빙","pars":[5,4,3,5,5,3,4,3,4],"dist":{
+   "Blue":[450,277,100,453,400,140,280,105,295],"White":[430,248,85,440,370,115,230,90,230],
+   "Yellow":[343,212,67,365,350,100,200,83,170],"Red":[343,212,67,365,350,100,200,83,170]}},
+ {"club":"휘닉스 평창","name":"Mountain","pars":[4,5,4,4,3,4,5,3,4],"dist":{
+   "Gold":[369,509,330,415,157,363,463,157,430],"Blue":[336,475,292,393,157,316,435,144,402],
+   "White":[304,453,269,376,134,275,416,120,373],"Red":[251,403,231,277,114,240,346,100,282]}},
+ {"club":"휘닉스 평창","name":"Lake","pars":[4,4,3,4,5,3,4,5,4],"dist":{
+   "Gold":[364,350,167,345,491,185,389,499,372],"Blue":[337,312,158,314,450,161,365,465,336],
+   "White":[315,300,154,294,397,161,345,449,280],"Red":[286,255,137,230,378,135,275,397,238]}}
 ];
 const $ = id => document.getElementById(id);
 const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5];
 const SCORE_OPTS = [[-2,"이글"],[-1,"버디"],[0,"파"],[1,"보기"],[2,"더블"],[3,"트리플"],[4,"쿼드"],[5,"+5"]];
 const SHAPES = [["hook","훅","↷ 크게 우"],["draw","드로우","↗ 살짝 우"],["straight","스트레이트","↑ 직진"],["fade","페이드","↖ 살짝 좌"],["slice","슬라이스","↶ 크게 좌"],["push","푸시","← 좌로 직진"],["pull","풀","→ 우로 직진"]];
 const SHAPE_NAME = Object.fromEntries(SHAPES.map(s=>[s[0],s[1]]));
+const TEE_ORDER = ["Black","Gold","Blue","Green","White","Yellow","Silver","Red"];
+// 티 순서: 긴 티부터 (골프장마다 Gold 등의 위치가 달라서 이름이 아니라 합계 거리로 정렬)
+const teeLen = a => {const v=a.filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};   // 빈 홀은 빼고 평균
+const teesOf = dist => dist&&typeof dist==="object" ? Object.keys(dist).filter(t=>Array.isArray(dist[t])).sort((a,b)=>teeLen(dist[b])-teeLen(dist[a])||TEE_ORDER.indexOf(a)-TEE_ORDER.indexOf(b)) : [];
 const FW = [["L","◀ 좌 미스"],["H","● 적중"],["R","우 미스 ▶"]];
 
 let db=null, rcol=null, ccol=null, rounds=[], courses=[], cur=null, hole=0, range=10;
@@ -1114,6 +1210,9 @@ function renderPlay(){
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
   const half=hole<9?cur.front:cur.back;
   $("hNo").innerHTML=`${hole+1}<small>번 홀 · ${esc(half.course)} ${hole%9+1}</small>`;
+  const dist=(courses.find(c=>c.id===half.courseId)||courses.find(c=>c.club===cur.club&&c.name===half.course)||{}).dist, tees=teesOf(dist);
+  $("hDist").hidden=!tees.length;
+  $("hDist").innerHTML=tees.map(t=>{const m=dist[t][hole%9];return `<span class="${cur.tee===t?"on":""}">${esc(t)} <b>${m==null?"–":m}</b></span>`}).join("")+(tees.length?`<small>m</small>`:"");
   $("parPick").innerHTML=`PAR `+[3,4,5].map(p=>`<button class="${h.par===p?"on":""}" data-par="${p}">${p}</button>`).join("");
   // running total over done holes
   const dn=cur.holes.filter(x=>x.done); const tot=dn.reduce((a,x)=>a+x.par+x.d,0), rel=dn.reduce((a,x)=>a+x.d,0);
@@ -1470,11 +1569,17 @@ function renderCourses(){
       <span class="rt ${warn?"warn":""}">${list.length}개 코스${warn?" · 확인 필요":""}<span class="chev">›</span></span></button>`}).join("")
     : `<div class="empty"><b>등록된 골프장이 없습니다</b>아래에서 추가하거나 Claude에게 골프장 이름을 알려주세요.</div>`;
 }
+function distTable(c){
+  const tees=teesOf(c.dist); if(!tees.length) return "";
+  const tot=a=>a.some(v=>v==null)?"–":a.reduce((x,y)=>x+y,0).toLocaleString();
+  return `<div class="dtable"><table><tr><th>m</th>${c.pars.map((_,i)=>`<th>${i+1}</th>`).join("")}<th>T</th></tr>`+
+    tees.map(t=>`<tr><th>${esc(t)}</th>${c.dist[t].map(v=>`<td>${v==null?"–":v}</td>`).join("")}<td>${tot(c.dist[t])}</td></tr>`).join("")+`</table></div>`;
+}
 function renderClubDetail(cs){
   $("cdClub").textContent=clubSel;
   $("cdCourses").innerHTML=cs.sort((a,b)=>a.name.localeCompare(b.name,"ko")).map(c=>{const t=parSum(c);
     return `<div class="course"><span class="cname ${t!==36?"warn":""}">${esc(c.name)} · 파${t}${t!==36?" ⚠ 36이 아님":""}${c.unverified?' <span class="tag">확인 필요</span>':''}</span>
-      <div class="pars" data-cid="${c.id}">${c.pars.map((p,i)=>`<button class="p${p}" data-i="${i}" aria-label="${i+1}번 홀 파${p}"><small>${i+1}</small>${p}</button>`).join("")}</div></div>`}).join("");
+      <div class="pars" data-cid="${c.id}">${c.pars.map((p,i)=>`<button class="p${p}" data-i="${i}" aria-label="${i+1}번 홀 파${p}"><small>${i+1}</small>${p}</button>`).join("")}</div>${distTable(c)}</div>`}).join("");
 }
 $("courseList").onclick=e=>{const b=e.target.closest("[data-club]");if(!b)return;
   clubSel=b.dataset.club; $("cdMsg").textContent=""; renderCourses(); scrollTop()};
@@ -1520,7 +1625,7 @@ $("reseedBtn").onclick=async()=>{
   if(!curUid||!ccol){msg("로그인한 뒤에 할 수 있습니다.");return}
   $("reseedBtn").disabled=true; msg("맞추는 중…");
   try{ const r=await seedCourses(curUid,true);
-    msg(`완료: 새로 등록 ${r.added}개 · 파 수정 ${r.fixed}개 · 변경 없음 ${r.same}개`); }
+    msg(`완료: 새로 등록 ${r.added}개 · 파·거리 수정 ${r.fixed}개 · 변경 없음 ${r.same}개`); }
   catch(e){ msg(e&&e.code==="unavailable"?"인터넷에 연결된 상태에서 다시 눌러 주세요.":"맞추지 못했습니다 ("+(e.code||e.message||"오류")+")."); }
   $("reseedBtn").disabled=false;
 };
@@ -1646,6 +1751,7 @@ window.addEventListener("offline",()=>setSync("","오프라인 · 폰에 저장�
 
 // 기본 코스 맞추기. force=false면 저장된 버전이 최신일 때 아무것도 하지 않음.
 // 서버 목록을 확인할 수 없으면(오프라인) 중복 생성을 막기 위해 건너뛰고 다음에 다시 시도한다.
+const distKey=d=>JSON.stringify(teesOf(d).map(t=>[t,d[t]]));   // Firestore가 키 순서를 바꿔도 같게 비교
 async function seedCourses(uid,force=false){
   const uref=doc(fs,"users",uid);
   if(!force){
@@ -1655,8 +1761,13 @@ async function seedCourses(uid,force=false){
   const batch=writeBatch(fs); let added=0, fixed=0, same=0;
   DEFAULT_COURSES.forEach(c=>{
     const ex=existing.filter(x=>x.club===c.club&&x.name===c.name);
-    if(!ex.length){ batch.set(doc(ccol.ref),{club:c.club,name:c.name,pars:[...c.pars],createdAt:Date.now()}); added++; return; }
-    ex.forEach(x=>{ if(Array.isArray(x.pars)&&x.pars.join()===c.pars.join()) same++; else { batch.update(x.ref,{pars:[...c.pars]}); fixed++; } });
+    if(!ex.length){ batch.set(doc(ccol.ref),{club:c.club,name:c.name,pars:[...c.pars],...(c.dist?{dist:clone(c.dist)}:{}),createdAt:Date.now()}); added++; return; }
+    ex.forEach(x=>{
+      const up={};
+      if(!(Array.isArray(x.pars)&&x.pars.join()===c.pars.join())) up.pars=[...c.pars];
+      if(c.dist&&distKey(x.dist)!==distKey(c.dist)) up.dist=clone(c.dist);
+      if(Object.keys(up).length){ batch.update(x.ref,up); fixed++; } else same++;
+    });
   });
   batch.set(uref,{coursesSeedVersion:COURSES_SEED_VERSION},{merge:true});
   await batch.commit();
