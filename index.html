@@ -150,7 +150,9 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .step button{padding:8px 12px}
 .voice{display:flex;gap:6px}
 .voice input,.voice textarea{flex:1}
-.memos h2{margin:0 0 8px}
+.memos h2,.diary h2{margin:0 0 8px}
+.diary textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;line-height:1.5;resize:vertical;min-height:76px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.diary .note{margin-top:4px;min-height:1.2em}
 .mrow{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:10px 2px}
 .mrow:first-of-type{border-top:0}
 .mrow b{flex:0 0 26px;font-family:var(--f-num);color:var(--muted)}
@@ -1443,6 +1445,21 @@ if(SR && !iosHomeApp){
 }
 
 /* ---------- ROUND DETAIL ---------- */
+/* 라운드 일기: 라운드를 마친 뒤 기록 화면에서 남기는 총평. 입력하는 대로 저장 */
+function diaryHtml(r){
+  return `<section class="panel diary"><h2>라운드 일기</h2>
+    <textarea id="diaryIn" rows="3" placeholder="오늘 라운드는 어땠나요? 잘된 점, 아쉬운 점, 다음에 해볼 것">${esc(r.diary||"")}</textarea>
+    <div class="note" id="diarySaved"></div></section>`;
+}
+function bindDiary(r){
+  const t=$("diaryIn"); let timer=null;
+  const grow=()=>{t.style.height="auto";t.style.height=Math.max(76,t.scrollHeight+2)+"px"}; requestAnimationFrame(grow);
+  t.addEventListener("input",()=>{ grow(); $("diarySaved").textContent="저장 중…"; clearTimeout(timer);
+    timer=setTimeout(()=>{ const v=t.value.trim()?t.value:""; r.diary=v||undefined;
+      const x=rounds.find(y=>y.id===r.id); if(x){ if(v) x.diary=v; else delete x.diary; }
+      rcol.doc(r.id).update({diary:v}).then(()=>{$("diarySaved").textContent="저장됨"},()=>{});
+      $("diarySaved").textContent="저장됨"; },500) });
+}
 function delActs(id,editHtml,bind){
   const acts=()=>{ $("roundActs").innerHTML = pendingDel
       ? `<span class="note">이 라운드를 영구 삭제할까요?</span><button class="danger" id="delYes">삭제</button><button class="ghost" id="delNo">취소</button>`
@@ -1508,7 +1525,9 @@ function openRound(id,fresh){
     ${notes.map(t=>`<p class="note" style="margin:12px 0 0">${t}</p>`).join("")}
     </section>
     ${memoHtml}
+    ${diaryHtml(r)}
     <div class="row" id="roundActs"></div>`;
+  bindDiary(r);
   // 메모를 누르면 그 홀 수정 화면으로 (메모를 보며 구질 등 입력)
   if(det) $("roundBox").querySelectorAll(".mrow").forEach(b=>b.onclick=()=>{cur=clone(r);hole=+b.dataset.h;renderPlay();show("Play");scrollTop()});
   delActs(id, `${det?`<button id="editRound">홀별 수정</button>`:""}<button id="editInfo">코스·날짜 수정</button>`, ()=>{
@@ -1538,7 +1557,9 @@ function renderTotalRound(r,fresh){
       <div class="row full"><button class="primary" id="teSave">저장</button><button class="ghost" id="teCancel">취소</button></div>
     </div>
     </section>
+    ${diaryHtml(r)}
     <div class="row" id="roundActs"></div>`;
+  bindDiary(r);
   delActs(id, `<button id="editTot">타수 수정</button><button id="editInfo">코스·날짜 수정</button>`, ()=>{
     $("editTot").onclick=()=>{$("totEdit").hidden=false;$("teTotal").focus()};
     $("editInfo").onclick=()=>{cur=clone(r);openInfo("round")};
