@@ -136,7 +136,11 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .btns.s8{grid-template-columns:repeat(4,1fr)}
 .btns.s5{grid-template-columns:repeat(5,1fr)}
 .btns.s3{grid-template-columns:1fr 1.3fr 1fr}
-.btns.s7{grid-template-columns:repeat(4,1fr)}
+.btns.s7{grid-template-columns:repeat(7,1fr);gap:4px}
+.opt.shp{padding:6px 0 5px;min-height:0;gap:2px}
+.opt.shp svg{width:22px;height:28px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.opt.shp svg circle{fill:currentColor;stroke:none}
+.opt.shp small{font-size:10.5px;letter-spacing:-.5px;white-space:nowrap}
 .opt{padding:10px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;min-height:52px;justify-content:center}
 .opt b{font-family:var(--f-num);font-size:17px}
 .opt small{font-size:11px;font-weight:500;color:var(--muted)}
@@ -538,7 +542,7 @@ table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:
       <div class="btns s3" id="fwBtns"></div>
     </div>
     <div class="field" data-step="shape">
-      <div class="lab"><span>티샷 구질</span><span>좌타 기준 휘는 방향</span></div>
+      <div class="lab"><span>티샷 구질</span><span>공이 간 방향 (좌타)</span></div>
       <div class="btns s7" id="shapeBtns"></div>
     </div>
     <div class="field" data-step="pen">
@@ -791,6 +795,16 @@ const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5];
 const SCORE_OPTS = [[-2,"이글"],[-1,"버디"],[0,"파"],[1,"보기"],[2,"더블"],[3,"트리플"],[4,"쿼드"],[5,"+5"]];
 const SHAPES = [["hook","훅","↷ 크게 우"],["draw","드로우","↗ 살짝 우"],["straight","스트레이트","↑ 직진"],["fade","페이드","↖ 살짝 좌"],["slice","슬라이스","↶ 크게 좌"],["push","푸시","← 좌로 직진"],["pull","풀","→ 우로 직진"]];
 const SHAPE_NAME = Object.fromEntries(SHAPES.map(s=>[s[0],s[1]]));
+// 홀 화면 구질 버튼: 공이 가는 방향대로 왼쪽→오른쪽 한 줄 (좌타 기준). 가운데 셋은 곧게 가는 공, 바깥은 휘는 공
+// [키, 짧은 이름, 공 궤적(아래 가운데에서 출발)]
+const SHAPE_ROW = [
+  ["slice","슬라이스","M12 27 Q16 5 1 10"],
+  ["fade","페이드","M12 27 Q12 9 6 3"],
+  ["push","푸시","M12 27 L5 3"],
+  ["straight","직진","M12 27 L12 3"],
+  ["pull","풀","M12 27 L19 3"],
+  ["draw","드로우","M12 27 Q12 9 18 3"],
+  ["hook","훅","M12 27 Q8 5 23 10"]];
 const TEE_ORDER = ["Black","Gold","Blue","Green","White","Yellow","Silver","Red"];
 // 티 순서: 긴 티부터 (골프장마다 Gold 등의 위치가 달라서 이름이 아니라 합계 거리로 정렬)
 const teeLen = a => {const v=a.filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};   // 빈 홀은 빼고 평균
@@ -1260,7 +1274,7 @@ function renderPlay(){
   $("fwField").hidden=h.par<4;
   $("fwBtns").innerHTML=FW.map(([k,n])=>`<button class="opt ${h.fw===k?"on":""}" data-fw="${k}"><b style="font-family:var(--f-body);font-size:14px">${n}</b></button>`).join("");
   // shape
-  $("shapeBtns").innerHTML=SHAPES.map(([k,n,sub])=>`<button class="opt ${h.shape===k?"on":""}" data-sh="${k}"><b style="font-family:var(--f-body);font-size:14px">${n}</b><small>${sub}</small></button>`).join("");
+  $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="opt shp ${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="27" r="2"/></svg><small>${n}</small></button>`).join("");
   $("obV").textContent=h.ob||0; $("hzV").textContent=h.hz||0;
   $("prevBtn").disabled=hole===0;
   const editing=cur.status==="done";
