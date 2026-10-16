@@ -714,7 +714,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 8;
-const APP_VERSION = "v49";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v50";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1410,8 +1410,8 @@ function renderPlay(){
   const half=hole<9?cur.front:cur.back;
   $("hNo").innerHTML=`${hole%9+1}<small>번 홀 · ${esc(half.course)}</small>`;
   const dist=(courseOf(cur,half)||{}).dist, tees=teesOf(dist);
-  // 홀 전장: 라운드 티(없으면 White) 기준 거리를 PAR 바로 아래에
-  const tee=tees.includes(cur.tee)?cur.tee:tees.includes(DEFAULT_TEE)?DEFAULT_TEE:tees[0], m=tee&&dist[tee][hole%9];
+  // 홀 전장: 라운드에서 고른 티(안 골랐으면 White)의 거리만 PAR 바로 아래에. 그 티 거리가 없으면 표시하지 않음
+  const tee=cur.tee||DEFAULT_TEE, m=tees.includes(tee)?dist[tee][hole%9]:null;
   $("parPick").innerHTML=`<span>PAR <b>${h.par}</b></span>`+(m!=null&&tee?`<small class="hlen">${esc(tee)} <b>${m}</b>m</small>`:"");   // 파는 코스 기준정보: 홀 화면에서는 보기만 (바꾸려면 코스 탭 → 수정)
   // running total over done holes
   const dn=cur.holes.filter(x=>x.done); const tot=dn.reduce((a,x)=>a+x.par+x.d,0), rel=dn.reduce((a,x)=>a+x.d,0);
