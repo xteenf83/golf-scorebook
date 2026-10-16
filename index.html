@@ -193,7 +193,11 @@ table.card td.sum{font-weight:700;background:var(--accent-soft)}
 .mark{display:inline-block;min-width:22px;padding:1px 2px;border-radius:50%}
 .mark.b{border:1.5px solid var(--under);color:var(--under)}
 .mark.e{border:1.5px double var(--under);color:var(--under);border-width:3px}
-.mark.o{border:1.5px solid var(--over);color:var(--over);border-radius:2px}
+.mark.k{border:1.5px solid var(--even);border-radius:2px}
+.mark.o{background:var(--over);border:1.5px solid var(--over);color:#fff;border-radius:2px;font-weight:700}
+.mlegend{display:flex;gap:14px;justify-content:flex-end;font-size:12px;color:var(--muted);margin:8px 0 0}
+.mlegend span{display:inline-flex;align-items:center;gap:5px}
+.mlegend .mark{min-width:0;width:14px;height:14px;padding:0;box-sizing:border-box}
 .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .kv div{min-width:0}
 .kv b{display:block;font-family:var(--f-display);font-size:22px;font-weight:500}
@@ -708,7 +712,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 4;
-const APP_VERSION = "v40";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v42";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1604,7 +1608,7 @@ function openRound(id,fresh){
   const hs=r.holes, N=hs.length, two=N===18, det=hasDetail(r), pk=parKnown(r), c=scoreOf(r);
   const sumR=(a,b,k)=>hs.slice(a,b).reduce((s,h)=>s+k(h),0);
   const agg=(k)=>(i)=>i==="out"?sumR(0,9,k):i==="in"?sumR(9,18,k):i==="tot"?sumR(0,N,k):k(hs[i]);
-  const mark=h=>{const s=h.par+h.d;return h.d<=-2?`<span class="mark e">${s}</span>`:h.d===-1?`<span class="mark b">${s}</span>`:h.d>=2?`<span class="mark o">${s}</span>`:s};
+  const mark=h=>{const s=h.par+h.d;return h.d<=-2?`<span class="mark e">${s}</span>`:h.d===-1?`<span class="mark b">${s}</span>`:h.d===1?`<span class="mark k">${s}</span>`:h.d>=2?`<span class="mark o">${s}</span>`:s};
   const strokes=agg(h=>h.par+h.d);
   const relRow=i=>typeof i==="string"?relTxt(agg(h=>+h.d||0)(i)):relTxt(hs[i].d);
   // 9홀씩 한 표: 18홀도 옆으로 스크롤하지 않고 전반·후반 두 표로 화면 폭에 맞춘다
@@ -1616,7 +1620,7 @@ function openRound(id,fresh){
     const row=(label,fn)=>{let t=`<tr><th>${label}</th>`;for(let i=a;i<a+9;i++)t+=`<td>${fn(i)}</td>`;return t+`<td class="sum">${fn(sk)}</td></tr>`};
     return `<table class="card">
       <colgroup><col style="width:15%">${"<col>".repeat(10)}</colgroup>
-      <tr><th>홀</th>${hs.slice(a,a+9).map((_,i)=>`<th>${a+i+1}</th>`).join("")}<th>${sl}</th></tr>
+      <tr><th>홀</th>${hs.slice(a,a+9).map((_,i)=>`<th>${i+1}</th>`).join("")}<th>${sl}</th></tr>
       ${dd?row(`<span class="dl">${esc(dd.t)}</span>`,i=>typeof i==="string"?(dd.a.some(v=>v==null)?"":dd.a.reduce((x,y)=>x+y,0)):dd.a[i-a]??"–").replace("<tr>",`<tr class="drow">`):""}
       ${pk?row("파",agg(h=>h.par)):""}
       ${pk?row("타수",i=>typeof i==="string"?`${strokes(i)}<small class="rel">${relRow(i)}</small>`:mark(hs[i])):""}
@@ -1654,6 +1658,7 @@ function openRound(id,fresh){
   $("roundBox").innerHTML=`${roundHero(r,c,fresh)}
     <section class="panel">
     ${two?card(0,"out","전반")+card(9,"in","후반"):card(0,"tot","계")}
+    ${pk?`<div class="mlegend"><span><i class="mark b"></i>버디</span><span><i class="mark k"></i>보기</span><span><i class="mark o"></i>더블 이상</span></div>`:""}
     ${distHtml}${parHtml}
     ${kv?`<div class="kv" style="margin-top:14px">${kv}</div>`:""}
     ${notes.map(t=>`<p class="note" style="margin:12px 0 0">${t}</p>`).join("")}
