@@ -713,8 +713,8 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
-const COURSES_SEED_VERSION = 7;
-const APP_VERSION = "v48";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const COURSES_SEED_VERSION = 8;
+const APP_VERSION = "v49";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -827,7 +827,7 @@ const DEFAULT_COURSES = [
    "Red":[243,109,433,149,117,200,469,104,395]}},
  {"club":"알펜시아CC","name":"Forest","pars":[4,3,4,4,5,3,5,4,4],"dist":{
    "Black":[335,165,350,375,493,188,544,460,400],"Green":[307,135,322,348,441,162,527,433,368],
-   "White":[273,104,295,317,407,134,501,405,344],"Brown":[274,94,265,307,397,124,476,357,321],
+   "White":[273,104,295,317,407,134,501,405,344],"Brown":[247,94,265,307,397,124,476,357,321],
    "Red":[230,78,246,296,369,108,454,333,264]}},
  {"club":"알펜시아CC","name":"Meadow","pars":[4,4,3,5,4,4,3,5,4],"dist":{
    "Black":[395,460,174,454,273,408,162,507,369],"Green":[377,426,138,429,254,387,137,486,354],
