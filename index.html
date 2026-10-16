@@ -171,7 +171,7 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .diary .note{margin-top:4px;min-height:1.2em}
 .mrow{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:10px 2px}
 .mrow:first-of-type{border-top:0}
-.mrow b{flex:0 0 26px;font-family:var(--f-num);color:var(--muted)}
+.mrow b{flex:0 0 34px;white-space:nowrap;font-family:var(--f-num);color:var(--muted)}
 .mrow span{flex:1;white-space:pre-wrap;line-height:1.4;font-weight:400}
 .mrow small{flex:0 0 auto;color:var(--accent);font-size:12px}
 .voice textarea{font:inherit;font-size:16px;resize:vertical;min-height:52px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
@@ -194,7 +194,7 @@ table.card td.sum{font-weight:700;background:var(--accent-soft)}
 .mark.b{border:1.5px solid var(--under);color:var(--under)}
 .mark.e{border:1.5px double var(--under);color:var(--under);border-width:3px}
 .mark.k{border:1.5px solid var(--even);border-radius:2px}
-.mark.o{background:var(--over);border:1.5px solid var(--over);color:#fff;border-radius:2px;font-weight:700}
+.mark.o{border:3px double var(--over);color:var(--over);border-radius:2px}
 .mlegend{display:flex;gap:14px;justify-content:flex-end;font-size:12px;color:var(--muted);margin:8px 0 0}
 .mlegend span{display:inline-flex;align-items:center;gap:5px}
 .mlegend .mark{min-width:0;width:14px;height:14px;padding:0;box-sizing:border-box}
@@ -712,7 +712,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 4;
-const APP_VERSION = "v42";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v43";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1654,7 +1654,7 @@ function openRound(id,fresh){
       `<div><b>${avg.toFixed(1)} <em class="${relCls(Math.round((avg-p)*10))}">${Math.abs(avg-p)<0.05?"E":(avg-p>0?"+":"")+(avg-p).toFixed(1)}</em></b><span>파${p} 평균 · ${n}홀</span></div>`).join("")}</div>`:"";
   const memos=hs.map((h,i)=>h.memo&&h.memo.trim()?[i,h.memo.trim()]:null).filter(Boolean);
   const memoHtml=memos.length?`<section class="panel memos"><h2>홀 메모</h2>${memos.map(([i,t])=>
-      `<button class="mrow" data-h="${i}"><b>${i+1}</b><span>${esc(t)}</span><small>${det?"수정 ›":""}</small></button>`).join("")}</section>`:"";
+      `<button class="mrow" data-h="${i}"><b>${two?(i<9?"전":"후")+(i%9+1):i+1}</b><span>${esc(t)}</span><small>${det?"수정 ›":""}</small></button>`).join("")}</section>`:"";
   $("roundBox").innerHTML=`${roundHero(r,c,fresh)}
     <section class="panel">
     ${two?card(0,"out","전반")+card(9,"in","후반"):card(0,"tot","계")}
