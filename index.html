@@ -171,7 +171,7 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .diary .note{margin-top:4px;min-height:1.2em}
 .mrow{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:10px 2px}
 .mrow:first-of-type{border-top:0}
-.mrow b{flex:0 0 26px;font-family:var(--f-num);color:var(--muted)}
+.mrow b{flex:0 0 34px;white-space:nowrap;font-family:var(--f-num);color:var(--muted)}
 .mrow span{flex:1;white-space:pre-wrap;line-height:1.4;font-weight:400}
 .mrow small{flex:0 0 auto;color:var(--accent);font-size:12px}
 .voice textarea{font:inherit;font-size:16px;resize:vertical;min-height:52px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
@@ -191,9 +191,14 @@ table.card th,table.card td{border:1px solid var(--line);padding:5px 3px;text-al
 table.card th{font-family:var(--f-body);font-size:11px;color:var(--muted);font-weight:600;background:var(--bg)}
 table.card td.sum{font-weight:700;background:var(--accent-soft)}
 .mark{display:inline-block;min-width:22px;padding:1px 2px;border-radius:50%}
-.mark.b{border:1.5px solid var(--under);color:var(--under)}
-.mark.e{border:1.5px double var(--under);color:var(--under);border-width:3px}
-.mark.o{border:1.5px solid var(--over);color:var(--over);border-radius:2px}
+/* 타수 표시: 모양만으로 구분하고 색은 하나 (○ 버디 · ◎ 이글 · □ 보기 · 두 줄 □ 더블 이상) */
+.mark.b{border:1.5px solid var(--ink)}
+.mark.e{border:3px double var(--ink)}
+.mark.k{border:1.5px solid var(--ink);border-radius:2px}
+.mark.o{border:3px double var(--ink);border-radius:2px}
+.mlegend{display:flex;gap:14px;justify-content:flex-end;font-size:12px;color:var(--muted);margin:8px 0 0}
+.mlegend span{display:inline-flex;align-items:center;gap:5px}
+.mlegend .mark{min-width:0;width:14px;height:14px;padding:0;box-sizing:border-box}
 .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .kv div{min-width:0}
 .kv b{display:block;font-family:var(--f-display);font-size:22px;font-weight:500}
@@ -375,12 +380,14 @@ table.card th,table.card td{white-space:nowrap}
 /* 스코어카드: 9홀씩 한 표(18홀은 전반·후반 두 표), 홀 칸은 화면 폭을 똑같이 나눔 */
 table.card{table-layout:fixed;min-width:0}
 table.card+table.card{margin-top:12px}
-table.card td,table.card th{overflow:hidden;padding:5px 0}
+/* 모든 행 높이를 같게: 타수 행(표시 박스·합계의 +/-)도 이 높이 안에 들어가게 맞춘다 */
+table.card td,table.card th{overflow:hidden;padding:0;height:32px;line-height:1.2}
 table.card th:first-child{font-size:10.5px}
-table.card td.sum small.rel{display:block;font-size:10px;font-weight:600;color:var(--muted);line-height:1.1}
+table.card td.sum small.rel{display:block;font-size:9px;font-weight:600;color:var(--muted);line-height:1}
+table.card td.sum:has(small.rel){line-height:1}
 table.card tr.drow td{font-size:10px;letter-spacing:-.4px;color:var(--muted)}
 table.card th .dl{display:block;font-size:9px;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
-table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:border-box}
+table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .yearbtn{min-height:40px;padding:8px 14px;font-size:13px;border-radius:10px}
 .yearbtn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .ytable{border-collapse:separate;border-spacing:0;font-size:13.5px;width:100%;font-variant-numeric:tabular-nums}
@@ -708,7 +715,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 4;
-const APP_VERSION = "v40";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v44";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
@@ -1363,12 +1370,12 @@ function renderPlay(){
   const h=cur.holes[hole], c=holeCalc(h);
   // strip
   let s=""; cur.holes.forEach((x,i)=>{ if(i===9) s+=`<span class="gap"></span>`;
-    s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""}" data-h="${i}"><span>${i+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.par+x.d):"·"}</b></button>`});
+    s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""}" data-h="${i}"><span>${i%9+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.d>0?"+"+x.d:x.d):"·"}</b></button>`});
   $("strip").innerHTML=s; markStrip();
   if(document.activeElement!==$("memoIn")){ $("memoIn").value=h.memo||""; requestAnimationFrame(growMemo) } $("memoSaved").textContent="";
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
   const half=hole<9?cur.front:cur.back;
-  $("hNo").innerHTML=`${hole+1}<small>번 홀 · ${esc(half.course)} ${hole%9+1}</small>`;
+  $("hNo").innerHTML=`${hole%9+1}<small>번 홀 · ${esc(half.course)}</small>`;
   const dist=(courseOf(cur,half)||{}).dist, tees=teesOf(dist);
   $("hDist").hidden=!tees.length;
   $("hDist").innerHTML=tees.map(t=>{const m=dist[t][hole%9];return `<span class="${cur.tee===t?"on":""}">${esc(t)} <b>${m==null?"–":m}</b></span>`}).join("")+(tees.length?`<small>m</small>`:"");
@@ -1426,7 +1433,7 @@ function roundNotify(show){
   if(!canNotify||Notification.permission!=="granted") return;
   navigator.serviceWorker.ready.then(reg=>{
     if(show&&cur&&cur.status==="playing"&&cur.holes)
-      return reg.showNotification("라운드 진행 중",{tag:"round",body:`${cur.club} · ${hole+1}번 홀 — 눌러서 이어서 입력`,icon:"icons/icon-192.png",badge:"icons/icon-192.png"});
+      return reg.showNotification("라운드 진행 중",{tag:"round",body:`${cur.club} · ${(hole<9?cur.front:cur.back).course} ${hole%9+1}번 홀 — 눌러서 이어서 입력`,icon:"icons/icon-192.png",badge:"icons/icon-192.png"});
     return reg.getNotifications({tag:"round"}).then(ns=>ns.forEach(n=>n.close()));
   }).catch(()=>{});
 }
@@ -1604,7 +1611,7 @@ function openRound(id,fresh){
   const hs=r.holes, N=hs.length, two=N===18, det=hasDetail(r), pk=parKnown(r), c=scoreOf(r);
   const sumR=(a,b,k)=>hs.slice(a,b).reduce((s,h)=>s+k(h),0);
   const agg=(k)=>(i)=>i==="out"?sumR(0,9,k):i==="in"?sumR(9,18,k):i==="tot"?sumR(0,N,k):k(hs[i]);
-  const mark=h=>{const s=h.par+h.d;return h.d<=-2?`<span class="mark e">${s}</span>`:h.d===-1?`<span class="mark b">${s}</span>`:h.d>=2?`<span class="mark o">${s}</span>`:s};
+  const mark=h=>{const s=h.par+h.d;return h.d<=-2?`<span class="mark e">${s}</span>`:h.d===-1?`<span class="mark b">${s}</span>`:h.d===1?`<span class="mark k">${s}</span>`:h.d>=2?`<span class="mark o">${s}</span>`:s};
   const strokes=agg(h=>h.par+h.d);
   const relRow=i=>typeof i==="string"?relTxt(agg(h=>+h.d||0)(i)):relTxt(hs[i].d);
   // 9홀씩 한 표: 18홀도 옆으로 스크롤하지 않고 전반·후반 두 표로 화면 폭에 맞춘다
@@ -1616,7 +1623,7 @@ function openRound(id,fresh){
     const row=(label,fn)=>{let t=`<tr><th>${label}</th>`;for(let i=a;i<a+9;i++)t+=`<td>${fn(i)}</td>`;return t+`<td class="sum">${fn(sk)}</td></tr>`};
     return `<table class="card">
       <colgroup><col style="width:15%">${"<col>".repeat(10)}</colgroup>
-      <tr><th>홀</th>${hs.slice(a,a+9).map((_,i)=>`<th>${a+i+1}</th>`).join("")}<th>${sl}</th></tr>
+      <tr><th>홀</th>${hs.slice(a,a+9).map((_,i)=>`<th>${i+1}</th>`).join("")}<th>${sl}</th></tr>
       ${dd?row(`<span class="dl">${esc(dd.t)}</span>`,i=>typeof i==="string"?(dd.a.some(v=>v==null)?"":dd.a.reduce((x,y)=>x+y,0)):dd.a[i-a]??"–").replace("<tr>",`<tr class="drow">`):""}
       ${pk?row("파",agg(h=>h.par)):""}
       ${pk?row("타수",i=>typeof i==="string"?`${strokes(i)}<small class="rel">${relRow(i)}</small>`:mark(hs[i])):""}
@@ -1650,10 +1657,11 @@ function openRound(id,fresh){
       `<div><b>${avg.toFixed(1)} <em class="${relCls(Math.round((avg-p)*10))}">${Math.abs(avg-p)<0.05?"E":(avg-p>0?"+":"")+(avg-p).toFixed(1)}</em></b><span>파${p} 평균 · ${n}홀</span></div>`).join("")}</div>`:"";
   const memos=hs.map((h,i)=>h.memo&&h.memo.trim()?[i,h.memo.trim()]:null).filter(Boolean);
   const memoHtml=memos.length?`<section class="panel memos"><h2>홀 메모</h2>${memos.map(([i,t])=>
-      `<button class="mrow" data-h="${i}"><b>${i+1}</b><span>${esc(t)}</span><small>${det?"수정 ›":""}</small></button>`).join("")}</section>`:"";
+      `<button class="mrow" data-h="${i}"><b>${two?(i<9?"전":"후")+(i%9+1):i+1}</b><span>${esc(t)}</span><small>${det?"수정 ›":""}</small></button>`).join("")}</section>`:"";
   $("roundBox").innerHTML=`${roundHero(r,c,fresh)}
     <section class="panel">
     ${two?card(0,"out","전반")+card(9,"in","후반"):card(0,"tot","계")}
+    ${pk?`<div class="mlegend"><span><i class="mark b"></i>버디</span><span><i class="mark k"></i>보기</span><span><i class="mark o"></i>더블 이상</span></div>`:""}
     ${distHtml}${parHtml}
     ${kv?`<div class="kv" style="margin-top:14px">${kv}</div>`:""}
     ${notes.map(t=>`<p class="note" style="margin:12px 0 0">${t}</p>`).join("")}
