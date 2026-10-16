@@ -1363,12 +1363,12 @@ function renderPlay(){
   const h=cur.holes[hole], c=holeCalc(h);
   // strip
   let s=""; cur.holes.forEach((x,i)=>{ if(i===9) s+=`<span class="gap"></span>`;
-    s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""}" data-h="${i}"><span>${i+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.par+x.d):"·"}</b></button>`});
+    s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""}" data-h="${i}"><span>${i%9+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.d>0?"+"+x.d:x.d):"·"}</b></button>`});
   $("strip").innerHTML=s; markStrip();
   if(document.activeElement!==$("memoIn")){ $("memoIn").value=h.memo||""; requestAnimationFrame(growMemo) } $("memoSaved").textContent="";
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
   const half=hole<9?cur.front:cur.back;
-  $("hNo").innerHTML=`${hole+1}<small>번 홀 · ${esc(half.course)} ${hole%9+1}</small>`;
+  $("hNo").innerHTML=`${hole%9+1}<small>번 홀 · ${esc(half.course)}</small>`;
   const dist=(courseOf(cur,half)||{}).dist, tees=teesOf(dist);
   $("hDist").hidden=!tees.length;
   $("hDist").innerHTML=tees.map(t=>{const m=dist[t][hole%9];return `<span class="${cur.tee===t?"on":""}">${esc(t)} <b>${m==null?"–":m}</b></span>`}).join("")+(tees.length?`<small>m</small>`:"");
@@ -1426,7 +1426,7 @@ function roundNotify(show){
   if(!canNotify||Notification.permission!=="granted") return;
   navigator.serviceWorker.ready.then(reg=>{
     if(show&&cur&&cur.status==="playing"&&cur.holes)
-      return reg.showNotification("라운드 진행 중",{tag:"round",body:`${cur.club} · ${hole+1}번 홀 — 눌러서 이어서 입력`,icon:"icons/icon-192.png",badge:"icons/icon-192.png"});
+      return reg.showNotification("라운드 진행 중",{tag:"round",body:`${cur.club} · ${(hole<9?cur.front:cur.back).course} ${hole%9+1}번 홀 — 눌러서 이어서 입력`,icon:"icons/icon-192.png",badge:"icons/icon-192.png"});
     return reg.getNotifications({tag:"round"}).then(ns=>ns.forEach(n=>n.close()));
   }).catch(()=>{});
 }
