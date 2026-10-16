@@ -191,10 +191,11 @@ table.card th,table.card td{border:1px solid var(--line);padding:5px 3px;text-al
 table.card th{font-family:var(--f-body);font-size:11px;color:var(--muted);font-weight:600;background:var(--bg)}
 table.card td.sum{font-weight:700;background:var(--accent-soft)}
 .mark{display:inline-block;min-width:22px;padding:1px 2px;border-radius:50%}
-.mark.b{border:1.5px solid var(--under);color:var(--under)}
-.mark.e{border:1.5px double var(--under);color:var(--under);border-width:3px}
-.mark.k{border:1.5px solid var(--even);border-radius:2px}
-.mark.o{border:3px double var(--over);color:var(--over);border-radius:2px}
+/* 타수 표시: 모양만으로 구분하고 색은 하나 (○ 버디 · ◎ 이글 · □ 보기 · 두 줄 □ 더블 이상) */
+.mark.b{border:1.5px solid var(--ink)}
+.mark.e{border:3px double var(--ink)}
+.mark.k{border:1.5px solid var(--ink);border-radius:2px}
+.mark.o{border:3px double var(--ink);border-radius:2px}
 .mlegend{display:flex;gap:14px;justify-content:flex-end;font-size:12px;color:var(--muted);margin:8px 0 0}
 .mlegend span{display:inline-flex;align-items:center;gap:5px}
 .mlegend .mark{min-width:0;width:14px;height:14px;padding:0;box-sizing:border-box}
@@ -379,12 +380,14 @@ table.card th,table.card td{white-space:nowrap}
 /* 스코어카드: 9홀씩 한 표(18홀은 전반·후반 두 표), 홀 칸은 화면 폭을 똑같이 나눔 */
 table.card{table-layout:fixed;min-width:0}
 table.card+table.card{margin-top:12px}
-table.card td,table.card th{overflow:hidden;padding:5px 0}
+/* 모든 행 높이를 같게: 타수 행(표시 박스·합계의 +/-)도 이 높이 안에 들어가게 맞춘다 */
+table.card td,table.card th{overflow:hidden;padding:0;height:32px;line-height:1.2}
 table.card th:first-child{font-size:10.5px}
-table.card td.sum small.rel{display:block;font-size:10px;font-weight:600;color:var(--muted);line-height:1.1}
+table.card td.sum small.rel{display:block;font-size:9px;font-weight:600;color:var(--muted);line-height:1}
+table.card td.sum:has(small.rel){line-height:1}
 table.card tr.drow td{font-size:10px;letter-spacing:-.4px;color:var(--muted)}
 table.card th .dl{display:block;font-size:9px;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
-table.card .mark{min-width:0;width:24px;max-width:100%;padding:1px 0;box-sizing:border-box}
+table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .yearbtn{min-height:40px;padding:8px 14px;font-size:13px;border-radius:10px}
 .yearbtn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .ytable{border-collapse:separate;border-spacing:0;font-size:13.5px;width:100%;font-variant-numeric:tabular-nums}
@@ -712,7 +715,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 4;
-const APP_VERSION = "v43";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v44";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4]},
  {"club":"서원힐스CC","name":"사우스","pars":[4,5,4,4,3,5,3,4,4]},
