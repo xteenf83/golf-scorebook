@@ -437,6 +437,59 @@ table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box
 .clr input{padding-right:40px}
 input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 .clr .x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:var(--muted);font-size:20px;font-weight:500;line-height:1}
+/* 재미 기능: 고스트 · 홀 브리핑 · 배지 · 미션 · 공유 이미지 */
+:root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70}}
+:root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70}
+.strip button{position:relative}
+.strip button.gw::before,.strip button.gl::before{content:"";position:absolute;bottom:2px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%}
+.strip button.gw::before{background:var(--under)} .strip button.gl::before{background:var(--over)}
+.ghc{display:inline-block;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700;margin-left:4px;white-space:nowrap}
+.ghc.win{background:#d7f3e2;color:#145233} .ghc.lose{background:#fbe1d3;color:#8a3a17} .ghc.tie{background:rgba(255,255,255,.18);color:var(--heroInk)}
+.brief{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;background:rgba(255,255,255,.08);border:0;color:var(--heroInk);border-radius:12px;padding:8px 12px;font-weight:500;font-size:12.5px;line-height:1.45}
+.brief .bh{display:flex;justify-content:space-between;gap:8px;font-weight:700;opacity:.85}
+.brief .bh em{font-style:normal;font-weight:500;opacity:.8}
+.brief .tip{color:var(--gold)}
+.mline{font-size:12.5px;color:var(--heroInk);opacity:.9}
+.mline.fail{color:#ffb38a;opacity:1;font-weight:700}
+.rhero .gline{margin-top:10px;font-size:13.5px;font-weight:600}
+.bchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.bchip{font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px}
+.mtag{font-size:12px;margin-left:6px;vertical-align:1px}
+.bbtn{display:flex;justify-content:space-between;align-items:center;width:100%;border-radius:18px;padding:14px 16px;background:var(--paper);box-shadow:var(--shadow);font-size:15px;text-align:left}
+.bbtn small{display:block;font-size:12px;font-weight:500;color:var(--muted)}
+.bbtn b{font-family:var(--f-display);font-size:22px;font-weight:500;color:var(--accent)}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:10px}
+.bdg{border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;background:var(--paper);min-width:0}
+.bdg i{font-style:normal;font-size:26px;line-height:1.2}
+.bdg b{font-size:14px}
+.bdg small{font-size:11.5px;color:var(--muted);line-height:1.35}
+.bdg em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--accent);margin-top:2px}
+.bdg.on{border-color:var(--accent);background:var(--accent-soft)}
+.bdg.off{opacity:.55;filter:grayscale(1)}
+.tgl{display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink);font-weight:600}
+.tgl:first-of-type{border-top:0}
+.tgl small{display:block;font-size:12px;font-weight:500;color:var(--muted)}
+.tgl input{-webkit-appearance:none;appearance:none;flex:0 0 46px;width:46px;min-width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;padding:0;border:0;cursor:pointer}
+.tgl input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}
+.tgl input:checked{background:var(--accent)}
+.tgl input:checked::after{left:21px}
+.bar.top .k{color:var(--accent);font-weight:700}
+.bar.top .t i{background:var(--over)}
+.bar.etc .t i{background:var(--line)}
+.rx{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);font-size:13.5px;line-height:1.5}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(8,16,12,.62);display:grid;place-items:center;padding:16px}
+.ov canvas.cf{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ovcard{position:relative;width:100%;max-width:360px;max-height:92vh;overflow:auto;background:var(--paper);border-radius:24px;padding:22px 18px 16px;text-align:center;display:flex;flex-direction:column;gap:12px}
+.ovcard .lab{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+.ovcard h3{margin:0;font-size:20px}
+.ovcard .nb{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;text-align:left;padding:10px 12px;border-radius:14px;background:var(--accent-soft)}
+.ovcard .nb i{font-style:normal;font-size:30px;text-align:center}
+.ovcard .nb small{display:block;font-size:12px;color:var(--muted)}
+.ovcard img{display:block;max-width:100%;max-height:58vh;margin:0 auto;border-radius:12px}
+.ovcard .row{justify-content:center}
+.pop{animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -472,6 +525,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
     <div id="resumeBox"></div>
     <div><section class="cards" id="hero"></section><div class="dots" id="heroDots"></div></div>
     <p class="msg err" id="homeMsg" role="status"></p>
+    <button class="bbtn" id="badgeBtn"><span>🏅 배지<small>스코어·버디·스윙 교정 목표를 달성하면 모여요</small></span><span><b id="badgeCnt"></b> ›</span></button>
     <div class="sechead"><b>최근 라운드</b><button class="linkbtn acc" id="allToggle" hidden>전체 보기 ›</button></div>
     <div class="rounds" id="roundList"><div class="empty"><b>불러오는 중…</b></div></div>
   </section>
@@ -482,6 +536,12 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
       <div class="avatar big" id="avatar2"></div>
       <div class="meta"><b id="whoName"></b><span class="note" id="whoText"></span></div>
       <button class="ghost" id="logoutBtn">로그아웃</button>
+    </section>
+    <section class="panel">
+      <h2>재미 기능</h2>
+      <label class="tgl"><span>고스트 매치<small>같은 코스의 과거 내 기록과 홀마다 대결</small></span><input type="checkbox" data-set="ghost"></label>
+      <label class="tgl"><span>홀 브리핑<small>티샷 전에 그 홀의 내 과거 기록과 코치 팁</small></span><input type="checkbox" data-set="brief"></label>
+      <label class="tgl"><span>축하 연출<small>새 배지·개인 베스트 때 꽃가루와 배지 카드</small></span><input type="checkbox" data-set="celebrate"></label>
     </section>
     <section class="panel">
       <h2>백업</h2>
@@ -503,6 +563,12 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
       <p class="msg" id="importMsg" role="status"></p>
     </section>
     <section class="panel">
+      <h2>체험용 예시 라운드</h2>
+      <p class="note" style="margin:0 0 12px">고스트·홀 브리핑·배지를 미리 보려면 서원힐스CC 웨스트·사우스로 예시 라운드 3개를 만듭니다. 예시 라운드도 통계·배지에 들어가니 확인한 뒤 꼭 지워 주세요. (목록에 ‘예시’ 표시)</p>
+      <div class="row"><button id="demoAdd">예시 라운드 3개 만들기</button><button class="danger" id="demoDel">예시 라운드 모두 지우기</button></div>
+      <p class="msg" id="demoMsg" role="status"></p>
+    </section>
+    <section class="panel">
       <h2>저장 방식 · 앱 정보</h2>
       <p class="note" style="margin:0">기록은 클라우드에 저장되어 폰을 바꾸거나 앱을 지워도 남아 있습니다. 본인 계정만 읽고 쓸 수 있습니다. 필드에서 신호가 약하면 폰에 먼저 저장했다가 연결되면 자동으로 올라갑니다.</p>
       <p class="note" style="margin:10px 0 0">앱 버전 <b id="appVer"></b> · 새 버전이 나오면 앱을 열 때 자동으로 바뀝니다.</p>
@@ -521,9 +587,12 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
     <section class="tiles" id="tiles"></section>
     <p class="note" id="statsBasis" style="margin:-6px 0 0"></p>
     <section class="panel"><h2>스코어 추이</h2><div id="trend"></div></section>
+    <section class="panel"><h2>어디서 타를 잃나</h2><div id="lossBox"></div></section>
     <section class="panel"><h2>홀 결과 분포</h2><div id="dist"></div></section>
     <section class="panel"><h2>티샷 · 페어웨이</h2><div id="fwBox"></div></section>
     <section class="panel"><h2>티샷 구질 <span style="text-transform:none;letter-spacing:0;font-weight:500">(좌타 기준)</span></h2><div id="shapeBox"></div></section>
+    <section class="panel"><h2>구질 추이 <span style="text-transform:none;letter-spacing:0;font-weight:500">(최근 10라운드)</span></h2><div id="shapeTrend"></div></section>
+    <section class="panel"><h2>라운드 미션 달성률</h2><div id="missionBox"></div></section>
   </section>
 
   <!-- SETUP -->
@@ -542,6 +611,10 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
         <label><span id="sFrontLbl">전반 코스</span><select id="sFront"></select></label>
         <label id="sBackWrap">후반 코스<select id="sBack"></select></label>
         <label>티<select id="sTee"></select></label>
+        <label id="ghostWrap">고스트 (과거 나와 대결)<select id="sGhost"><option value="best">베스트</option><option value="last">직전 라운드</option><option value="none">없음</option></select></label>
+        <p class="note full" id="ghostNote" style="margin:-4px 0 0"></p>
+        <label id="missionWrap">미션 (선택)<select id="sMission"></select></label>
+        <label id="mTargetWrap" hidden>목표 타수<input type="number" id="sMTarget" inputmode="numeric" min="20" max="200" placeholder="예: 95"></label>
         <label class="full" id="newCourseWrap" hidden>새 코스 이름 (9홀 단위)<input id="sNewCourse" placeholder="예: 레이크" autocomplete="off"></label>
         <div class="full" id="scoreBox" hidden>
           <p class="note" style="margin:0 0 6px">지난 기록용: 홀을 고르고 아래 버튼으로 점수를 누르면 다음 홀로 넘어가요. 퍼팅·페어웨이·구질 통계에는 들어가지 않습니다.</p>
@@ -567,10 +640,12 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
         <div class="no" id="hNo">1<small></small></div>
         <div class="parpick" id="parPick"></div>
       </div>
+      <button type="button" class="brief" id="brief" hidden></button>
       <div class="holefoot">
         <div class="running" id="running"></div>
         <button class="ghost" id="playInfo">코스·날짜 수정</button>
       </div>
+      <div class="mline" id="mline" hidden></div>
       <div class="sync"><span class="dot" id="dot2"></span><span id="syncText2"></span></div>
     </section>
 
@@ -639,6 +714,12 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
     <div class="rounds" id="rlList"></div>
   </section>
 
+  <!-- BADGES -->
+  <section class="screen" id="scrBadges" hidden>
+    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
+    <div class="screen" id="badgeBox"></div>
+  </section>
+
   <!-- ROUND DETAIL -->
   <section class="screen" id="scrRound" hidden>
     <div class="row"><button class="back" id="roundBack">‹ 홈</button></div>
@@ -703,6 +784,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
     <button class="tab" data-tab="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>더보기</button>
   </div>
 </nav>
+<div class="ov" id="ov" hidden></div>
 
 <script type="module">
 import { firebaseConfig } from "./firebase-config.js";
@@ -713,8 +795,8 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
-const COURSES_SEED_VERSION = 11;
-const APP_VERSION = "v53";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const COURSES_SEED_VERSION = 12;
+const APP_VERSION = "v54";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -881,7 +963,20 @@ const DEFAULT_COURSES = [
    "White":[449,296,348,133,483,134,311,288,324],"Red":[418,266,285,116,458,113,283,238,268]}},
  {"club":"푸른솔GC 포천","name":"레이크","pars":[5,4,4,3,4,4,4,3,5],"dist":{
    "Black":[550,410,395,185,370,370,350,163,525],"Blue":[512,392,372,183,337,334,321,150,485],
-   "White":[468,374,338,162,317,301,260,128,455],"Red":[438,302,264,100,255,240,243,109,371]}}
+   "White":[468,374,338,162,317,301,260,128,455],"Red":[438,302,264,100,255,240,243,109,371]}},
+ // 클럽디 더플레이어스 (강원 춘천): clubd.com 코스공략도 기준
+ {"club":"클럽디 더플레이어스","name":"밸리","pars":[4,4,5,3,5,4,3,4,4],"dist":{
+   "Black":[408,352,483,180,513,396,188,352,381],"Blue":[386,341,460,165,499,376,180,332,362],
+   "White":[369,327,457,143,476,346,153,324,346],"Yellow":[346,299,430,126,444,327,128,284,307],
+   "Red":[306,282,403,84,396,295,105,256,280]}},
+ {"club":"클럽디 더플레이어스","name":"레이크","pars":[4,4,3,4,4,4,5,3,5],"dist":{
+   "Black":[399,330,200,381,363,396,493,181,519],"Blue":[368,317,175,371,348,376,480,161,513],
+   "White":[340,294,149,345,323,360,467,136,502],"Yellow":[305,271,131,277,230,309,438,120,451],
+   "Red":[271,231,111,272,227,272,376,117,418]}},
+ {"club":"클럽디 더플레이어스","name":"마운틴","pars":[4,3,5,4,3,4,5,4,4],"dist":{
+   "Black":[344,170,504,380,195,368,537,355,391],"Blue":[333,162,488,350,181,336,512,345,358],
+   "White":[326,155,476,340,166,314,488,332,332],"Yellow":[281,115,462,311,111,301,459,309,309],
+   "Red":[225,105,386,309,109,272,444,256,280]}}
 ];
 const $ = id => document.getElementById(id);
 const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5];
@@ -932,12 +1027,12 @@ function clone(o){return JSON.parse(JSON.stringify(o))}
 
 let userName="";
 const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],
-  Round:["Scorecard","라운드 기록"],Rounds:["All Rounds","전체 라운드"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"]};
+  Round:["Scorecard","라운드 기록"],Rounds:["All Rounds","전체 라운드"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"],Badges:["Badges","배지"]};
 const TAB_SCREENS=["Home","Stats","Courses","More"];
 function scrollTop(){$("scroller").scrollTop=0}
 function show(name){
   if(pendingReload && !["Play","Setup","Info"].includes(name)){ location.reload(); return; }
-  ["Login","Home","Stats","Setup","Play","Round","Rounds","Courses","Info","More"].forEach(n=>$("scr"+n).hidden = n!==name);
+  ["Login","Home","Stats","Setup","Play","Round","Rounds","Courses","Info","More","Badges"].forEach(n=>$("scr"+n).hidden = n!==name);
   $("bottomNav").hidden = name!=="Play";
   const tabs=TAB_SCREENS.includes(name);
   $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs);
@@ -1032,6 +1127,7 @@ function renderHome(){
   } else $("resumeBox").innerHTML="";
   renderHero();
   renderRoundList();
+  const bk=computeBadges(); $("badgeCnt").textContent=`${Object.keys(bk.got).length+(bk.pbs.length?1:0)}/${BADGE_LIST.length+1}`;
 }
 function renderHero(){
   const all=statRounds(), hero=$("hero");
@@ -1090,7 +1186,10 @@ function lossSlide(all){
   const lost=bogey+dbl+tri;
   const saveDbl=per(h=>d(h)>=2?d(h)-1:0);
   const det=rs.filter(hasDetail), save3=det.length?det.flatMap(r=>r.holes).reduce((a,h)=>a+Math.max(0,h.putts-2),0)/det.length:0;
-  const [head,sub]= save3>saveDbl
+  // 퍼팅·OB까지 기록한 라운드가 3개 이상이면 원인별 1위(통계 화면 '어디서 타를 잃나'와 같은 계산)를 제목으로
+  const LC=det.length>=3?lossCauses(det):null;
+  const [head,sub]= LC&&LC.top ? [`${LC.top.label}에서<br>라운드당 ${LC.top.v.toFixed(1)}타 손실`,`💡 ${LOSS_RX[LC.top.k]}`]
+    : save3>saveDbl
     ? [`3퍼트를 2퍼트로 줄이면<br>라운드당 −${save3.toFixed(1)}타`,`홀별 퍼팅 기록 ${det.length}라운드 기준`]
     : [`더블 이상을 보기로 막으면<br>라운드당 −${saveDbl.toFixed(1)}타`,`더블 이상에서 라운드당 ${(dbl+tri).toFixed(1)}타를 잃고 있어요`];
   const bar=(k,v)=>`<div class="lb"><span>${k}</span><i><b style="width:${lost?Math.round(v/lost*100):0}%"></b></i><em>${v.toFixed(1)}타</em></div>`;
@@ -1109,7 +1208,7 @@ function startNewRound(){
   if(!rcol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
   $("sDate").value=today(); fillClubList(); $("sTee").value=""; $("sTee").innerHTML=`<option>${DEFAULT_TEE}</option>`;
   const last=doneRounds()[0]; if(last && !$("sClub").value) $("sClub").value=last.club;
-  syncClears();
+  syncClears(); $("sGhost").value="best"; $("sMission").value=""; $("sMTarget").value=""; fillMission();
   fillCourseSelects(); $("setupMsg").textContent=""; show("Setup");
 }
 $("tabBar").onclick=e=>{const t=e.target.closest("[data-tab]"); if(!t) return; const k=t.dataset.tab;
@@ -1140,6 +1239,7 @@ function renderStats(){
     $("trend").innerHTML=`<p class="note" style="margin:0">라운드를 기록하면 스코어 추이가 여기에 그려집니다.</p>`;
   } else renderTrend([...rs].reverse());
   if(!$("yearPanel").hidden) renderYearly();
+  renderLoss(full); renderShapeTrend(); renderMissionStats();
   // distribution: 파 대비 점수(d)만 있으면 되므로 파를 모르는 과거 홀별 기록도 포함
   const bins=[["버디 이하",d=>d<=-1,"var(--under)"],["파",d=>d===0,"var(--accent-soft)"],["보기",d=>d===1,"var(--even)"],["더블",d=>d===2,"var(--over)"],["트리플+",d=>d>=3,"var(--danger)"]];
   const dH=rs.filter(r=>!isTotal(r)).flatMap(r=>r.holes).filter(h=>typeof h.d==="number");
@@ -1226,7 +1326,7 @@ function renderTrend(pts){
 
 function rcHtml(r){const c=scoreOf(r); const [,m,d]=r.date.split("-");
   return `<button class="rc" data-id="${r.id}"><div class="date"><b>${d}</b><small>${+m}월</small></div>
-      <div class="m"><b>${esc(r.club)}${is9(r)?`<span class="tag9">9홀</span>`:""}</b><small>${[esc(courseTxt(r," · ")), isTotal(r)?"총타만 기록":c.putts!=null?c.putts+"퍼트":"파 대비 점수만"].filter(Boolean).join(" · ")}</small></div>
+      <div class="m"><b>${esc(r.club)}${is9(r)?`<span class="tag9">9홀</span>`:""}${r.demo?`<span class="tag9">예시</span>`:""}${(()=>{const st=missionState(r);return st?`<span class="mtag" title="미션">🎯${st.ok?"✓":"✗"}</span>`:""})()}</b><small>${[esc(courseTxt(r," · ")), isTotal(r)?"총타만 기록":c.putts!=null?c.putts+"퍼트":"파 대비 점수만"].filter(Boolean).join(" · ")}</small></div>
       <div class="s"><b>${c.tot??"–"}</b><small class="${relCls(c.rel)}">${relTxt(c.rel)}</small></div></button>`}
 function renderRoundList(){
   const all=doneRounds();
@@ -1282,6 +1382,7 @@ function updSetupInfo(){
   $("setupInfo").textContent = !club ? "골프장을 입력하세요. 등록된 골프장은 목록에서 고를 수 있습니다."
     : isNew ? "새 코스는 기본 배치(파 4·4·3·5·4·4·3·4·5)로 만들어집니다. 실제 파와 다르면 코스 탭에서 이 코스를 열고 수정을 눌러 맞춰 주세요."
     : "등록된 코스의 홀별 파가 자동으로 적용됩니다.";
+  updGhostNote();
   const unv=(setupHoles===18?[$("sFront").value,$("sBack").value]:[$("sFront").value]).map(id=>courses.find(c=>c.id===id)).filter(c=>c&&c.unverified);
   if(club&&!isNew&&unv.length) $("setupInfo").textContent=`⚠ ${[...new Set(unv.map(c=>c.name))].join(", ")} 코스는 홀별 파가 아직 확인되지 않았어요. 티잉그라운드 안내판과 다르면 코스 탭에서 수정해 주세요. 한 번 완주하면 확인된 코스로 바뀝니다.`;
 }
@@ -1290,12 +1391,12 @@ $("holesSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;setupH
   [...$("holesSeg").children].forEach(x=>x.classList.toggle("on",x===b));
   const nine=setupHoles===9;
   $("sBackWrap").hidden=nine; $("tOutWrap").hidden=nine; $("tInWrap").hidden=nine; $("holesNote").hidden=!nine;
-  $("sFrontLbl").textContent=nine?"코스":"전반 코스"; $("tTotal").placeholder=nine?"예: 46":"예: 92";
+  $("sFrontLbl").textContent=nine?"코스":"전반 코스"; $("tTotal").placeholder=nine?"예: 46":"예: 92"; $("sMTarget").placeholder=nine?"예: 46":"예: 95";
   updSetupInfo()};
 $("modeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;setupMode=b.dataset.m;
   [...$("modeSeg").children].forEach(x=>x.classList.toggle("on",x===b));
   $("totalBox").hidden=setupMode!=="total"; $("scoreBox").hidden=setupMode!=="score";
-  $("startBtn").textContent=setupMode==="hole"?"1번 홀부터 시작":"라운드 저장"; fillScoreGrid()};
+  $("startBtn").textContent=setupMode==="hole"?"1번 홀부터 시작":"라운드 저장"; fillScoreGrid(); fillMission(); updGhostNote()};
 /* 홀별 타수만: 고른 코스의 파로 9/18칸을 만들고, 칸을 고른 뒤 아래 버튼(버디·파·보기…)을 누르면 다음 홀로 넘어간다.
    파는 코스 기준정보라 여기서는 보기만 한다. */
 let gridPars=[], gridVals=[], gridAt=0;
@@ -1351,6 +1452,7 @@ async function resolveCourse(sel, club, newName, fallback){
 $("startBtn").onclick=async()=>{
   const date=$("sDate").value, club=$("sClub").value.trim();
   if(!date||!club){$("setupMsg").textContent="날짜와 골프장을 입력해 주세요.";return}
+  const mb=missionBody(); if(mb.error){$("setupMsg").textContent=mb.error;return}
   $("startBtn").disabled=true;
   try{
     const nn=$("sNewCourse").value.trim();
@@ -1362,7 +1464,7 @@ $("startBtn").onclick=async()=>{
       const tot=+$("tTotal").value, o=nine?null:(+$("tOut").value||null), i=nine?null:(+$("tIn").value||null);
       if(!(nine?(tot>=20&&tot<=100):(tot>=40&&tot<=200))){$("setupMsg").textContent="총 타수를 입력해 주세요.";$("startBtn").disabled=false;return}
       if(o&&i&&o+i!==tot){$("setupMsg").textContent=`전반 ${o} + 후반 ${i} = ${o+i}타로 총 타수 ${tot}타와 다릅니다.`;$("startBtn").disabled=false;return}
-      const body={date,club,front,back,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,type:"total",total:tot,par:pars.reduce((a,b)=>a+b,0),status:"done",createdAt:Date.now(),updatedAt:Date.now()};
+      const body={date,club,front,back,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,type:"total",total:tot,par:pars.reduce((a,b)=>a+b,0),status:"done",...(mb.mission?{mission:mb.mission}:{}),createdAt:Date.now(),updatedAt:Date.now()};
       if(o) body.out=o; if(i) body.in=i;
       const ref=await rcol.add(body); ["tTotal","tOut","tIn"].forEach(k=>$(k).value="");
       $("startBtn").disabled=false; rounds.push({id:ref.id,...body}); openRound(ref.id,true); return;
@@ -1372,12 +1474,17 @@ $("startBtn").onclick=async()=>{
       const miss=gridPars.map((_,i)=>v[i]!=null?null:i+1).filter(Boolean);
       if(miss.length){$("setupMsg").textContent=`타수를 넣지 않은 홀: ${miss.join(", ")}번`;$("startBtn").disabled=false;return}
       const holes=pars.map((p,i)=>({par:p,d:v[i]-p,done:true}));
-      const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"done",createdAt:Date.now(),updatedAt:Date.now()};
+      const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"done",...(mb.mission?{mission:mb.mission}:{}),createdAt:Date.now(),updatedAt:Date.now()};
       const ref=await rcol.add(body); gridVals=[]; gridAt=0; $("scoreGrid").dataset.key=""; $("sNewCourse").value="";
       $("startBtn").disabled=false; rounds.push({id:ref.id,...body}); openRound(ref.id,true); return;
     }
     const holes=pars.map(newHole);
-    const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"playing",createdAt:Date.now(),updatedAt:Date.now()};
+    const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"playing",...(mb.mission?{mission:mb.mission}:{}),createdAt:Date.now(),updatedAt:Date.now()};
+    // 고스트: 9홀 코스(courseId)마다 따로 고른다. 그 코스 기록이 없으면 그 9홀은 고스트 없음
+    if(setOn("ghost")&&$("sGhost").value!=="none"){
+      const pick=h=>{const x=h&&pickGhost(h.courseId,$("sGhost").value,null); if(x) delete x.tot; return x||null};
+      const gf=pick(front), gb=nine?null:pick(back); if(gf||gb) body.ghost={front:gf,back:gb};
+    }
     const ref=await rcol.add(body);
     cur={id:ref.id,...body}; hole=0; $("sNewCourse").value="";
     renderPlay(); show("Play");
@@ -1403,8 +1510,10 @@ const lastHole=()=>cur.holes.length-1;
 function renderPlay(){
   const h=cur.holes[hole], c=holeCalc(h);
   // strip
+  const gs=setOn("ghost")&&cur.ghost?ghostStrokes(cur):[];   // 고스트를 이긴 홀 초록 점, 진 홀 주황 점
   let s=""; cur.holes.forEach((x,i)=>{ if(i===9) s+=`<span class="gap"></span>`;
-    s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""}" data-h="${i}"><span>${i%9+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.d>0?"+"+x.d:x.d):"·"}</b></button>`});
+    const gc=x.done&&gs[i]!=null?(x.par+x.d<gs[i]?"gw":x.par+x.d>gs[i]?"gl":""):"";
+    s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""} ${gc}" data-h="${i}"><span>${i%9+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.d>0?"+"+x.d:x.d):"·"}</b></button>`});
   $("strip").innerHTML=s; markStrip();
   if(document.activeElement!==$("memoIn")){ $("memoIn").value=h.memo||""; requestAnimationFrame(growMemo) } $("memoSaved").textContent="";
   const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
@@ -1416,7 +1525,10 @@ function renderPlay(){
   $("parPick").innerHTML=`<span>PAR <b>${h.par}</b></span>`+(m!=null&&tee?`<small class="hlen">${esc(tee)} <b>${m}</b>m</small>`:"");   // 파는 코스 기준정보: 홀 화면에서는 보기만 (바꾸려면 코스 탭 → 수정)
   // running total over done holes
   const dn=cur.holes.filter(x=>x.done); const tot=dn.reduce((a,x)=>a+x.par+x.d,0), rel=dn.reduce((a,x)=>a+x.d,0);
-  $("running").textContent = dn.length ? `${dn.length}홀 입력 · ${tot}타 (${relTxt(rel)})` : "아직 입력한 홀이 없습니다";
+  let run = dn.length ? `${dn.length}홀 입력 · ${tot}타 (${relTxt(rel)})` : "아직 입력한 홀이 없습니다";
+  if(setOn("ghost")&&cur.ghost){ const g=ghostDiff(cur,true); if(g) run+=` <span class="ghc ${g.d<0?"win":g.d>0?"lose":"tie"}">고스트 대비 ${g.d===0?"동률":(g.d>0?"+":"−")+Math.abs(g.d)}</span>` }
+  $("running").innerHTML=run;
+  renderBrief(); renderMissionLine();
   // score
   $("scoreBtns").innerHTML=SCORE_OPTS.map(([d,n])=>`<button class="opt ${h.d===d?"on":""} ${h.d===d&&d>0?"overc":""}" data-d="${d}"><b>${d>0?"+"+d:d}</b><small>${d===5?(h.par+5)+"타":n}</small></button>`).join("");
   $("strokesLbl").textContent=`${c.strokes}타`;
@@ -1478,6 +1590,7 @@ document.addEventListener("visibilitychange",()=>{
 $("scrPlay").addEventListener("click",e=>{
   askNotify();
   const b=e.target.closest("button"); if(!b||b.disabled||!cur||!cur.holes) return; const h=cur.holes[hole];
+  if(b.id==="brief"){ briefOpen=!briefOpen; try{localStorage.setItem("gsb.briefOpen",briefOpen?"1":"0")}catch(e){} renderBrief(); return }
   if(b.dataset.h!==undefined){hole=+b.dataset.h;flush();renderPlay();$("heard").textContent="";return}
   const f=b.closest(".field[data-step]");
   if(f) setTimeout(()=>advance(f.dataset.step),0);
@@ -1634,6 +1747,7 @@ function roundHero(r,c,fresh){
       ${fresh?`<span class="saved">✓ 라운드를 저장했습니다</span>`:""}
       <div class="club">${esc(r.club)}</div><div class="sub">${[r.date, esc(courseTxt(r)), is9(r)?"9홀":"", r.tee?esc(r.tee)+" 티":""].filter(Boolean).join(" · ")}</div>
       <div class="score"><b>${c.tot??"–"}</b><span class="chip ${c.rel!=null&&c.rel<=0?"":"bad"}">${relTxt(c.rel)}${c.par!=null?" · 파"+c.par:""}</span></div>
+      ${heroExtras(r)}
     </section>`;
 }
 function openRound(id,fresh){
@@ -1641,6 +1755,7 @@ function openRound(id,fresh){
   $("roundBack").textContent = roundFrom==="Rounds" ? "‹ 전체 라운드" : "‹ 홈";
   const r = (cur&&cur.id===id)?cur:rounds.find(x=>x.id===id); if(!r) {show("Home");renderHome();return}
   pendingDel=null;
+  if(fresh){ const rr=clone(r); setTimeout(()=>celebrate(rr),300) }   // 새 배지·개인 베스트 축하
   if(isTotal(r)){ renderTotalRound(r,fresh); if(cur&&cur.status==="done") cur=null; show("Round"); return; }
   const hs=r.holes, N=hs.length, two=N===18, det=hasDetail(r), pk=parKnown(r), c=scoreOf(r);
   const sumR=(a,b,k)=>hs.slice(a,b).reduce((s,h)=>s+k(h),0);
@@ -1706,7 +1821,8 @@ function openRound(id,fresh){
   bindDiary(r);
   // 메모를 누르면 그 홀 수정 화면으로 (메모를 보며 구질 등 입력)
   if(det) $("roundBox").querySelectorAll(".mrow").forEach(b=>b.onclick=()=>{cur=clone(r);hole=+b.dataset.h;renderPlay();show("Play");scrollTop()});
-  delActs(id, `${det?`<button id="editRound">홀별 수정</button>`:""}<button id="editInfo">코스·날짜 수정</button>${det?`<button class="ghost" id="toScoreOnly">타수만 남기기</button>`:""}`, ()=>{
+  delActs(id, `${det?`<button id="editRound">홀별 수정</button>`:""}<button id="editInfo">코스·날짜 수정</button><button id="shareRound">이미지로 공유</button>${det?`<button class="ghost" id="toScoreOnly">타수만 남기기</button>`:""}`, ()=>{
+    $("shareRound").onclick=()=>openShare(r);
     if(det) $("editRound").onclick=()=>{cur=clone(r);hole=0;renderPlay();show("Play")};
     // 타수만 넣고 나머지가 기본값(2퍼트·적중 등)으로 저장된 기록을 바로잡는다: 퍼팅·FW·구질·벌타를 지우고 타수만 남김
     if(det) $("toScoreOnly").onclick=async e=>{ const b=e.currentTarget;
@@ -1742,7 +1858,8 @@ function renderTotalRound(r,fresh){
     ${diaryHtml(r)}
     <div class="row" id="roundActs"></div>`;
   bindDiary(r);
-  delActs(id, `<button id="editTot">타수 수정</button><button id="editInfo">코스·날짜 수정</button>`, ()=>{
+  delActs(id, `<button id="editTot">타수 수정</button><button id="editInfo">코스·날짜 수정</button><button id="shareRound">이미지로 공유</button>`, ()=>{
+    $("shareRound").onclick=()=>openShare(r);
     $("editTot").onclick=()=>{$("totEdit").hidden=false;$("teTotal").focus()};
     $("editInfo").onclick=()=>{cur=clone(r);openInfo("round")};
   });
@@ -1934,6 +2051,412 @@ $("importFile").onchange=async e=>{
   msg(`라운드 ${added}개 추가, 코스 ${cAdded}개 추가`+(dup?` · 이미 있는 라운드 ${dup}개는 건너뜀`:"")+(bad.length?` · 읽지 못한 ${bad.length}개: ${bad.slice(0,3).join(" / ")}${bad.length>3?" …":""}`:""));
 };
 
+/* ---------- 재미 기능 공통: 설정 · 분석용 라운드 ---------- */
+// 설정(users/{uid}/settings/app). 값이 없으면 켬
+let settings={};
+const setOn=k=>settings[k]!==false;
+function renderSettings(){ document.querySelectorAll("[data-set]").forEach(i=>i.checked=setOn(i.dataset.set)) }
+document.querySelectorAll("[data-set]").forEach(i=>i.onchange=()=>{
+  settings[i.dataset.set]=i.checked;
+  if(curUid) bg(()=>setDoc(doc(fs,"users",curUid,"settings","app"),{[i.dataset.set]:i.checked},{merge:true}));
+});
+const byDate=(a,b)=>a.date.localeCompare(b.date)||(a.createdAt||0)-(b.createdAt||0);
+// 정식 라운드: 완료 + 18홀 홀별 기록 + 모든 홀의 파를 앎 (총타만·9홀·파 모르는 과거 기록 제외)
+const isElig=r=>r.status==="done"&&!isTotal(r)&&Array.isArray(r.holes)&&r.holes.length===18&&parKnown(r);
+// 스코어만 쓰는 기능용: 18홀 완료 라운드 중 총타를 아는 것 (총타만 기록한 라운드 포함)
+const isScoreR=r=>r.status==="done"&&!is9(r)&&typeof scoreOf(r).tot==="number";
+function eligibleRounds(list=rounds){return list.filter(isElig).sort(byDate).reverse()}
+function scoreRounds(list=rounds){return list.filter(isScoreR).sort(byDate).reverse()}
+const withRound=r=>[...rounds.filter(x=>x.id!==r.id),r];
+// 기본값(2퍼트·적중·스트레이트)을 바꾼 적이 있는 항목인지: "다음 홀"만 눌러 기본값이 그대로 남은 라운드는 그 항목의 배지에서 뺀다
+const touchedPutt=r=>r.holes.some(h=>h.putts!==2&&h.par+h.d>2);   // 2타 이하 홀은 퍼팅 수가 저절로 줄어드니 제외
+const touchedFw=r=>r.holes.some(h=>h.par>=4&&h.fw&&h.fw!=="H");
+const touchedShape=r=>r.holes.some(h=>h.shape&&h.shape!=="straight");
+const touchedAny=r=>touchedPutt(r)||touchedFw(r)||touchedShape(r)||r.holes.some(h=>(h.ob||0)+(h.hz||0)>0);
+const sg1=v=>v==null?"–":(v>0?"+":"")+v.toFixed(1);
+const scoreName=d=>d<-2?"알바트로스":d>5?"+"+d:(SCORE_OPTS.find(o=>o[0]===d)||[0,"+"+d])[1];
+const dotDate=d=>d.replace(/-/g,".");
+
+/* ---------- 고스트 매치 · 홀 브리핑: 같은 9홀 코스의 과거 기록 ---------- */
+// 9홀 코스를 가리키는 키: 등록된 코스면 그 id, 아니면 골프장+코스명 (전반·후반 순서가 바뀌어도 같은 코스끼리 맞춤)
+const halfKey=(r,half)=>{ if(!half) return null; const c=courseOf(r,half); return c?c.id:`${r.club}|${half.course}` };
+// 그 코스를 친 과거 9홀 기록 (최근 것부터). 9홀 라운드도 같은 코스 기록이라 포함
+function pastHalves(key,exceptId){
+  const out=[];
+  rounds.forEach(r=>{ if(r.id===exceptId||r.status!=="done"||isTotal(r)||!parKnown(r)) return;
+    [["front",0],["back",9]].forEach(([k,off])=>{ const hs=r.holes.slice(off,off+9);
+      if(hs.length===9&&r[k]&&halfKey(r,r[k])===key) out.push({r,half:k,hs,tot:hs.reduce((a,h)=>a+h.par+h.d,0)}) }) });
+  return out.sort((a,b)=>byDate(b.r,a.r));
+}
+// 고스트 고르기: 베스트 = 그 9홀 합계가 가장 낮았던 기록(동타면 최근), 직전 = 가장 최근 기록
+function pickGhost(key,mode,exceptId){
+  if(!key||mode==="none") return null;
+  const c=pastHalves(key,exceptId); if(!c.length) return null;
+  const g=mode==="last"?c[0]:c.reduce((b,x)=>x.tot<b.tot?x:b);
+  return {roundId:g.r.id,half:g.half,label:`${dotDate(g.r.date)} ${mode==="last"?"직전":"베스트"}`,tot:g.tot};
+}
+// 라운드의 홀마다 고스트 타수 (없으면 null)
+function ghostStrokes(r){
+  const out=(r.holes||[]).map(()=>null); if(!r.ghost||!r.holes) return out;
+  [["front",0],["back",9]].forEach(([k,off])=>{ const g=r.ghost[k]; if(!g||!r[k]) return;
+    const gr=rounds.find(x=>x.id===g.roundId); if(!gr||!Array.isArray(gr.holes)||!parKnown(gr)||!gr[g.half]) return;
+    if(halfKey(gr,gr[g.half])!==halfKey(r,r[k])) return;   // 라운드 코스를 바꾼 경우
+    const goff=g.half==="back"?9:0;
+    gr.holes.slice(goff,goff+9).forEach((h,i)=>{ if(off+i<out.length) out[off+i]=h.par+h.d });
+  });
+  return out;
+}
+// 고스트 대비 타수 차 (음수 = 내가 앞섬). onlyDone이면 입력한 홀끼리만
+function ghostDiff(r,onlyDone){
+  const g=ghostStrokes(r); let d=0,n=0;
+  r.holes.forEach((h,i)=>{ if(g[i]==null||(onlyDone&&!h.done)) return; d+=h.par+h.d-g[i]; n++ });
+  return n?{d,n}:null;
+}
+function ghostResultTxt(r,g){
+  const ls=[...new Set(["front","back"].map(k=>r.ghost[k]&&r.ghost[k].label).filter(Boolean))].join(" · ");
+  return (g.d<0?`고스트(${ls})에 ${-g.d}타 차 승리 🏆`:g.d>0?`고스트(${ls})에 ${g.d}타 차 패배`:`고스트(${ls})와 동률`)+(g.n<r.holes.length?` · ${g.n}홀 비교`:"");
+}
+function updGhostNote(){
+  const show=setupMode==="hole"&&setOn("ghost");
+  $("ghostWrap").hidden=!show; $("ghostNote").hidden=!show; if(!show) return;
+  const mode=$("sGhost").value; if(mode==="none"){$("ghostNote").textContent="고스트 없이 칩니다.";return}
+  const ids=setupHoles===9?[$("sFront").value]:[$("sFront").value,$("sBack").value];
+  const txt=ids.map((id,i)=>{ const c=courses.find(x=>x.id===id), lab=setupHoles===9?"":(i?"후반 ":"전반 ");
+    if(!c) return `${lab}새 코스 — 고스트 없음`;
+    const g=pickGhost(id,mode,null);
+    return g?`${lab}${c.name}: ${g.label} ${g.tot}타`:`${lab}${c.name}: 이 코스 첫 라운드 — 고스트 없음`; });
+  $("ghostNote").textContent="👻 "+txt.join(" · ");
+}
+// 홀 브리핑: 이 홀(코스+홀 번호)의 과거 기록이 2회 이상일 때. OB·미스·퍼팅은 퍼팅까지 기록한 라운드만
+function briefFor(r,i){
+  const half=i<9?r.front:r.back; if(!half) return null;
+  const recs=pastHalves(halfKey(r,half),r.id).map(x=>({h:x.hs[i%9],det:hasDetail(x.r)}));
+  if(recs.length<2) return null;
+  const n=recs.length, ds=recs.map(x=>x.h.d), avg=ds.reduce((a,b)=>a+b,0)/n, par=r.holes[i].par;
+  const det=recs.filter(x=>x.det).map(x=>x.h), m=det.length;
+  const parts=[`평균 ${sg1(avg)}`,`베스트 ${scoreName(Math.min(...ds))}`]; let tip="";
+  if(m){
+    const ob=det.filter(h=>(h.ob||0)>0).length, three=det.filter(h=>h.putts>=3).length;
+    if(ob) parts.push(`OB ${ob}회/${m}번`);
+    if(par>=4){
+      const L=det.filter(h=>h.fw==="L").length, R=det.filter(h=>h.fw==="R").length, side=L>=R?"L":"R", k=Math.max(L,R);
+      if(k) parts.push(`티샷 ${side==="L"?"좌측":"우측"} 미스 ${k}/${m}`);
+      if(k>=2&&k/m>=.5) tip = side==="L" ? "좌측 미스가 잦은 홀: 티를 티박스 왼쪽에 꽂고 페어웨이 오른쪽을 겨냥"
+                                         : "우측 미스가 잦은 홀: 티를 티박스 오른쪽에 꽂고 페어웨이 왼쪽을 겨냥";
+    } else parts.push(`그린 적중 ${det.filter(h=>holeCalc(h).gir).length}/${m}`);
+    if(three) parts.push(`3퍼트 ${three}회`);
+    if(!tip&&ob/m>=.5) tip = par>=4 ? "OB 잦은 홀: 드라이버 대신 우드·유틸로 안전하게" : "OB 잦은 홀: 그린 가운데만 보고 안전하게";
+    if(!tip&&three>=2) tip="그린이 어려운 홀: 첫 퍼트는 홀컵 주변 1m 원 안에 붙이는 것만 목표";
+  }
+  if(!tip&&avg<0.5) tip="강한 홀: 평소대로 공격적으로";
+  return {n,text:parts.join(" · "),tip};
+}
+let briefOpen=true; try{ briefOpen=localStorage.getItem("gsb.briefOpen")!=="0" }catch(e){}
+function renderBrief(){
+  const b=setOn("brief")&&cur.status==="playing"?briefFor(cur,hole):null;
+  $("brief").hidden=!b; if(!b) return;
+  $("brief").innerHTML=`<span class="bh"><span>📋 이 홀 내 기록 · ${b.n}회</span><em>${briefOpen?"접기 ▴":"펼치기 ▾"}</em></span>`+
+    (briefOpen?`<span>${b.text}</span>${b.tip?`<span class="tip">💡 ${b.tip}</span>`:""}`:"");
+}
+
+/* ---------- 배지: 저장하지 않고 라운드를 날짜순으로 훑어 매번 계산 ---------- */
+const BADGES=[
+  ["스코어",[["s100","🌱","백돌이 탈출","18홀 99타 이하"],["s90","🔥","90 돌파","18홀 89타 이하"],["s80","💎","80 돌파","18홀 79타 이하"],["w40","🧱","40타의 벽","전반 또는 후반 40타 이하"]]],
+  ["홀",[["bd1","🐦","첫 버디","파보다 1타 적게"],["eg1","🦅","첫 이글","파보다 2타 적게"],["par3","🔗","파 행진 3","3홀 연속 파 이하"],["par5","⛓️","파 행진 5","5홀 연속 파 이하"],["chip","🪄","칩인","퍼팅 없이 홀아웃"]]],
+  ["라운드",[["clean","🧼","클린 라운드","OB·해저드 0개"],["no3","🎳","노 3퍼트","3퍼트 0개"],["p30","⛳","퍼팅 30","총 퍼팅 30개 이하"],["fw50","🛡️","페어웨이 수호자","페어웨이 적중 50% 이상"],["nodbl","🙌","더블 없는 날","더블보기 이상 0개"]]],
+  ["스윙 교정",[["sl0","🧭","슬라이스 제로","슬라이스 0개 (구질 기록)"],["str","📏","스트레이트 머신","스트레이트+드로우가 티샷의 50% 이상"]]],
+  ["누적",[["n10","🔟","10 라운드","18홀 10라운드 완료"],["n25","🏌️","25 라운드","18홀 25라운드 완료"],["n50","🏅","50 라운드","18홀 50라운드 완료"],
+    ["bd10","🐤","버디 10","누적 버디 10개"],["bd30","🦜","버디 30","누적 버디 30개"],["c5","🗺️","골프장 5곳","다른 골프장 5곳"],["c10","🧳","골프장 10곳","다른 골프장 10곳"]]]
+];
+const BADGE_LIST=BADGES.flatMap(([cat,bs])=>bs.map(([id,icon,name,desc])=>({id,icon,name,desc,cat})));
+const BADGE_BY=Object.fromEntries(BADGE_LIST.map(b=>[b.id,b]));
+const PB_BADGE={id:"pb",icon:"🏆",name:"개인 베스트",desc:"지금까지 최저 타수 갱신 (반복)"};
+function computeBadges(list=rounds){
+  const got={}, pbs=[], hit=(id,r)=>{ if(!got[id]) got[id]={id:r.id,date:r.date} };
+  let n=0, birdies=0, best=Infinity; const clubSet=new Set();
+  scoreRounds(list).reverse().forEach(r=>{
+    const tot=scoreOf(r).tot; n++; clubSet.add(String(r.club).trim());
+    if(tot<=99) hit("s100",r); if(tot<=89) hit("s90",r); if(tot<=79) hit("s80",r);
+    if(n>=10) hit("n10",r); if(n>=25) hit("n25",r); if(n>=50) hit("n50",r);
+    if(clubSet.size>=5) hit("c5",r); if(clubSet.size>=10) hit("c10",r);
+    if(n>1&&tot<best) pbs.push({id:r.id,date:r.date,tot}); best=Math.min(best,tot);
+    const halves=isTotal(r)?[r.out,r.in]:parKnown(r)&&r.holes.length===18?[0,9].map(a=>r.holes.slice(a,a+9).reduce((s,h)=>s+h.par+h.d,0)):[];
+    if(halves.some(v=>typeof v==="number"&&v<=40)) hit("w40",r);
+    if(!isElig(r)) return;
+    const hs=r.holes;
+    if(hs.some(h=>h.d<=-1)) hit("bd1",r); if(hs.some(h=>h.d<=-2)) hit("eg1",r);
+    let run=0,mx=0; hs.forEach(h=>{run=h.d<=0?run+1:0;mx=Math.max(mx,run)}); if(mx>=3) hit("par3",r); if(mx>=5) hit("par5",r);
+    if(hs.every(h=>h.d<=1)) hit("nodbl",r);
+    birdies+=hs.filter(h=>h.d<=-1).length; if(birdies>=10) hit("bd10",r); if(birdies>=30) hit("bd30",r);
+    if(!hasDetail(r)) return;
+    if(hs.some(h=>h.putts===0)) hit("chip",r);
+    const k=roundCalc(r);
+    if(touchedAny(r)&&k.ob===0&&k.hz===0) hit("clean",r);
+    if(touchedPutt(r)){ if(k.three===0) hit("no3",r); if(k.putts<=30) hit("p30",r); }
+    if(touchedFw(r)&&k.fwN&&k.fwH/k.fwN>=.5) hit("fw50",r);
+    if(touchedShape(r)){ if(!hs.some(h=>h.shape==="slice")) hit("sl0",r);
+      if(hs.filter(h=>h.shape==="straight"||h.shape==="draw").length/hs.length>=.5) hit("str",r); }
+  });
+  return {got,pbs,best:isFinite(best)?best:null};
+}
+// 이 라운드가 처음 달성한 배지(날짜순 기준) + 개인 베스트였는지
+function roundBadges(r){
+  const {got,pbs}=computeBadges(withRound(r));
+  const list=BADGE_LIST.filter(b=>got[b.id]&&got[b.id].id===r.id);
+  if(pbs.some(p=>p.id===r.id)) list.unshift(PB_BADGE);
+  return list;
+}
+// 방금 저장한 라운드로 새로 생긴 배지: 이 라운드를 빼고 계산하면 없던 배지. 개인 베스트 = 다른 모든 라운드보다 낮은 타수
+function newBadgesFor(r){
+  const others=rounds.filter(x=>x.id!==r.id);
+  const before=computeBadges(others).got, after=computeBadges([...others,r]).got;
+  const ids=BADGE_LIST.map(b=>b.id).filter(k=>after[k]&&!before[k]);
+  const prev=scoreRounds(others).map(x=>scoreOf(x).tot), tot=isScoreR(r)?scoreOf(r).tot:null;
+  return {ids,pb:tot!=null&&prev.length>0&&tot<Math.min(...prev),tot};
+}
+function renderBadges(){
+  const {got,pbs,best}=computeBadges(), k=Object.keys(got).length+(pbs.length?1:0);
+  const card=(b,on,foot)=>`<div class="bdg ${on?"on":"off"}"><i>${b.icon}</i><b>${b.name}</b><small>${b.desc}</small>${on?`<em>${foot}</em>`:""}</div>`;
+  const lastPb=pbs[pbs.length-1];
+  $("badgeBox").innerHTML=`<section class="panel"><h2 style="margin:0">획득 ${k} / ${BADGE_LIST.length+1}</h2>
+      <p class="note" style="margin:6px 0 0">기록을 고치거나 지우면 자동으로 다시 계산됩니다. 퍼팅·페어웨이·구질 배지는 기본값(2퍼트·적중·스트레이트)을 바꿔 기록한 라운드만 셉니다.</p></section>`+
+    BADGES.map(([cat])=>`<section class="panel"><h2>${cat}</h2><div class="bgrid">${
+      (cat==="스코어"?card(PB_BADGE,pbs.length,lastPb?`${pbs.length}회 갱신 · 현재 ${best}타 · ${dotDate(lastPb.date)}`:""):"")+
+      BADGE_LIST.filter(b=>b.cat===cat).map(b=>card(b,got[b.id],got[b.id]?dotDate(got[b.id].date)+" 획득":"")).join("")}</div></section>`).join("");
+}
+$("badgeBtn").onclick=()=>{renderBadges();show("Badges")};
+
+/* 덮는 화면(축하 카드 · 공유 이미지 미리보기) */
+function showOv(html){ const o=$("ov"); o.innerHTML=html; o.hidden=false; const c=o.querySelector("#ovClose"); if(c) c.onclick=closeOv; }
+function closeOv(){ const o=$("ov"); o.hidden=true; o.innerHTML=""; }
+$("ov").addEventListener("click",e=>{ if(e.target===$("ov")) closeOv() });
+const reduceMotion=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+// 꽃가루: 라이브러리 없이 canvas로 2초 안에 끝
+function confetti(cv){
+  const dpr=Math.min(2,window.devicePixelRatio||1), w=cv.clientWidth, h=cv.clientHeight; cv.width=w*dpr; cv.height=h*dpr;
+  const g=cv.getContext("2d"); g.scale(dpr,dpr);
+  const cols=["#f3d27e","#5cc28d","#eb6834","#2a78d6","#ffffff","#e87ba4"];
+  const ps=Array.from({length:140},()=>({x:w/2+(Math.random()-.5)*w*.3,y:h*.38,vx:(Math.random()-.5)*14,vy:-Math.random()*14-6,s:6+Math.random()*6,a:Math.random()*6,va:(Math.random()-.5)*.4,c:cols[Math.random()*cols.length|0]}));
+  const t0=performance.now();
+  const tick=t=>{ const e=t-t0; g.clearRect(0,0,w,h); if(e>1900||!cv.isConnected) return;
+    g.globalAlpha=e>1400?1-(e-1400)/500:1;
+    ps.forEach(p=>{p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;g.save();g.translate(p.x,p.y);g.rotate(p.a);g.fillStyle=p.c;g.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);g.restore()});
+    requestAnimationFrame(tick) };
+  requestAnimationFrame(tick);
+}
+function celebrate(r){
+  if(!setOn("celebrate")) return;
+  const nb=newBadgesFor(r); if(!nb.ids.length&&!nb.pb) return;
+  const items=[...(nb.pb?[[PB_BADGE.icon,"개인 베스트 갱신!",`${nb.tot}타 — 지금까지 가장 좋은 스코어`]]:[]),...nb.ids.map(id=>[BADGE_BY[id].icon,BADGE_BY[id].name,BADGE_BY[id].desc])];
+  showOv(`<canvas class="cf" id="cf"></canvas><div class="ovcard pop"><div class="lab">NEW BADGE</div><h3>축하합니다!</h3>
+    ${items.map(([i,n,d])=>`<div class="nb"><i>${i}</i><div><b>${n}</b><small>${d}</small></div></div>`).join("")}
+    <button class="primary big" id="ovClose">확인</button></div>`);
+  if(!reduceMotion()) confetti($("cf"));
+}
+
+/* ---------- 라운드 미션 ---------- */
+const MISSIONS={ob:["OB 2개 이하",2],slice:["슬라이스 3개 이하",3],hook:["훅 3개 이하",3],three:["3퍼트 2개 이하",2],fw:["페어웨이 50% 이상",50],dbl:["더블 이상 4개 이하",4],score:["목표 타수 ○○ 이하",null]};
+const missionName=m=>m.type==="score"?`${m.target}타 이하`:MISSIONS[m.type][0];
+function fillMission(){
+  const keep=$("sMission").value, ks=setupMode==="hole"?Object.keys(MISSIONS):["score"];   // 홀별 입력이 아니면 목표 타수만
+  $("sMission").innerHTML=`<option value="">없음</option>`+ks.map(k=>`<option value="${k}">${MISSIONS[k][0]}</option>`).join("");
+  $("sMission").value=ks.includes(keep)?keep:"";
+  $("mTargetWrap").hidden=$("sMission").value!=="score";
+}
+$("sMission").onchange=fillMission;
+$("sGhost").onchange=updGhostNote;
+function missionBody(){
+  const t=$("sMission").value; if(!t) return {};
+  if(t!=="score") return {mission:{type:t,target:MISSIONS[t][1]}};
+  const v=+$("sMTarget").value; if(!(v>=20&&v<=200)) return {error:"미션 목표 타수를 입력해 주세요."};
+  return {mission:{type:"score",target:v}};
+}
+// 진행 상황: txt = 지금 값, fail = 실패 확정, ok = (끝났을 때) 달성
+function missionState(r){
+  const m=r.mission; if(!m||!MISSIONS[m.type]) return null;
+  if(isTotal(r)) return m.type==="score"?{txt:`${r.total}타`,ok:r.total<=m.target,fail:r.total>m.target}:null;
+  const fin=r.status==="done", hs=r.holes, dn=hs.filter(h=>h.done||fin);
+  const cap=v=>({txt:`현재 ${v}개`,fail:v>m.target,ok:v<=m.target});
+  switch(m.type){
+    case "ob": return cap(dn.reduce((a,h)=>a+(h.ob||0),0));
+    case "slice": case "hook": return cap(dn.filter(h=>h.shape===m.type).length);
+    case "three": return cap(dn.filter(h=>h.putts>=3).length);
+    case "dbl": return cap(dn.filter(h=>h.d>=2).length);
+    case "fw": { const t=hs.filter(h=>h.par>=4), a=t.filter(h=>h.done||fin), hit=a.filter(h=>h.fw==="H").length;
+      return {txt:a.length?`현재 ${hit}/${a.length} (${Math.round(hit/a.length*100)}%)`:"현재 –",fail:(hit+t.length-a.length)/t.length<.5,ok:hit/t.length>=.5}; }
+    case "score": { const s=dn.reduce((a,h)=>a+h.par+h.d,0), rest=hs.filter(h=>!(h.done||fin)).reduce((a,h)=>a+Math.max(1,h.par-1),0);
+      return {txt:`현재 ${s}타`,fail:s+rest>m.target,ok:fin&&s<=m.target}; }
+  }
+  return null;
+}
+function renderMissionLine(){
+  const st=missionState(cur); $("mline").hidden=!st||cur.status!=="playing"; if($("mline").hidden) return;
+  $("mline").className="mline"+(st.fail?" fail":"");
+  $("mline").textContent=`🎯 ${missionName(cur.mission)} — ${st.txt}${st.fail?" · 실패 확정":""}`;
+}
+// 라운드 카드(완료·상세 화면): 고스트 결과 · 미션 · 이 라운드에서 받은 배지
+function heroExtras(r){
+  const out=[];
+  if(r.ghost&&!isTotal(r)){ const g=ghostDiff(r,false); if(g) out.push(`<div class="gline">👻 ${ghostResultTxt(r,g)}</div>`) }
+  const ms=missionState(r); if(ms) out.push(`<div class="gline">🎯 ${missionName(r.mission)} — ${ms.ok?"달성 ✓":"실패"}</div>`);
+  if(isScoreR(r)){ const bs=roundBadges(r); if(bs.length) out.push(`<div class="bchips">${bs.map(b=>`<span class="bchip">${b.icon} ${b.name}</span>`).join("")}</div>`) }
+  return out.join("");
+}
+
+/* ---------- 어디서 타를 잃나 (간이 스트로크 게인드): 라운드당 평균 손실 타수 ---------- */
+const LOSS_RX={ob:"드라이버 연습보다 ‘안전 클럽’ 정하기 + 연습장에서 좁은 타깃 10구 연속 성공",three:"거리감 연습: 10m 퍼팅을 1m 원 안에 10개 중 7개",
+  tee:"티샷 방향이 점수를 깎고 있음: 페어웨이 적중률 50% 목표",par3:"아이언 거리 정확도: 클럽별 캐리 거리 다시 측정",hz:"해저드 반대쪽 넓은 곳을 겨냥하는 코스 매니지먼트"};
+function lossCauses(rs){   // rs: 퍼팅까지 기록한 정식 라운드
+  const n=rs.length; if(!n) return null;
+  const hs=rs.flatMap(r=>r.holes), per=v=>v/n, avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+  // 티샷 미스: 파4·5에서 OB 난 홀은 빼고(OB와 중복 방지) 미스 홀이 적중 홀보다 평균 몇 타 더 나왔는지 × 라운드당 미스 수
+  const t45=hs.filter(h=>h.par>=4&&h.fw&&!((h.ob||0)>0)), miss=t45.filter(h=>h.fw!=="H"), hitH=t45.filter(h=>h.fw==="H");
+  const p3=hs.filter(h=>h.par===3);
+  const items=[
+    ["ob","OB",per(hs.reduce((a,h)=>a+(h.ob||0)*2,0))],
+    ["hz","해저드",per(hs.reduce((a,h)=>a+(h.hz||0),0))],
+    ["three","3퍼트 이상",per(hs.reduce((a,h)=>a+Math.max(0,h.putts-2),0))],
+    ["tee","티샷 미스",miss.length&&hitH.length?Math.max(0,(avg(miss.map(h=>h.d))-avg(hitH.map(h=>h.d)))*per(miss.length)):0],
+    ["par3","파3",p3.length?Math.max(0,avg(p3.map(h=>h.d))*per(p3.length)):0]
+  ].map(([k,label,v])=>({k,label,v})).sort((a,b)=>b.v-a.v);
+  const over=per(hs.reduce((a,h)=>a+h.d,0)), sum=items.reduce((a,x)=>a+x.v,0);
+  return {n,items,over,etc:Math.max(0,over-sum),hs,top:items[0].v>0.05?items[0]:null};
+}
+function renderLoss(full){
+  const L=lossCauses(full);
+  if(!L){ $("lossBox").innerHTML=`<p class="note" style="margin:0">퍼팅·OB까지 홀별로 기록한 라운드가 있으면 OB·3퍼트·티샷 미스·파3 중 어디서 타를 잃는지 보여 줍니다.</p>`; return }
+  const max=Math.max(...L.items.map(x=>x.v),L.etc,0.1);
+  const row=(x,cls)=>`<div class="bar ${cls}"><div class="k">${x.label}</div><div class="t"><i style="width:${x.v/max*100}%"></i></div><div class="v">${x.v.toFixed(1)}타</div></div>`;
+  const avgD=p=>{const a=L.hs.filter(h=>h.par===p);return a.length?a.reduce((s,h)=>s+h.d,0)/a.length:null};
+  $("lossBox").innerHTML=`<div class="bars">${L.items.map(x=>row(x,L.top===x?"top":"")).join("")}${L.etc>0.05?row({label:"기타",v:L.etc},"etc"):""}</div>
+    ${L.top?`<div class="rx"><b>1위 ${L.top.label} · 라운드당 ${L.top.v.toFixed(1)}타</b><br>${LOSS_RX[L.top.k]}</div>`:""}
+    <div class="kv" style="margin-top:14px">${[3,4,5].map(p=>`<div><b>${sg1(avgD(p))}</b><span>파${p} 평균 (파 대비)</span></div>`).join("")}</div>
+    <p class="note" style="margin:10px 0 0">라운드당 평균 ${sg1(L.over)}타 중 · 홀별 기록 ${L.n}라운드 기준 · 근사치입니다. 항목끼리 일부 겹칠 수 있어요 (기타 = 어프로치·숏게임 등 나머지)</p>`;
+}
+function renderMissionStats(){
+  const rs=doneRounds().filter(r=>r.mission&&MISSIONS[r.mission.type]); const box=$("missionBox");
+  if(!rs.length){ box.innerHTML=`<p class="note" style="margin:0">새 라운드에서 미션을 고르면 미션별 달성률이 표시됩니다.</p>`; return }
+  const g={}; rs.forEach(r=>{ const st=missionState(r); if(!st) return; const k=r.mission.type, o=g[k]||(g[k]={n:0,ok:0}); o.n++; if(st.ok) o.ok++ });
+  box.innerHTML=`<div class="bars">${Object.keys(MISSIONS).filter(k=>g[k]).map(k=>barRow(k==="score"?"목표 타수":MISSIONS[k][0],"",g[k].ok,g[k].n,`${g[k].ok}/${g[k].n} · ${Math.round(g[k].ok/g[k].n*100)}%`)).join("")}</div>`;
+}
+// 구질 추이: 구질을 기록한 최근 10라운드의 슬라이스·훅·스트레이트+드로우 비율 (스윙 교정 효과 확인용)
+function renderShapeTrend(){
+  const box=$("shapeTrend"), rs=statRounds().filter(r=>hasDetail(r)&&touchedShape(r)).slice(0,10).reverse();
+  if(rs.length<2){ box.innerHTML=`<p class="note" style="margin:0">티샷 구질을 기록한 라운드가 2개 이상이면 라운드별 구질 비율 변화가 그려집니다.</p>`; return }
+  const S=[["str","스트레이트+드로우","var(--s1)",h=>h.shape==="straight"||h.shape==="draw"],["slice","슬라이스","var(--s2)",h=>h.shape==="slice"],["hook","훅","var(--s3)",h=>h.shape==="hook"]];
+  const val=rs.map(r=>S.map(s=>Math.round(r.holes.filter(s[3]).length/r.holes.length*100)));
+  const W=600,H=200,L=34,R=96,T=12,B=24, x=i=>L+(W-L-R)*i/(rs.length-1), y=v=>T+(H-T-B)*(1-v/100);
+  let g=""; for(let v=0;v<=100;v+=25) g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+3}" text-anchor="end">${v}%</text>`;
+  // 오른쪽 끝 직접 라벨: 겹치지 않게 14px 이상 띄운다
+  const last=rs.length-1, ends=S.map((s,k)=>({k,y:y(val[last][k])})).sort((a,b)=>a.y-b.y);
+  ends.forEach((e,i)=>{ if(i&&e.y-ends[i-1].y<14) e.y=ends[i-1].y+14 });
+  const lines=S.map((s,k)=>`<path d="${val.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v[k]).toFixed(1)}`).join("")}" fill="none" stroke="${s[2]}" stroke-width="2" stroke-linejoin="round"/>`+
+    val.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v[k])}" r="4" fill="${s[2]}" stroke="var(--paper)" stroke-width="2"><title>${rs[i].date} ${esc(rs[i].club)} · ${s[1]} ${v[k]}%</title></circle>`).join("")).join("");
+  const labels=ends.map(e=>`<text x="${x(last)+8}" y="${e.y+3}" style="fill:var(--ink);font-family:var(--f-body);font-size:11px">${S[e.k][1].replace("스트레이트+드로우","직진+드로우")} ${val[last][e.k]}%</text>`).join("");
+  box.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="구질 추이">${g}${lines}${labels}
+    <text x="${x(0)}" y="${H-6}">${rs[0].date.slice(2).replace(/-/g,".")}</text><text x="${x(last)}" y="${H-6}" text-anchor="end">${rs[last].date.slice(2).replace(/-/g,".")}</text></svg>
+    <div class="legend">${S.map(s=>`<span><i style="background:${s[2]}"></i>${s[1]}</span>`).join("")}</div>
+    <p class="note" style="margin:6px 0 0">라운드별 전체 티샷 중 비율 · 구질을 하나라도 바꿔 기록한 라운드만</p>`;
+}
+
+/* ---------- 스코어카드 이미지 공유 (1080×1920, 인스타 스토리) ---------- */
+function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function fitFont(g,txt,max,size,weight,fam){ let s=size; for(;;){ g.font=`${weight} ${s}px ${fam}`; if(s<=20||g.measureText(txt).width<=max) return s; s-=2 } }
+async function drawShare(r){
+  const W=1080,H=1920,cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
+  const F='"IBM Plex Sans KR",system-ui,-apple-system,sans-serif', D='Oswald,"IBM Plex Sans KR",sans-serif', M='"IBM Plex Mono",ui-monospace,monospace';
+  // 화면에 아직 안 쓰인 굵기도 미리 받아야 이미지 글씨가 기본 글꼴로 바뀌지 않는다
+  try{ await Promise.all([`700 64px ${F}`,`500 40px ${F}`,`500 280px ${D}`,`600 36px ${M}`].map(f=>document.fonts.load(f,"골프 스코어 0123456789"))); await document.fonts.ready }catch(e){}
+  const INK="#f2f7f3", GOLD="#f3d27e", DARK="#18261e", MUT="#5f6f66", LINE="#d8e0da", SOFT="#e1eee6";
+  const bgG=g.createLinearGradient(0,0,W*.6,H); bgG.addColorStop(0,"#1f6d48"); bgG.addColorStop(1,"#0f2e1f"); g.fillStyle=bgG; g.fillRect(0,0,W,H);
+  g.strokeStyle="rgba(255,255,255,.07)"; g.lineWidth=2; [240,330,420].forEach(rr=>{g.beginPath();g.arc(W-40,120,rr,0,Math.PI*2);g.stroke()});
+  const c=scoreOf(r), X=72; g.textAlign="left"; g.textBaseline="alphabetic";
+  g.fillStyle="rgba(242,247,243,.7)"; g.font=`600 30px ${F}`; g.fillText("GOLF SCOREBOOK · 좌타",X,150);
+  g.fillStyle=INK; fitFont(g,r.club,W-2*X,72,700,F); g.fillText(r.club,X,250);
+  const sub=[dotDate(r.date),courseTxt(r," · "),is9(r)?"9홀":"",r.tee?r.tee+" 티":""].filter(Boolean).join("  ·  ");
+  g.fillStyle="rgba(242,247,243,.8)"; fitFont(g,sub,W-2*X,36,500,F); g.fillText(sub,X,312);
+  g.fillStyle=INK; g.font=`500 300px ${D}`; const ts=String(c.tot??"–"); g.fillText(ts,X-8,640); const tw=g.measureText(ts).width;
+  if(c.rel!=null){ const chip=relTxt(c.rel)+(c.par!=null?`  ·  파${c.par}`:""); g.font=`700 40px ${F}`; const cw=g.measureText(chip).width+48;
+    rrect(g,X+tw+24,530,cw,70,35); g.fillStyle="rgba(243,210,126,.18)"; g.fill(); g.fillStyle=GOLD; g.fillText(chip,X+tw+48,579); }
+  const fb=isTotal(r)?[r.out,r.in]:(r.holes.length===18&&parKnown(r)?[0,9].map(a=>r.holes.slice(a,a+9).reduce((s,h)=>s+h.par+h.d,0)):[]);
+  if(fb.some(v=>v!=null)){ g.font=`500 42px ${F}`; g.fillStyle="rgba(242,247,243,.85)"; g.fillText(`전반 ${fb[0]??"–"}   ·   후반 ${fb[1]??"–"}`,X,730); }
+  let y=790;
+  // 18홀 스코어 격자: 앱 스코어카드와 같은 표기 (○ 버디 · ◎ 이글 · □ 보기 · 두 줄 □ 더블 이상)
+  if(!isTotal(r)&&parKnown(r)){
+    const halves=r.holes.length===18?[[0,"전반"],[9,"후반"]]:[[0,"계"]], LC=120, CW=80, SC=96, RH=[56,56,80], tx=X;
+    const ch=halves.length*(RH[0]+RH[1]+RH[2])+(halves.length-1)*28+56;
+    rrect(g,X-24,y,W-2*X+48,ch,32); g.fillStyle="#ffffff"; g.fill();
+    let ty=y+28; g.textAlign="center"; g.textBaseline="middle";
+    halves.forEach(([a,lab])=>{
+      const hs=r.holes.slice(a,a+9), cells=[["홀",hs.map((_,i)=>i+1),lab],["파",hs.map(h=>h.par),hs.reduce((s,h)=>s+h.par,0)],["타수",hs,hs.reduce((s,h)=>s+h.par+h.d,0)]];
+      cells.forEach(([k,vals,sum],ri)=>{ const rh=RH[ri], cy=ty+rh/2;
+        if(ri===0){ g.fillStyle=SOFT; g.fillRect(tx,ty,LC+CW*9+SC,rh) }
+        g.fillStyle=MUT; g.font=`600 28px ${F}`; g.fillText(k,tx+LC/2,cy);
+        vals.forEach((v,i)=>{ const cx=tx+LC+CW*i+CW/2;
+          if(ri<2){ g.fillStyle=ri?DARK:MUT; g.font=ri?`600 34px ${M}`:`600 28px ${M}`; g.fillText(String(v),cx,cy); return }
+          const h=v, s=h.par+h.d; g.strokeStyle=DARK; g.lineWidth=3;
+          if(h.d<=-1){ g.beginPath();g.arc(cx,cy,27,0,Math.PI*2);g.stroke(); if(h.d<=-2){g.beginPath();g.arc(cx,cy,20,0,Math.PI*2);g.stroke()} }
+          else if(h.d>=1){ g.strokeRect(cx-26,cy-26,52,52); if(h.d>=2) g.strokeRect(cx-19,cy-19,38,38) }
+          g.fillStyle=DARK; g.font=`600 ${h.d>=2||h.d<=-2?30:36}px ${M}`; g.fillText(String(s),cx,cy+1); });
+        g.fillStyle=SOFT; g.fillRect(tx+LC+CW*9,ty,SC,rh); g.fillStyle=DARK; g.font=`700 ${ri?36:28}px ${ri?M:F}`; g.fillText(String(sum),tx+LC+CW*9+SC/2,cy);
+        g.strokeStyle=LINE; g.lineWidth=2; g.beginPath(); g.moveTo(tx,ty+rh); g.lineTo(tx+LC+CW*9+SC,ty+rh); g.stroke();
+        ty+=rh; });
+      ty+=28; });
+    g.textAlign="left"; g.textBaseline="alphabetic"; y+=ch+40;
+  }
+  // 퍼팅 · 페어웨이 · 그린 적중
+  if(hasDetail(r)){ const k=roundCalc(r), st=[[k.putts,"퍼팅"],[k.fwN?Math.round(k.fwH/k.fwN*100)+"%":"–","페어웨이"],[Math.round(k.gir/k.n*100)+"%","그린 적중"]];
+    st.forEach(([v,lab],i)=>{ const sx=X+i*(W-2*X)/3; g.fillStyle=INK; g.font=`500 76px ${D}`; g.fillText(String(v),sx,y+70); g.fillStyle="rgba(242,247,243,.7)"; g.font=`500 30px ${F}`; g.fillText(lab,sx,y+116) });
+    y+=170; }
+  // 고스트 · 미션 · 받은 배지
+  g.font=`600 38px ${F}`; g.fillStyle=INK;
+  if(r.ghost&&!isTotal(r)){ const gd=ghostDiff(r,false); if(gd){ const t="👻 "+ghostResultTxt(r,gd); fitFont(g,t,W-2*X,38,600,F); g.fillText(t,X,y+44); y+=72 } }
+  const ms=missionState(r); if(ms){ g.font=`600 38px ${F}`; g.fillText(`🎯 ${missionName(r.mission)} — ${ms.ok?"달성 ✓":"실패"}`,X,y+44); y+=72 }
+  if(isScoreR(r)){ let bx=X, by=y+16; g.font=`700 34px ${F}`;
+    roundBadges(r).forEach(b=>{ const t=`${b.icon} ${b.name}`, w=g.measureText(t).width+44; if(bx+w>W-X){bx=X;by+=80} if(by>H-200) return;
+      rrect(g,bx,by,w,62,31); g.fillStyle="rgba(243,210,126,.18)"; g.fill(); g.fillStyle=GOLD; g.fillText(t,bx+22,by+43); bx+=w+14 }); }
+  g.fillStyle="rgba(242,247,243,.55)"; g.font=`500 28px ${F}`; g.fillText("나의 골프 스코어북",X,H-80);
+  return cv;
+}
+// 아이폰은 버튼을 누른 직후에만 공유 시트를 열어 주므로: 이미지를 먼저 만들어 보여 주고, '공유하기'를 누를 때 바로 공유
+async function openShare(r){
+  showOv(`<div class="ovcard"><p style="margin:0">이미지를 만드는 중…</p></div>`);
+  try{
+    const cv=await drawShare(r), blob=await new Promise(res=>cv.toBlob(res,"image/png"));
+    const name=`golf-${r.date}.png`, file=new File([blob],name,{type:"image/png"}), url=URL.createObjectURL(blob);
+    const canShare=!!(navigator.canShare&&navigator.canShare({files:[file]}));
+    showOv(`<div class="ovcard"><img src="${url}" alt="스코어카드 이미지">
+      <div class="row">${canShare?`<button class="primary" id="shGo">공유하기</button>`:""}<a class="linkbtn acc" id="shSave" href="${url}" download="${name}">PNG 저장</a><button class="ghost" id="ovClose">닫기</button></div>
+      <p class="note" style="margin:0">이미지를 길게 누르면 사진에 저장할 수도 있어요.</p></div>`);
+    if(canShare) $("shGo").onclick=()=>navigator.share({files:[file]}).catch(()=>{});
+  }catch(e){ showOv(`<div class="ovcard"><p style="margin:0">이미지를 만들지 못했습니다 (${esc(e.message||e)}).</p><button class="ghost" id="ovClose">닫기</button></div>`) }
+}
+
+/* ---------- 체험용 예시 라운드 (demo:true) ---------- */
+$("demoAdd").onclick=async()=>{
+  const msg=t=>$("demoMsg").textContent=t; if(!rcol){msg("로그인한 뒤에 할 수 있습니다.");return}
+  const W=courses.find(c=>c.club==="서원힐스CC"&&c.name==="웨스트"), S=courses.find(c=>c.club==="서원힐스CC"&&c.name==="사우스");
+  if(!W||!S){msg("서원힐스CC 웨스트·사우스 코스가 없습니다. 더보기 → 기본 코스 다시 맞추기를 먼저 눌러 주세요.");return}
+  let seed=7; const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
+  const shapes=["straight","straight","draw","fade","slice","slice","hook","push","pull"];
+  for(let k=0;k<3;k++){
+    const pars=[...W.pars,...S.pars];
+    const holes=pars.map((p,i)=>{ const ob=i===3&&k!==1?1:(rnd()<.06?1:0), fw=p<4?null:(i===1||i===10?(rnd()<.8?"L":"H"):rnd()<.25?"L":rnd()<.4?"R":"H");
+      let d=Math.min(4,Math.max(-1,Math.round(rnd()*2.6-.5)+(ob?2:0)+(fw&&fw!=="H"?1:0)-(k===2?1:0)));
+      const putts=Math.max(0,Math.min(p+d-1,rnd()<.15?3:rnd()<.2?1:2));
+      return {par:p,d,putts,fw,shape:shapes[Math.floor(rnd()*shapes.length)],ob,hz:rnd()<.08?1:0,done:true} });
+    const dt=new Date(Date.now()-(30-k*10)*864e5); dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
+    await rcol.add({date:dt.toISOString().slice(0,10),club:"서원힐스CC",front:{courseId:W.id,course:W.name,pars:[...W.pars]},back:{courseId:S.id,course:S.name,pars:[...S.pars]},
+      holes,holesPlayed:18,tee:DEFAULT_TEE,status:"done",demo:true,createdAt:Date.now()+k,updatedAt:Date.now()});
+  }
+  msg("예시 라운드 3개를 만들었습니다. 새 라운드에서 서원힐스CC 웨스트·사우스를 고르면 고스트와 홀 브리핑이 보여요.");
+};
+$("demoDel").onclick=async()=>{
+  const msg=t=>$("demoMsg").textContent=t; if(!rcol){msg("로그인한 뒤에 할 수 있습니다.");return}
+  const ds=rounds.filter(r=>r.demo); for(const r of ds) await rcol.doc(r.id).delete();
+  rounds=rounds.filter(r=>!r.demo); msg(ds.length?`예시 라운드 ${ds.length}개를 지웠습니다.`:"지울 예시 라운드가 없습니다.");
+};
+
 /* ---------- 앱 업데이트: 새 버전이 배포되면 자동으로 받아서 다시 열기 ---------- */
 let pendingReload=false;
 function reloadForUpdate(){ if(["Play","Setup","Info"].some(n=>!$("scr"+n).hidden)){pendingReload=true;return} location.reload(); }
@@ -2016,6 +2539,11 @@ function start(user){
     if(!$("scrSetup").hidden) {fillClubList();fillCourseSelects();}
     if(!$("scrCourses").hidden) renderCourses();
   }));
+  unsubs.push(onSnapshot(doc(fs,"users",user.uid,"settings","app"),snap=>{
+    settings=snap.exists()?snap.data():{}; renderSettings();
+    if(!$("scrPlay").hidden&&cur&&cur.holes) renderPlay();
+    if(!$("scrSetup").hidden) updGhostNote();
+  },()=>{}));
   seedCourses(user.uid).catch(()=>{});
 }
 
@@ -2043,7 +2571,7 @@ function bootInner(){
   getRedirectResult(auth).catch(e=>{ $("loginMsg").textContent=authErr(e); });
   onAuthStateChanged(auth,user=>{
     if(user){ start(user); }
-    else { unsubs.forEach(u=>u()); unsubs=[]; rcol=null; ccol=null; curUid=null; rounds=[]; courses=[]; cur=null;
+    else { unsubs.forEach(u=>u()); unsubs=[]; rcol=null; ccol=null; curUid=null; rounds=[]; courses=[]; cur=null; settings={};
       setSync("","로그인 필요"); show("Login"); }
   });
   $("loginBtn").onclick=async()=>{
