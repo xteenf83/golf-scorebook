@@ -318,7 +318,11 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .holecard .parpick button{background:transparent;color:var(--heroInk);border-color:rgba(255,255,255,.3)}
 .holecard .parpick button.on{background:var(--gold);color:#1b2a20;border-color:var(--gold)}
 .holecard .holefoot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.14);padding-top:10px}
-.holecard .running{color:var(--heroInk);opacity:.85}
+.holecard .running{color:var(--heroInk);opacity:.9;font-size:14px}
+.holecard .running b{font-family:var(--f-display);font-size:24px;font-weight:500;line-height:1}
+.holecard .running .rel{font-family:var(--f-num);font-size:13px;margin-left:2px}
+.gbox{display:flex;align-items:center;gap:8px;color:var(--heroInk);font-size:13px}
+.gbox b{font-family:var(--f-num);font-size:16px;margin:0 1px}
 .holecard .holefoot button{padding:6px 10px;font-size:12.5px}
 .holecard .sync{font-size:11px;margin-top:-4px}
 .strip button{border-radius:10px}
@@ -643,10 +647,10 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
       <button type="button" class="brief" id="brief" hidden></button>
       <div class="holefoot">
         <div class="running" id="running"></div>
-        <button class="ghost" id="playInfo">코스·날짜 수정</button>
+        <div class="gbox" id="gbox" hidden></div>
       </div>
       <div class="mline" id="mline" hidden></div>
-      <div class="sync"><span class="dot" id="dot2"></span><span id="syncText2"></span></div>
+      <div class="sync" id="sync2" hidden><span class="dot" id="dot2"></span><span id="syncText2"></span></div>
     </section>
 
     <div class="field" id="fwField" data-step="fw">
@@ -682,7 +686,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
     </div>
     <div class="row" style="justify-content:space-between">
       <button class="ghost" id="playHome">← 홈 (자동 저장됨)</button>
-      <button class="linkbtn" id="toTotalBtn">총 타수만 기록하고 끝내기</button>
+      <span class="row" style="gap:14px"><button class="linkbtn" id="playInfo">코스·날짜 수정</button><button class="linkbtn" id="toTotalBtn">총 타수만 기록하고 끝내기</button></span>
     </div>
     <p class="note" style="margin:-8px 0 0">기본값: 파 · 2퍼트 · 적중 · 스트레이트</p>
     <div class="panel" id="toTotalBox" hidden>
@@ -796,7 +800,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v55";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v56";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1020,7 +1024,8 @@ let saving=false, dirty=false, saveTimer=null, pendingDel=null;
 
 function today(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function setSync(s,t){["","2"].forEach(k=>{$("dot"+k).className="dot "+(s||"");$("syncText"+k).textContent=t})}
+function setSync(s,t){["","2"].forEach(k=>{$("dot"+k).className="dot "+(s||"");$("syncText"+k).textContent=t});
+  $("sync2").hidden = !(s==="err"||/오프라인/.test(t)); }   // 홀 카드에는 오프라인·저장 오류일 때만 표시
 function relTxt(d){return d==null?"–":d===0?"E":(d>0?"+"+d:String(d))}
 function relCls(d){return d==null?"even":d<0?"under":d===0?"even":"over"}
 function clone(o){return JSON.parse(JSON.stringify(o))}
@@ -1522,14 +1527,14 @@ function renderPlay(){
   const dist=(courseOf(cur,half)||{}).dist, tees=teesOf(dist);
   // 홀 전장: 라운드에서 고른 티(안 골랐으면 White)의 거리만 PAR 바로 아래에. 그 티 거리가 없으면 표시하지 않음
   const tee=cur.tee||DEFAULT_TEE, m=tees.includes(tee)?dist[tee][hole%9]:null;
-  $("parPick").innerHTML=`<span>PAR <b>${h.par}</b></span>`+(m!=null&&tee?`<small class="hlen">${esc(tee)} <b>${m}</b>m</small>`:"")   // 파는 코스 기준정보: 홀 화면에서는 보기만 (바꾸려면 코스 탭 → 수정)
-    +(gs[hole]!=null?`<small class="hlen">👻 고스트 <b>${gs[hole]}</b>타</small>`:"");   // 이 홀에서 고스트가 친 타수: 입력 전부터 보인다
+  $("parPick").innerHTML=`<span>PAR <b>${h.par}</b></span>`+(m!=null&&tee?`<small class="hlen">${esc(tee)} <b>${m}</b>m</small>`:"");   // 파는 코스 기준정보: 홀 화면에서는 보기만 (바꾸려면 코스 탭 → 수정)
   // running total over done holes
   const dn=cur.holes.filter(x=>x.done); const tot=dn.reduce((a,x)=>a+x.par+x.d,0), rel=dn.reduce((a,x)=>a+x.d,0);
-  const ghostOn=gs.some(v=>v!=null);   // 고스트 대결 중이면 첫 홀 입력 전에도 '고스트 대비 동률'로 표시
-  let run = dn.length ? `${dn.length}홀 입력 · ${tot}타 (${relTxt(rel)})` : ghostOn ? "아직 입력 전" : "아직 입력한 홀이 없습니다";
-  if(ghostOn){ const g=ghostDiff(cur,true)||{d:0}; run+=` <span class="ghc ${g.d<0?"win":g.d>0?"lose":"tie"}">고스트 대비 ${g.d===0?"동률":(g.d>0?"+":"−")+Math.abs(g.d)}</span>` }
-  $("running").innerHTML=run;
+  // 홀 카드 아래 줄: 왼쪽 내 누적 타수, 오른쪽 고스트(이 홀 고스트 타수 + 누적 앞섬/뒤짐). 고스트는 첫 홀 입력 전부터 보인다
+  $("running").innerHTML = dn.length ? `<b>${tot}</b>타 <span class="rel">${relTxt(rel)}</span>` : "입력 전";
+  const ghostOn=gs.some(v=>v!=null); $("gbox").hidden=!ghostOn;
+  if(ghostOn){ const g=ghostDiff(cur,true)||{d:0};
+    $("gbox").innerHTML=`<span>👻${gs[hole]!=null?` 이 홀 <b>${gs[hole]}</b>타`:""}</span><span class="ghc ${g.d<0?"win":g.d>0?"lose":"tie"}">${g.d<0?`${-g.d}타 앞섬`:g.d>0?`${g.d}타 뒤짐`:"동률"}</span>` }
   renderBrief(); renderMissionLine();
   // score
   $("scoreBtns").innerHTML=SCORE_OPTS.map(([d,n])=>`<button class="opt ${h.d===d?"on":""} ${h.d===d&&d>0?"overc":""}" data-d="${d}"><b>${d>0?"+"+d:d}</b><small>${d===5?(h.par+5)+"타":n}</small></button>`).join("");
