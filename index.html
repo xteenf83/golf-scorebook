@@ -468,14 +468,40 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 .bbtn{display:flex;justify-content:space-between;align-items:center;width:100%;border-radius:18px;padding:14px 16px;background:var(--paper);box-shadow:var(--shadow);font-size:15px;text-align:left}
 .bbtn small{display:block;font-size:12px;font-weight:500;color:var(--muted)}
 .bbtn b{font-family:var(--f-display);font-size:22px;font-weight:500;color:var(--accent)}
-.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:10px}
-.bdg{border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;background:var(--paper);min-width:0}
-.bdg i{font-style:normal;font-size:26px;line-height:1.2}
-.bdg b{font-size:14px}
-.bdg small{font-size:11.5px;color:var(--muted);line-height:1.35}
-.bdg em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--accent);margin-top:2px}
-.bdg.on{border-color:var(--accent);background:var(--accent-soft)}
-.bdg.off{opacity:.55;filter:grayscale(1)}
+.bhead{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.bhead b{font-family:var(--f-display);font-size:40px;font-weight:500;line-height:1;color:var(--accent)}
+.bhead span{font-size:15px;font-weight:600;color:var(--muted)}
+.bhead .note{flex-basis:100%;margin:4px 0 0}
+.bcat{margin:0 0 12px}
+.bmgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 10px}
+.bm{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:0;font-weight:400;min-width:0}
+.bm .mdl{width:100%;max-width:112px;height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));transition:transform .15s}
+.bm:active .mdl{transform:scale(.94)}
+.bm b{font-size:13px;margin-top:6px;text-align:center;line-height:1.25}
+.bm small{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bprog{display:block;width:70%;height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:3px}
+.bprog i{display:block;height:100%;background:var(--accent)}
+.bdv{position:fixed;inset:0;z-index:60;background:#000;color:#f2f2f2;overflow-y:auto;display:flex;flex-direction:column;align-items:center;text-align:center;padding:calc(env(safe-area-inset-top,0px) + 72px) 28px calc(env(safe-area-inset-bottom,0px) + 40px)}
+.bdx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;width:46px;height:46px;border-radius:50%;border:0;background:#1f1f21;color:#fff;font-size:30px;line-height:1;padding:0 2px 4px 0}
+.m3d{width:min(70vw,290px);aspect-ratio:120/132;perspective:1000px;margin:0 0 18px;touch-action:pan-y;cursor:grab;flex:0 0 auto}
+.m3d.sm{width:150px;margin:0 auto}
+.flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.flip.drag{transition:none}
+.flip.spin{animation:mspin 1.4s cubic-bezier(.12,.7,.22,1)}
+@keyframes mspin{from{transform:rotateY(-720deg) scale(.25);opacity:0}30%{opacity:1}to{transform:rotateY(0) scale(1)}}
+.mface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.mface.mback{transform:rotateY(180deg)}
+.mface .mdl{width:100%;height:100%;filter:drop-shadow(0 20px 34px rgba(0,0,0,.55))}
+.bhint{font-size:12px;color:#8a8a8e;margin:0 0 18px}
+.btitle{font-size:28px;font-weight:800;color:#fff;margin:0 0 10px;letter-spacing:-.01em}
+.bdesc{font-size:15.5px;color:#a1a1a6;line-height:1.55;margin:0;max-width:340px}
+.bdprog{width:200px;height:6px;border-radius:3px;background:#2c2c2e;overflow:hidden;margin-top:16px}
+.bdprog i{display:block;height:100%;background:#a8f05b}
+.bhist{margin-top:16px;width:100%;max-width:260px;display:flex;flex-direction:column;gap:6px}
+.bhist div{display:flex;justify-content:space-between;font-size:14px;color:#c7c7cc;border-bottom:1px solid #2c2c2e;padding-bottom:6px}
+.bhist b{font-family:var(--f-display);font-weight:500;font-size:17px;color:#fff}
+.bround{margin-top:18px;background:#1f1f21;color:#fff;border:0;border-radius:999px;padding:12px 20px;font-size:15px}
+.ovcard .nb i .mdl{width:40px;height:auto;display:block;margin:0 auto}
 .tgl{display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink);font-weight:600}
 .tgl:first-of-type{border-top:0}
 .tgl small{display:block;font-size:12px;font-weight:500;color:var(--muted)}
@@ -796,6 +822,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
   </div>
 </nav>
 <div class="ov" id="ov" hidden></div>
+<div class="bdv" id="bdv" hidden></div>
 
 <script type="module">
 import { firebaseConfig } from "./firebase-config.js";
@@ -807,7 +834,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v58";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v59";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2235,7 +2262,7 @@ function computeBadges(list=rounds){
     if(touchedShape(r)){ if(!hs.some(h=>h.shape==="slice")) hit("sl0",r);
       if(hs.filter(h=>h.shape==="straight"||h.shape==="draw").length/hs.length>=.5) hit("str",r); }
   });
-  return {got,pbs,best:isFinite(best)?best:null};
+  return {got,pbs,best:isFinite(best)?best:null,stats:{n,birdies,clubs:clubSet.size}};
 }
 // 이 라운드가 처음 달성한 배지(날짜순 기준) + 개인 베스트였는지
 function roundBadges(r){
@@ -2252,15 +2279,103 @@ function newBadgesFor(r){
   const prev=scoreRounds(others).map(x=>scoreOf(x).tot), tot=isScoreR(r)?scoreOf(r).tot:null;
   return {ids,pb:tot!=null&&prev.length>0&&tot<Math.min(...prev),tot};
 }
+/* 메달: 아이폰 피트니스 배지처럼 은색 테두리 + 색 에나멜 + 아래 띠의 각인. 받지 못한 배지는 어두운 그래파이트 */
+const CAT_KEY={"스코어":"sc","홀":"ho","라운드":"ro","스윙 교정":"sw","누적":"cu"};
+const BADGE_MARK={s100:["99","BREAK 100"],s90:["89","BREAK 90"],s80:["79","BREAK 80"],w40:["40","HALF 40"],pb:["PB","BEST"],
+  bd1:["-1","BIRDIE"],eg1:["-2","EAGLE"],par3:["3","PAR RUN"],par5:["5","PAR RUN"],chip:["0","CHIP-IN"],
+  clean:["OB","CLEAN"],no3:["3P","NO 3PUTT"],p30:["30","PUTTS"],fw50:["50","FAIRWAY"],nodbl:["+1","NO DOUBLE"],
+  sl0:["0","NO SLICE"],str:["S","STRAIGHT"],n10:["10","ROUNDS"],n25:["25","ROUNDS"],n50:["50","ROUNDS"],
+  bd10:["10","BIRDIES"],bd30:["30","BIRDIES"],c5:["5","CLUBS"],c10:["10","CLUBS"]};
+// 누적 배지 진행도: [통계 키, 목표]
+const BADGE_GOAL={n10:["n",10],n25:["n",25],n50:["n",50],bd10:["birdies",10],bd30:["birdies",30],c5:["clubs",5],c10:["clubs",10]};
+const hexPts=r=>[...Array(6)].map((_,i)=>{const a=Math.PI/180*(60*i-90);return `${(60+r*Math.cos(a)).toFixed(1)},${(66+r*Math.sin(a)).toFixed(1)}`}).join(" ");
+// 모든 메달이 같이 쓰는 그라데이션·자르기 틀 (한 번만 넣는다)
+document.body.insertAdjacentHTML("beforeend",`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="mRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#a7adb5"/><stop offset=".52" stop-color="#f5f7f9"/><stop offset=".78" stop-color="#868d96"/><stop offset="1" stop-color="#e6e9ec"/></linearGradient>
+  <linearGradient id="mRimD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b5f66"/><stop offset=".4" stop-color="#2b2d31"/><stop offset=".6" stop-color="#4b4f55"/><stop offset="1" stop-color="#1d1f22"/></linearGradient>
+  ${[["sc","#fff07c","#f5a01a"],["ho","#94f2ff","#2a7de6"],["ro","#cdf56b","#25b86c"],["sw","#ffa3e2","#9558f5"],["cu","#ffc670","#ff5548"],["lk","#25272b","#131416"]]
+    .map(([k,a,b])=>`<linearGradient id="mF_${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`).join("")}
+  <linearGradient id="mBand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4d8dd"/><stop offset="1" stop-color="#868c94"/></linearGradient>
+  <linearGradient id="mBandD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2c30"/><stop offset="1" stop-color="#18191c"/></linearGradient>
+  <linearGradient id="mBack" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c3c8ce"/><stop offset=".5" stop-color="#9aa0a8"/><stop offset="1" stop-color="#6f757d"/></linearGradient>
+  <linearGradient id="mBackD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2e3034"/><stop offset="1" stop-color="#161719"/></linearGradient>
+  <linearGradient id="mShine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <linearGradient id="mGloss" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".45" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <clipPath id="mClip"><polygon points="${hexPts(48.5)}"/></clipPath></defs></svg>`);
+function medalSvg(id,on,opt={}){
+  const b=BADGE_BY[id]||{cat:"스코어"}, k=on?CAT_KEY[b.cat]:"lk", [mk,cap]=BADGE_MARK[id]||["?",""], d=on?"":"D";
+  const rim=`<polygon points="${hexPts(55)}" fill="url(#mRim${d})" stroke="url(#mRim${d})" stroke-width="10" stroke-linejoin="round"/>`;
+  if(opt.back){   // 뒷면: 회색 금속판에 달성 날짜 각인
+    const [l1,l2,l3]=opt.back, ink=on?"#f4f6f8":"#5a5e64";
+    return `<svg viewBox="0 0 120 132" class="mdl" aria-hidden="true">${rim}
+      <polygon points="${hexPts(47)}" fill="url(#mBack${d})" stroke="url(#mBack${d})" stroke-width="6" stroke-linejoin="round"/>
+      <g fill="${ink}" text-anchor="middle" style="font-family:var(--f-body);font-weight:700">
+        <text x="60" y="50" font-size="7.5" opacity=".85">${esc(l1)}</text><text x="60" y="64" font-size="11">${esc(l2)}</text>
+        <text x="60" y="84" font-size="13">⛳</text><text x="60" y="98" font-size="6.5" opacity=".8">${esc(l3)}</text></g></svg>`;
+  }
+  const fs=mk.length>=3?30:mk.length===2?42:48;
+  return `<svg viewBox="0 0 120 132" class="mdl" aria-hidden="true">${rim}
+    <polygon points="${hexPts(48)}" fill="${on?"#7d848c":"#0c0d0e"}" stroke="${on?"#7d848c":"#0c0d0e"}" stroke-width="6" stroke-linejoin="round"/>
+    <polygon points="${hexPts(46)}" fill="url(#mF_${k})" stroke="url(#mF_${k})" stroke-width="5" stroke-linejoin="round"/>
+    <g clip-path="url(#mClip)">
+      <polygon points="0,0 120,0 120,65 0,103" fill="url(#mGloss)" opacity="${on?1:.25}"/>
+      <polygon points="0,103 120,65 120,140 0,140" fill="url(#mBand${d})"/>
+      <line x1="0" y1="103" x2="120" y2="65" stroke="url(#mRim${d})" stroke-width="2.4"/>
+      <g transform="rotate(-17.6 77 95)" text-anchor="middle" style="font-family:var(--f-display);font-weight:600;letter-spacing:.8px" font-size="${cap.length>8?7:8}">
+        <text x="77.6" y="98.6" fill="${on?"rgba(255,255,255,.75)":"#2f3236"}">${cap}</text><text x="77" y="98" fill="${on?"#5c636b":"#3a3d42"}">${cap}</text></g>
+      ${opt.shine?`<rect x="-80" y="0" width="46" height="132" fill="url(#mShine)" transform="skewX(-18)"><animate attributeName="x" values="-90;170;170" keyTimes="0;.32;1" dur="4.2s" begin="1.2s" repeatCount="indefinite"/></rect>`:""}
+    </g>
+    <text x="60" y="${78-(48-fs)/3}" text-anchor="middle" font-size="${fs}" style="font-family:var(--f-display);font-weight:500;paint-order:stroke"
+      fill="${on?"rgba(255,255,255,.22)":"rgba(255,255,255,.03)"}" stroke="url(#mRim${d})" stroke-width="${on?2.2:1.6}">${mk}</text></svg>`;
+}
+const dateK=d=>{const [y,m,dd]=d.split("-");return `${y}. ${+m}. ${+dd}.`};
+const monthK=d=>{const [y,m]=d.split("-");return `${y}년 ${+m}월`};
 function renderBadges(){
-  const {got,pbs,best}=computeBadges(), k=Object.keys(got).length+(pbs.length?1:0);
-  const card=(b,on,foot)=>`<div class="bdg ${on?"on":"off"}"><i>${b.icon}</i><b>${b.name}</b><small>${b.desc}</small>${on?`<em>${foot}</em>`:""}</div>`;
+  const B=computeBadges(), {got,pbs,best,stats}=B, k=Object.keys(got).length+(pbs.length?1:0);
+  const cell=(id,b,on,foot,prog)=>`<button class="bm" data-b="${id}">${medalSvg(id,on)}<b>${b.name}</b><small>${foot}</small>${prog!=null?`<i class="bprog"><i style="width:${Math.round(prog*100)}%"></i></i>`:""}</button>`;
   const lastPb=pbs[pbs.length-1];
-  $("badgeBox").innerHTML=`<section class="panel"><h2 style="margin:0">획득 ${k} / ${BADGE_LIST.length+1}</h2>
-      <p class="note" style="margin:6px 0 0">기록을 고치거나 지우면 자동으로 다시 계산됩니다. 퍼팅·페어웨이·구질 배지는 기본값(2퍼트·적중·스트레이트)을 바꿔 기록한 라운드만 셉니다.</p></section>`+
-    BADGES.map(([cat])=>`<section class="panel"><h2>${cat}</h2><div class="bgrid">${
-      (cat==="스코어"?card(PB_BADGE,pbs.length,lastPb?`${pbs.length}회 갱신 · 현재 ${best}타 · ${dotDate(lastPb.date)}`:""):"")+
-      BADGE_LIST.filter(b=>b.cat===cat).map(b=>card(b,got[b.id],got[b.id]?dotDate(got[b.id].date)+" 획득":"")).join("")}</div></section>`).join("");
+  $("badgeBox").innerHTML=`<div class="bhead"><b>${k}</b><span>/ ${BADGE_LIST.length+1} 획득</span>
+      <p class="note">스코어·버디·스윙 교정 목표를 달성하면 메달이 모입니다. 메달을 누르면 자세히 볼 수 있어요.</p></div>`+
+    BADGES.map(([cat])=>`<section><h2 class="bcat">${cat}</h2><div class="bmgrid">${
+      (cat==="스코어"?cell("pb",PB_BADGE,pbs.length>0,lastPb?`${pbs.length}회 · ${best}타`:"미획득",null):"")+
+      BADGE_LIST.filter(b=>b.cat===cat).map(b=>{ const g=got[b.id], goal=BADGE_GOAL[b.id];
+        if(g) return cell(b.id,b,true,dotDate(g.date),null);
+        if(goal) return cell(b.id,b,false,`${Math.min(stats[goal[0]],goal[1])}/${goal[1]}`,Math.min(1,stats[goal[0]]/goal[1]));
+        return cell(b.id,b,false,"미획득",null); }).join("")}</div></section>`).join("")+
+    `<p class="note" style="margin:0">퍼팅·페어웨이·구질 배지는 기본값(2퍼트·적중·스트레이트)을 바꿔 기록한 라운드만 셉니다. 기록을 고치거나 지우면 자동으로 다시 계산됩니다.</p>`;
+  $("badgeBox").querySelectorAll(".bm").forEach(el=>el.onclick=()=>openBadge(el.dataset.b,B));
+}
+// 메달 상세: 검은 화면에 메달이 돌며 등장, 누르면 뒤집기, 옆으로 밀면 돌리기
+function openBadge(id,B){
+  const {got,pbs,best,stats}=B, isPb=id==="pb", b=isPb?PB_BADGE:BADGE_BY[id];
+  const g=isPb?(pbs.length?pbs[pbs.length-1]:null):got[id], on=!!g, goal=BADGE_GOAL[id];
+  const rr=g&&rounds.find(x=>x.id===g.id), sc=rr&&scoreOf(rr);
+  const back=on?["달성 날짜",monthK(g.date),"좌타 스코어북"]:["아직 획득 전",b.name,"좌타 스코어북"];
+  let body="";
+  if(isPb&&on) body=`<p class="bdesc">개인 베스트를 ${pbs.length}번 갱신했습니다. 현재 베스트는 ${best}타입니다.</p>
+      <div class="bhist">${pbs.slice().reverse().slice(0,8).map(p=>`<div><span>${dotDate(p.date)}</span><b>${p.tot}타</b></div>`).join("")}</div>`;
+  else if(on) body=`<p class="bdesc">${dateK(g.date)}에 이 배지를 획득했습니다.</p><p class="bdesc">조건: ${esc(b.desc)}</p>`;
+  else body=`<p class="bdesc">아직 받지 못한 배지예요.</p><p class="bdesc">조건: ${esc(b.desc)}${isPb?" (두 번째 라운드부터)":""}</p>`+
+    (goal?`<div class="bdprog"><i style="width:${Math.round(Math.min(1,stats[goal[0]]/goal[1])*100)}%"></i></div><p class="bdesc" style="margin-top:6px">${Math.min(stats[goal[0]],goal[1])} / ${goal[1]}</p>`:"");
+  const ov=$("bdv");
+  ov.innerHTML=`<button class="bdx" id="bdvClose" aria-label="닫기">‹</button>
+    <div class="m3d" id="m3d"><div class="flip" id="flip"><div class="mface">${medalSvg(id,on,{shine:on&&!reduceMotion()})}</div><div class="mface mback">${medalSvg(id,on,{back})}</div></div></div>
+    <p class="bhint">눌러서 뒤집기 · 옆으로 밀어 돌리기</p>
+    <h2 class="btitle">${esc(b.name)}</h2>${body}
+    ${rr?`<p class="bdesc" style="margin-top:4px">${esc(rr.club)} · ${sc&&sc.tot!=null?sc.tot+"타":""}</p><button class="bround" id="bdvRound">이 라운드 보기 ›</button>`:""}`;
+  ov.hidden=false; ov.scrollTop=0;
+  $("bdvClose").onclick=()=>{ov.hidden=true;ov.innerHTML=""};
+  if(rr) $("bdvRound").onclick=()=>{ov.hidden=true;ov.innerHTML="";roundFrom="Home";openRound(rr.id)};
+  medalSpin($("m3d"),$("flip"));
+}
+function medalSpin(box,flip){
+  let ang=0, x0=null, a0=0, moved=false;
+  const set=a=>{ang=a;flip.style.transform=`rotateY(${a}deg)`};
+  if(!reduceMotion()){ flip.classList.add("spin"); flip.addEventListener("animationend",()=>flip.classList.remove("spin"),{once:true}) }
+  box.onpointerdown=e=>{x0=e.clientX;a0=ang;moved=false;flip.classList.add("drag");try{box.setPointerCapture(e.pointerId)}catch(_){}};
+  box.onpointermove=e=>{ if(x0==null) return; const dx=e.clientX-x0; if(Math.abs(dx)>6) moved=true; if(moved) set(a0+dx*.8) };
+  box.onpointerup=box.onpointercancel=()=>{ if(x0==null) return; x0=null; flip.classList.remove("drag");
+    set(moved?Math.round(ang/180)*180:ang+180) };   // 손을 떼면 앞면·뒷면 중 가까운 쪽으로, 그냥 누르면 뒤집기
 }
 $("badgeBtn").onclick=()=>{renderBadges();show("Badges")};
 
@@ -2285,10 +2400,14 @@ function confetti(cv){
 function celebrate(r){
   if(!setOn("celebrate")) return;
   const nb=newBadgesFor(r); if(!nb.ids.length&&!nb.pb) return;
-  const items=[...(nb.pb?[[PB_BADGE.icon,"개인 베스트 갱신!",`${nb.tot}타 — 지금까지 가장 좋은 스코어`]]:[]),...nb.ids.map(id=>[BADGE_BY[id].icon,BADGE_BY[id].name,BADGE_BY[id].desc])];
-  showOv(`<canvas class="cf" id="cf"></canvas><div class="ovcard pop"><div class="lab">NEW BADGE</div><h3>축하합니다!</h3>
-    ${items.map(([i,n,d])=>`<div class="nb"><i>${i}</i><div><b>${n}</b><small>${d}</small></div></div>`).join("")}
+  const items=[...(nb.pb?[["pb","개인 베스트 갱신!",`${nb.tot}타 — 지금까지 가장 좋은 스코어`]]:[]),...nb.ids.map(id=>[id,BADGE_BY[id].name,BADGE_BY[id].desc])];
+  const [top,...rest]=items;
+  showOv(`<canvas class="cf" id="cf"></canvas><div class="ovcard pop"><div class="lab">NEW BADGE</div>
+    <div class="m3d sm" id="cm3d"><div class="flip" id="cflip"><div class="mface">${medalSvg(top[0],true,{shine:!reduceMotion()})}</div><div class="mface mback">${medalSvg(top[0],true,{back:["달성 날짜",monthK(r.date),"좌타 스코어북"]})}</div></div></div>
+    <h3>${top[1]}</h3><p class="note" style="margin:-6px 0 0">${top[2]}</p>
+    ${rest.map(([id,n,d])=>`<div class="nb"><i>${medalSvg(id,true)}</i><div><b>${n}</b><small>${d}</small></div></div>`).join("")}
     <button class="primary big" id="ovClose">확인</button></div>`);
+  medalSpin($("cm3d"),$("cflip"));
   if(!reduceMotion()) confetti($("cf"));
 }
 
