@@ -240,7 +240,13 @@ header.top{align-items:center;flex-wrap:nowrap;padding-top:0}
 header.top .tt{min-width:0;display:flex;flex-direction:column;gap:2px}
 header.top small{display:none}
 header.top h1{font-family:var(--f-body);font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.25;overflow-wrap:anywhere}
-header.top .sync{margin-top:2px;font-size:11.5px}
+header.top .tsub{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+header.top .tright{flex:0 0 auto;display:flex;align-items:center;gap:6px}
+.cloud{display:flex;align-items:center;gap:4px;border:0;background:none;padding:6px;min-height:40px;color:var(--muted)}
+.cloud svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.cloud .ctx{display:none;font-size:11.5px;font-weight:600;line-height:1.2;max-width:150px;text-align:right}
+.cloud.ok{color:var(--accent)} .cloud.off{color:var(--warn)} .cloud.err{color:var(--danger)}
+.cloud.off .ctx,.cloud.err .ctx,.cloud.show .ctx{display:block}
 .avatar{flex:0 0 auto;width:40px;height:40px;border-radius:50%;padding:0;border:0;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:16px}
 .avatar.big{width:52px;height:52px;font-size:20px}
 h2{font-size:15px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);margin:0 0 12px}
@@ -324,7 +330,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .gbox{display:flex;align-items:center;gap:8px;color:var(--heroInk);font-size:13px}
 .gbox b{font-family:var(--f-num);font-size:16px;margin:0 1px}
 .holecard .holefoot button{padding:6px 10px;font-size:12.5px}
-.holecard .sync{font-size:11px;margin-top:-4px}
 .strip button{border-radius:10px}
 .opt{border-radius:14px;background:var(--paper)}
 .step{border-radius:14px}
@@ -407,7 +412,6 @@ table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box
 .holecard{padding:14px 18px 10px;gap:8px}
 .holecard .no{font-size:42px}
 .holecard .holefoot{padding-top:8px}
-.holecard .sync{margin-top:-4px}
 .opt{min-height:46px;padding:7px 2px}
 /* 홈 카드 묶음: 옆으로 넘기면 다음 카드 (scroll-snap) */
 .cards{display:grid;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
@@ -505,9 +509,12 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
     <div class="tt">
       <small id="topEyebrow">Golf Scorebook · 좌타</small>
       <h1 id="topTitle">나의 골프 스코어북</h1>
-      <div class="sync"><span class="dot" id="dot"></span><span id="syncText">연결 중…</span></div>
+      <div class="tsub" id="topSub" hidden></div>
     </div>
-    <button class="avatar" id="avatar" hidden aria-label="더보기"></button>
+    <div class="tright">
+      <button class="cloud busy" id="cloud" aria-label="연결 중…"><span class="ctx" id="cloudTxt">연결 중…</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .4-8.6A6.2 6.2 0 0 0 5.8 9.4 4.6 4.6 0 0 0 7 18.5z"/><path class="mk" id="cloudMk" d="M12 16.2v-4.6M9.8 13.6 12 11.4l2.2 2.2"/></svg></button>
+      <button class="avatar" id="avatar" hidden aria-label="더보기"></button>
+    </div>
   </header>
 
   <!-- LOGIN -->
@@ -650,7 +657,6 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
         <div class="gbox" id="gbox" hidden></div>
       </div>
       <div class="mline" id="mline" hidden></div>
-      <div class="sync" id="sync2" hidden><span class="dot" id="dot2"></span><span id="syncText2"></span></div>
     </section>
 
     <div class="field" id="fwField" data-step="fw">
@@ -800,7 +806,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v56";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v57";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1024,8 +1030,18 @@ let saving=false, dirty=false, saveTimer=null, pendingDel=null;
 
 function today(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function setSync(s,t){["","2"].forEach(k=>{$("dot"+k).className="dot "+(s||"");$("syncText"+k).textContent=t});
-  $("sync2").hidden = !(s==="err"||/오프라인/.test(t)); }   // 홀 카드에는 오프라인·저장 오류일 때만 표시
+/* 저장 상태: 모든 화면 오른쪽 위 구름 아이콘 (✓ 저장됨 · ↑ 저장 중 · 빗금 오프라인 · ! 오류).
+   오프라인·오류일 때는 옆에 짧은 글을 함께 보이고, 아이콘을 누르면 상태 글을 잠깐 보여 준다. */
+const CLOUD_MK={ok:"M9.3 13.9l2 2 3.6-3.7",busy:"M12 16.2v-4.6M9.8 13.6 12 11.4l2.2 2.2",off:"M4.5 5l15 15",err:"M12 10.6v3.2M12 16.2v.1"};
+let lastSync=["","연결 중…"];
+function setSync(s,t){
+  lastSync=[s,t]; const k=s==="ok"?"ok":s==="err"?"err":/오프라인/.test(t)?"off":"busy", c=$("cloud");
+  c.classList.remove("ok","busy","off","err"); c.classList.add(k);
+  $("cloudMk").setAttribute("d",CLOUD_MK[k]); c.setAttribute("aria-label",t); c.title=t;
+  $("cloudTxt").textContent = c.classList.contains("show") ? t : k==="off"?"오프라인 · 폰에 저장됨":k==="err"?"저장 오류 · 눌러서 보기":t;
+}
+$("cloud").onclick=()=>{ const c=$("cloud"); c.classList.add("show"); setSync(...lastSync);
+  clearTimeout(c._t); c._t=setTimeout(()=>{ c.classList.remove("show"); setSync(...lastSync) },3500) };
 function relTxt(d){return d==null?"–":d===0?"E":(d>0?"+"+d:String(d))}
 function relCls(d){return d==null?"even":d<0?"under":d===0?"even":"over"}
 function clone(o){return JSON.parse(JSON.stringify(o))}
@@ -1042,10 +1058,10 @@ function show(name){
   const tabs=TAB_SCREENS.includes(name);
   $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs);
   document.querySelectorAll(".tab[data-tab]").forEach(t=>t.classList.toggle("on",t.dataset.tab===name));
-  $("topBar").hidden = name==="Play";
   $("avatar").hidden = name!=="Home";
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
-  $("topEyebrow").textContent=eb; $("topTitle").textContent=tt;
+  $("topEyebrow").textContent=eb; $("topTitle").textContent=tt; $("topSub").hidden=true;
+  if(name==="Play") playHead();
   scrollTop();
 }
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{show("Home");renderHome()});
@@ -1512,6 +1528,12 @@ function autoResume(){
 }
 const lastHole=()=>cur.holes.length-1;
 
+// 홀 입력 화면 머리글: 골프장 이름 + 아래 작은 글씨로 날짜
+function playHead(){
+  if(!cur) return; const d=new Date(cur.date+"T00:00");
+  $("topTitle").textContent=cur.club;
+  $("topSub").textContent=`${dotDate(cur.date)} (${"일월화수목금토"[d.getDay()]||""})`; $("topSub").hidden=false;
+}
 function renderPlay(){
   const h=cur.holes[hole], c=holeCalc(h);
   // strip
@@ -1535,7 +1557,7 @@ function renderPlay(){
   const ghostOn=gs.some(v=>v!=null); $("gbox").hidden=!ghostOn;
   if(ghostOn){ const g=ghostDiff(cur,true)||{d:0};
     $("gbox").innerHTML=`<span>👻${gs[hole]!=null?` 이 홀 <b>${gs[hole]}</b>타`:""}</span><span class="ghc ${g.d<0?"win":g.d>0?"lose":"tie"}">${g.d<0?`${-g.d}타 앞섬`:g.d>0?`${g.d}타 뒤짐`:"동률"}</span>` }
-  renderBrief(); renderMissionLine();
+  renderBrief(); renderMissionLine(); if(!$("scrPlay").hidden) playHead();
   // score
   $("scoreBtns").innerHTML=SCORE_OPTS.map(([d,n])=>`<button class="opt ${h.d===d?"on":""} ${h.d===d&&d>0?"overc":""}" data-d="${d}"><b>${d>0?"+"+d:d}</b><small>${d===5?(h.par+5)+"타":n}</small></button>`).join("");
   $("strokesLbl").textContent=`${c.strokes}타`;
