@@ -307,6 +307,7 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .tab.fabwrap{color:var(--accent);font-weight:700}
 .fab{width:58px;height:58px;border-radius:50%;background:var(--accent);display:grid;place-items:center;margin-top:-30px;box-shadow:0 8px 18px -6px rgba(29,106,69,.55);border:4px solid var(--paper)}
 .fab svg{width:24px;height:24px;stroke:var(--accent-ink);stroke-width:2.4}
+.fab svg path.fill{fill:var(--accent-ink);stroke-width:2}
 
 /* more */
 .acct{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
@@ -789,7 +790,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
   <div class="in">
     <button class="tab" data-tab="Home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
     <button class="tab" data-tab="Stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>통계</button>
-    <button class="tab fabwrap" data-tab="new" aria-label="새 라운드"><span class="fab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>새 라운드</button>
+    <button class="tab fabwrap" data-tab="new" id="fabTab" aria-label="새 라운드"><span class="fab"><svg viewBox="0 0 24 24"><path id="fabIcon" d="M12 5v14M5 12h14"/></svg></span><span id="fabLbl">새 라운드</span></button>
     <button class="tab" data-tab="Courses"><svg viewBox="0 0 24 24"><path d="M6 21V3l11 4-11 4"/><ellipse cx="12" cy="21" rx="8" ry="1.5"/></svg>코스</button>
     <button class="tab" data-tab="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>더보기</button>
   </div>
@@ -806,7 +807,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v57";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v58";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1056,7 +1057,7 @@ function show(name){
   ["Login","Home","Stats","Setup","Play","Round","Rounds","Courses","Info","More","Badges"].forEach(n=>$("scr"+n).hidden = n!==name);
   $("bottomNav").hidden = name!=="Play";
   const tabs=TAB_SCREENS.includes(name);
-  $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs);
+  $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs); if(tabs) updFab();
   document.querySelectorAll(".tab[data-tab]").forEach(t=>t.classList.toggle("on",t.dataset.tab===name));
   $("avatar").hidden = name!=="Home";
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
@@ -1131,7 +1132,7 @@ $("rangeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;range=
   [...$("rangeSeg").children].forEach(x=>x.classList.toggle("on",x===b));renderStats()};
 
 function renderHome(){
-  const playing = rounds.filter(r=>r.status==="playing").sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
+  const playing = playingRound(); updFab();
   if(playing){
     const n=playing.holes.filter(h=>h.done).length;
     // 진행 중 라운드: 이어서 입력 / 삭제 (삭제는 한 번 더 확인)
@@ -1225,7 +1226,15 @@ function lossSlide(all){
     <div class="lbars">${bar("보기",bogey)}${bar("더블",dbl)}${bar("트리플+",tri)}</div>
     <div class="row3">${cells}</div></section>`;
 }
+// 진행 중인 라운드는 하나만: 있으면 가운데 버튼이 '이어서 입력'이 되고, 새 라운드 대신 그 라운드를 연다
+const playingRound=()=>rounds.filter(r=>r.status==="playing").sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
+function updFab(){
+  const p=playingRound();
+  $("fabLbl").textContent=p?"이어서 입력":"새 라운드"; $("fabTab").setAttribute("aria-label",p?"진행 중인 라운드 이어서 입력":"새 라운드");
+  $("fabIcon").setAttribute("d",p?"M9 6.5l8.5 5.5L9 17.5z":"M12 5v14M5 12h14"); $("fabIcon").classList.toggle("fill",!!p);
+}
 function startNewRound(){
+  const p=playingRound(); if(p) return openPlay(p.id);
   if(!rcol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
   $("sDate").value=today(); fillClubList(); $("sTee").value=""; $("sTee").innerHTML=`<option>${DEFAULT_TEE}</option>`;
   const last=doneRounds()[0]; if(last && !$("sClub").value) $("sClub").value=last.club;
@@ -2559,6 +2568,7 @@ function start(user){
   unsubs.push(rcol.onSnapshot(snap=>{
     rounds=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>(Array.isArray(r.holes)&&(r.holes.length===18||r.holes.length===9))||(r.type==="total"&&typeof r.total==="number"));
     syncFrom(snap);
+    if(!$("tabBar").hidden) updFab();
     if(!$("scrHome").hidden) renderHome();
     autoResume();
     if(!$("scrStats").hidden) renderStats();
