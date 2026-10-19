@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>공유 스코어카드</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Pretendard';src:url('/_blob/77c1edea46852986bc49b845e8f20c35') format('woff2-variations'),url('/_blob/77c1edea46852986bc49b845e8f20c35') format('woff2');font-weight:45 920;font-display:swap}
+body{margin:0}
+</style>
+</helmet>
+<div style="width:390px;height:693px;position:relative;overflow:hidden;background:#1F3A22;font-family:Pretendard,-apple-system,sans-serif;letter-spacing:-0.02em;font-feature-settings:'tnum';color:#FFFFFF">
+  <img src="/_blob/e534bedb0c7751772ee501cf71483d7d" alt="" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover">
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,0) 28%,rgba(0,0,0,0) 40%,rgba(3,16,8,.86) 78%)"></div>
+  <div style="position:absolute;left:24px;right:24px;top:26px;display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20.5V3.6l10 4.1-10 4.1" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>스코어북</div>
+    <div style="font-size:13px;font-weight:500;opacity:.85">2026.10.09</div>
+  </div>
+  <div style="position:absolute;left:24px;right:24px;bottom:26px;display:flex;flex-direction:column;gap:14px">
+    <div>
+      <div style="font-size:15px;font-weight:600;opacity:.85">서원힐스CC · 사우스 → 웨스트</div>
+      <div style="display:flex;align-items:flex-end;gap:12px;margin-top:6px">
+        <div style="font-size:96px;font-weight:800;letter-spacing:-0.06em;line-height:.85;color:#F5C451">89</div>
+        <div style="padding-bottom:4px"><div style="font-size:24px;font-weight:700">+17</div><div style="font-size:13px;font-weight:700;color:#F5C451;margin-top:2px">개인 최고 기록</div></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:3px">
+      <sc-for list="{{strip}}" as="c" hint-placeholder-count="18"><span style="flex:1;height:8px;border-radius:2px;background:{{c}}"></span></sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding-top:12px;border-top:1px solid rgba(255,255,255,.18)">
+      <div><div style="font-size:11.5px;opacity:.7">전반 · 후반</div><div style="font-size:17px;font-weight:700;margin-top:2px">43 · 46</div></div>
+      <div><div style="font-size:11.5px;opacity:.7">퍼팅</div><div style="font-size:17px;font-weight:700;margin-top:2px">36</div></div>
+      <div><div style="font-size:11.5px;opacity:.7">페어웨이</div><div style="font-size:17px;font-weight:700;margin-top:2px">43%</div></div>
+      <div><div style="font-size:11.5px;opacity:.7">고스트</div><div style="font-size:17px;font-weight:700;margin-top:2px">4타 승</div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":693}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var col = function (d) { return d < 0 ? '#5AA2FF' : d === 0 ? 'rgba(255,255,255,.35)' : d === 1 ? '#FFB37A' : d === 2 ? '#F2683C' : '#E0353F'; };
+    return { strip: [0,1,1,0,2,1,0,1,1,1,0,1,2,0,1,1,3,1].map(col) };
+  }
+}
+</script>
+</body>
+</html>
