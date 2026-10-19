@@ -701,6 +701,67 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 #nextBtn.go{animation:gopulse 1.4s ease-in-out 2}
 @keyframes gopulse{50%{box-shadow:0 0 0 6px var(--brand-soft)}}
 #scrPlay .field[data-step]{scroll-margin:70px 0 110px}
+
+/* ===== 홈 (HANDOFF 4-2) ===== */
+header.top.home h1{font-size:15px;font-weight:600;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
+header.top.home h1 span{color:var(--t4);font-weight:500;overflow:hidden;text-overflow:ellipsis}
+header.top.home h1 .live{width:8px;height:8px;border-radius:50%;background:var(--brand);flex:none}
+header.top.home{margin:0 -4px 0 2px}
+#scrHome{gap:0}
+#scrHome>*+*{margin-top:12px}
+.panel.live{display:flex;align-items:center;gap:14px;padding:22px 22px 20px;position:relative;margin-top:4px}
+.panel.live .lmain b{font-size:21px;font-weight:700;letter-spacing:-0.035em;line-height:1.35;white-space:normal}
+.panel.live .lmain small{font-size:14.5px;color:var(--t3);margin-top:4px}
+.panel.live .lmain small b{display:inline;font-size:inherit;font-weight:600;letter-spacing:inherit}
+.panel.live img{width:104px;height:104px;border-radius:22px;object-fit:cover;flex:none;background:var(--fill)}
+.panel.live .more{position:absolute;top:4px;right:4px;width:40px;height:40px;color:#fff}
+.panel.live .more svg{fill:#fff;stroke:none;width:22px;height:22px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+#resumeActs{margin-top:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+#resumeActs .row{gap:8px}
+button.outline{height:40px;min-height:40px;padding:0 16px;border-radius:20px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2);font-size:15px;font-weight:700}
+.quick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:18px -6px 0!important;padding-bottom:4px}
+.quick button{background:transparent;padding:0;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--t2);border-radius:19px}
+.qi{position:relative;width:58px;height:58px;border-radius:19px;background:var(--card);display:grid;place-items:center}
+.qi svg{width:28px;height:28px}
+.qi em{position:absolute;top:-6px;right:-6px;height:20px;min-width:20px;padding:0 6px;border-radius:10px;background:var(--card);border:1.5px solid #F04452;color:#F04452;font-size:11px;font-weight:700;font-style:normal;display:flex;align-items:center;justify-content:center}
+#scrHome #homeMsg:empty{display:none}
+.avgcard{padding:22px 20px 16px;display:flex;flex-direction:column;margin-top:18px!important}
+.avgcard .ah{display:flex;justify-content:space-between;align-items:center}
+.avgcard .ah span{font-size:15px;font-weight:600;color:var(--t2)}
+.avgcard .ah .linkbtn{color:var(--t4);font-size:14px;font-weight:500;padding:0;min-height:32px}
+.avgcard .big{font-size:36px;font-weight:800;letter-spacing:-0.045em;margin-top:6px;line-height:1.25}
+.avgcard .dl{font-size:16px;font-weight:600;margin-top:2px}
+.avgcard .dl span{color:var(--t3);font-weight:500}
+.avgcard .dl b:not(.under):not(.over){color:var(--t3);font-weight:500}
+.avgcard svg.spark{display:block;margin-top:6px;overflow:visible;max-width:100%;height:auto}
+.avgcard svg.spark text{font-size:12px;font-weight:500;fill:var(--t3);font-family:var(--font)}
+.avgcard svg.spark text.lastv{font-weight:700;fill:var(--brand-text)}
+.avgcard .periods{margin-top:8px}
+.periods b.under{color:var(--under)} .periods b.over{color:var(--over)} .periods b:not(.under):not(.over){color:var(--t4)}
+.welcome{display:flex;flex-direction:column;gap:6px}
+.welcome b{font-size:21px;font-weight:700;letter-spacing:-0.035em}
+.welcome .note{margin:0 0 12px}
+.sechead{display:flex;justify-content:space-between;align-items:center;margin:34px 4px 6px!important}
+.sechead h2{margin:0}
+.sechead .seg button{min-height:32px;padding:5px 12px;font-size:13.5px}
+#scrHome .lrows,#scrRounds .lrows{margin:0 -10px}
+#scrHome .lrows{margin-top:0!important}
+.lmain .tg{font-style:normal;font-size:11.5px;font-weight:700;color:var(--t3);background:var(--fill);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:2px}
+.lmain .tg.ok{color:var(--brand-text);background:var(--brand-soft)} .lmain .tg.no{color:var(--t3)}
+.allbtn{align-self:center;margin-top:2px!important}
+.losscard{padding:22px 8px 10px;margin-top:22px!important}
+.losscard .ah{display:flex;justify-content:space-between;align-items:center;padding:0 12px 8px}
+.losscard .ah h2{margin:0} .losscard .ah span{font-size:13.5px;color:var(--t4);font-weight:500}
+.losscard .lrows{margin:0}
+.losscard .lrow{padding:12px;border-radius:14px}
+.losscard .lmain b{font-size:16.5px} .losscard .lmain small{font-size:14px;margin-top:2px}
+.ltile.sm svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ltile.sm{width:44px;height:44px;border-radius:15px}
+.ltile.t-o{background:#FFF0EA;color:var(--over)} .ltile.t-b{background:#E8F1FE;color:var(--under)} .ltile.t-g{background:var(--brand-soft);color:var(--brand)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ltile.t-o{background:rgba(242,104,60,.18)}:root:not([data-theme="light"]) .ltile.t-b{background:rgba(77,155,255,.18)}}
+:root[data-theme="dark"] .ltile.t-o{background:rgba(242,104,60,.18)} :root[data-theme="dark"] .ltile.t-b{background:rgba(77,155,255,.18)}
+.losscard .rx{margin:6px 12px 8px;background:var(--fill2);border-radius:14px;padding:13px 14px;font-size:14px;line-height:1.5;color:var(--t2)}
+.losscard .rx b{display:block;color:var(--t1);margin-bottom:2px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -738,11 +799,14 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
   <!-- HOME -->
   <section class="screen" id="scrHome" hidden>
     <div id="resumeBox"></div>
-    <div><section class="cards" id="hero"></section><div class="dots" id="heroDots"></div></div>
+    <nav class="quick" id="quick" aria-label="빠른 메뉴"><button data-q="new"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#0E9A5A"/><path d="M13 9h2v4h4v2h-4v4h-2v-4H9v-2h4z" fill="#7FD6A8"/></svg></span>새 라운드</button><button data-q="past"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v16a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z" fill="#3182F6"/><path d="M9 9h10v2H9zM9 13h10v2H9zM9 17h6v2H9z" fill="#A8CBFF"/></svg></span>지난 기록</button><button data-q="course"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M9 3h2v22H9z" fill="#F2683C"/><path d="M11 4l11 4.5L11 13z" fill="#FFC9A8"/></svg></span>코스</button><button data-q="badge"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2l10 6v12l-10 6-10-6V8z" fill="#FFB400"/><path d="M14 8l1.8 3.7 4 .5-3 2.8.8 4-3.6-2-3.6 2 .8-4-3-2.8 4-.5z" fill="#FFE08A"/></svg><em id="badgeCnt" hidden></em></span>배지</button><button data-q="backup"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 19a5 5 0 0 1 1-9.9A7 7 0 0 1 20.5 10 4.5 4.5 0 0 1 20 19z" fill="#8B95A1"/><path d="M13 12h2v4h3l-4 4-4-4h3z" fill="#D1D6DB"/></svg></span>백업</button></nav>
     <p class="msg err" id="homeMsg" role="status"></p>
-    <button class="bbtn" id="badgeBtn"><span>🏅 배지<small>스코어·버디·스윙 교정 목표를 달성하면 모여요</small></span><span><b id="badgeCnt"></b> ›</span></button>
-    <div class="sechead"><b>최근 라운드</b><button class="linkbtn acc" id="allToggle" hidden>전체 보기 ›</button></div>
-    <div class="rounds" id="roundList"><div class="empty"><b>불러오는 중…</b></div></div>
+    <section class="panel avgcard" id="hero"></section>
+    <button class="notice" id="missionNote" hidden></button>
+    <div class="sechead"><h2>최근 라운드</h2><div class="seg" id="rlSeg"><button data-k="all" class="on">전체</button><button data-k="18">18홀</button><button data-k="9">9홀</button></div></div>
+    <div class="lrows" id="roundList"><div class="empty"><b>불러오는 중…</b></div></div>
+    <button class="linkbtn acc allbtn" id="allToggle" hidden>전체 보기 ›</button>
+    <section class="panel losscard" id="lossCard" hidden></section>
   </section>
 
   <!-- MORE -->
@@ -920,7 +984,7 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
       <span class="clr"><input id="rlSearch" type="search" placeholder="골프장·코스 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
     </div>
     <p class="note" id="rlSummary" style="margin:0"></p>
-    <div class="rounds" id="rlList"></div>
+    <div class="lrows" id="rlList"></div>
   </section>
 
   <!-- BADGES -->
@@ -1267,6 +1331,7 @@ function show(name){
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
   $("topEyebrow").textContent=eb; $("topTitle").textContent=tt; $("topSub").hidden=true;
   if(name==="Play") playHead();
+  $("topBar").classList.toggle("home",name==="Home"); if(name==="Home") homeHead();
   scrollTop();
 }
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{show("Home");renderHome()});
@@ -1335,100 +1400,128 @@ $("yearClose").onclick=()=>setYearOpen(false);
 $("rangeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;range=+b.dataset.r;
   [...$("rangeSeg").children].forEach(x=>x.classList.toggle("on",x===b));renderStats()};
 
+// 홈 머리글: 진행 중이면 "● 라운드 진행 중 · 골프장", 아니면 인사
+function homeHead(){
+  const p=playingRound();
+  $("topTitle").innerHTML = p ? `<i class="live"></i>라운드 진행 중<span> · ${esc(p.club)}</span>` : esc(userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북");
+}
 function renderHome(){
-  const playing = playingRound(); updFab();
+  const playing = playingRound(); updFab(); homeHead();
   if(playing){
-    const n=playing.holes.filter(h=>h.done).length;
-    // 진행 중 라운드: 이어서 입력 / 삭제 (삭제는 한 번 더 확인)
+    const dn=playing.holes.filter(h=>h.done), rel=dn.reduce((a,h)=>a+h.d,0), N=playing.holes.length;
+    const f=playing.holes.findIndex(h=>!h.done), at=Number.isInteger(playing.at)&&playing.at>=0&&playing.at<N?playing.at:(f<0?N-1:f);
+    const g=setOn("ghost")&&playing.ghost?ghostDiff(playing,true):null;
+    const sub=[`${dn.length}/${N}홀`, dn.length?`<b class="${relCls(rel)}">${relTxt(rel)}</b>`:"",
+      g&&g.d?`고스트보다 <b class="${g.d<0?"under":"over"}">${Math.abs(g.d)}타 ${g.d<0?"앞":"뒤"}</b>`:g?"고스트와 동률":""].filter(Boolean).join(" · ");
+    // 진행 중 라운드: 이어서 기록 / ⋯ → 삭제 (한 번 더 확인)
     const acts=confirm=>{ $("resumeActs").innerHTML = confirm
-        ? `<span class="note" style="flex-basis:100%">이 라운드를 삭제할까요? 되돌릴 수 없어요.</span><button class="danger" id="resumeDelYes">삭제</button><button class="ghost" id="resumeDelNo">취소</button>`
-        : `<button class="primary" id="resumeBtn">이어서 입력</button><button class="ghost" id="resumeDel">삭제</button>`;
+        ? `<span class="note">이 라운드를 삭제할까요? 되돌릴 수 없어요.</span><span class="row"><button class="danger" id="resumeDelYes">삭제</button><button class="ghost" id="resumeDelNo">취소</button></span>`
+        : `<button class="outline" id="resumeBtn">이어서 기록하기</button>`;
       if(confirm){
         $("resumeDelYes").onclick=async()=>{ if(cur&&cur.id===playing.id) cur=null; try{await rcol.doc(playing.id).delete()}catch(e){};
           rounds=rounds.filter(r=>r.id!==playing.id); renderHome() };
         $("resumeDelNo").onclick=()=>acts(false);
-      } else { $("resumeBtn").onclick=()=>openPlay(playing.id); $("resumeDel").onclick=()=>acts(true) } };
-    $("resumeBox").innerHTML=`<div class="resume"><div><span class="live"><i></i>진행 중</span><b>${esc(playing.club)}</b><span class="note">${[playing.date, esc(courseTxt(playing)), n+"/"+playing.holes.length+"홀 입력"].filter(Boolean).join(" · ")}</span></div><div class="row" id="resumeActs"></div></div>`;
+      } else $("resumeBtn").onclick=()=>openPlay(playing.id) };
+    $("resumeBox").innerHTML=`<section class="panel live"><div class="lmain"><b>${at%9+1}번 홀 차례예요</b><small>${sub}</small><div id="resumeActs"></div></div>
+      <img src="images/home-live-aerial.jpg" alt="" onerror="this.style.visibility='hidden'"><button class="iconbtn more" id="resumeMore" aria-label="진행 중 라운드 메뉴 (삭제)"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button></section>`;
+    $("resumeMore").onclick=()=>acts(true);
     acts(false);
   } else $("resumeBox").innerHTML="";
-  renderHero();
-  renderRoundList();
-  const bk=computeBadges(); $("badgeCnt").textContent=`${Object.keys(bk.got).length+(bk.pbs.length?1:0)}/${BADGE_LIST.length+1}`;
+  renderHero(); renderMissionNote();
+  renderRoundList(); renderLossCard();
+  const bk=computeBadges(), k=Object.keys(bk.got).length+(bk.pbs.length?1:0);
+  $("badgeCnt").textContent=k; $("badgeCnt").hidden=!k;
 }
+/* 평균 카드: 고른 기간(5R·10R·3달·1년·전체)의 평균과 직전 같은 길이 구간 대비 변화량.
+   꺾은선은 그 구간 + 비교한 직전 구간 (아래로 갈수록 큰 타수 = 위로 가면 좋아짐), 점선 = 구간 평균 */
+let homePeriod="5";
+try{ homePeriod=localStorage.getItem("gsb.homePeriod")||"5" }catch(e){}
+const PERIODS=[["5","5R"],["10","10R"],["3m","3달"],["1y","1년"],["all","전체"]];
+const avgOf=a=>a.reduce((x,y)=>x+y,0)/a.length;
+function periodSplit(all,k){   // all: 최근 것부터. {cur, prev, label}
+  if(k==="5"||k==="10"){ const n=+k; return {cur:all.slice(0,n),prev:all.slice(n,2*n),label:`최근 ${Math.min(n,all.length)}라운드 평균`,base:`이전 ${n}라운드 대비`} }
+  if(k==="all"){ const h=Math.floor(all.length/2); return {cur:all,prev:[],half:[all.slice(0,h),all.slice(h)],label:`전체 ${all.length}라운드 평균`,base:"처음 절반 대비 최근 절반"} }
+  const mon=k==="3m"?3:12, d=new Date(); d.setMonth(d.getMonth()-mon); const c1=d.toISOString().slice(0,10); d.setMonth(d.getMonth()-mon); const c2=d.toISOString().slice(0,10);
+  return {cur:all.filter(r=>r.date>c1),prev:all.filter(r=>r.date>c2&&r.date<=c1),label:k==="3m"?"최근 3달 평균":"최근 1년 평균",base:k==="3m"?"이전 3달 대비":"이전 1년 대비"};
+}
+function periodDelta(sp){
+  const sc=r=>scoreOf(r).tot;
+  if(sp.half) return sp.half[0].length&&sp.half[1].length?avgOf(sp.half[0].map(sc))-avgOf(sp.half[1].map(sc)):null;
+  return sp.cur.length&&sp.prev.length?avgOf(sp.cur.map(sc))-avgOf(sp.prev.map(sc)):null;
+}
+const dTxt=v=>v==null?"—":Math.abs(v)<0.05?"0.0":(v<0?"−":"+")+Math.abs(v).toFixed(1);
+const dCls=v=>v==null||Math.abs(v)<0.05?"":v<0?"under":"over";
 function renderHero(){
   const all=statRounds(), hero=$("hero");
   if(!all.length){
     const only9=doneRounds().length>0;
-    $("heroDots").innerHTML="";
-    hero.innerHTML=`<section class="hero"><div class="lab">Golf Scorebook</div><div class="herotitle">${only9?"18홀 라운드를<br>기록해 보세요":"첫 라운드를<br>기록해 보세요"}</div>
-      <p class="herotext">${only9?"평균·베스트·흐름은 18홀 라운드로만 계산합니다. 9홀 라운드는 아래 기록 목록에서 볼 수 있어요.":"홀별로 스코어·퍼팅·페어웨이·구질을 남기면 평균 타수와 약점이 여기에 정리됩니다. 총 타수만 빠르게 기록할 수도 있어요."}</p>
-      <button class="light" id="heroStart">＋ 새 라운드 시작</button></section>`;
+    hero.innerHTML=`<div class="welcome"><b>${only9?"18홀 라운드를 기록해 보세요":"첫 라운드를 기록해 보세요"}</b>
+      <p class="note">${only9?"평균·베스트·흐름은 18홀 라운드로만 계산합니다. 9홀 라운드는 아래 기록 목록에서 볼 수 있어요.":"홀별로 스코어·퍼팅·페어웨이·구질을 남기면 평균 타수와 약점이 여기에 정리됩니다. 총 타수만 빠르게 기록할 수도 있어요."}</p>
+      <button class="primary big" id="heroStart">새 라운드 시작</button></div>`;
     $("heroStart").onclick=startNewRound; return;
   }
-  const sc=r=>scoreOf(r).tot, avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
-  const last=all.slice(0,5), prev=all.slice(5,10);
-  const a5=avg(last.map(sc));
-  let chip=`<span class="chip bad">${last.length}라운드 기준</span>`;
-  // 직전 5라운드 평균과 비교: "직전 5라운드 대비 1.4타 ▼"(좋아짐) / "… ▲"(나빠짐). 이모지 대신 글자 삼각형(칩 색을 따름)
-  if(prev.length){const d=a5-avg(prev.map(sc)), base=`직전 ${prev.length}라운드 대비`;
-    chip = Math.abs(d)<0.05 ? `<span class="chip bad">${base} 같음</span>`
-      : d<0 ? `<span class="chip">${base} ${Math.abs(d).toFixed(1)}타 ▼︎</span>` : `<span class="chip bad">${base} ${d.toFixed(1)}타 ▲︎</span>`}
-  const full=last.filter(hasDetail).map(roundCalc);
-  const fwN=full.reduce((a,c)=>a+c.fwN,0), fwH=full.reduce((a,c)=>a+c.fwH,0);
-  const putt=full.length?(full.reduce((a,c)=>a+c.putts,0)/full.length).toFixed(1):"–";
-  // sparkline: 최근 10라운드, 통계 그래프처럼 위로 갈수록 큰 타수
-  const pts=all.slice(0,10).reverse().map(sc); let spark="";
+  const sc=r=>scoreOf(r).tot, sp=periodSplit(all,homePeriod), d=periodDelta(sp);
+  const curR=sp.cur.length?sp.cur:all.slice(0,1), a=avgOf(curR.map(sc));
+  // 꺾은선: 고른 구간 + 직전 구간 (최대 30라운드), 옛날 → 최근
+  const pr=[...curR,...(sp.prev||[])].slice(0,30).reverse(), pts=pr.map(sc);
+  const W=Math.max(260,Math.round((hero.clientWidth||390)-40)), H=176, top=30, bot=150, px=10;
+  let chart="";
   if(pts.length>=2){
-    const W=300,H=60,lo=Math.min(...pts),hi=Math.max(...pts),rg=Math.max(hi-lo,4);
-    const x=i=>(W-8)*i/(pts.length-1)+4, y=v=>H-6-(H-12)*(v-lo)/rg;
-    const line=pts.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
-    const L=pts.length-1;
-    // 카드 높이에 맞춰 늘어나는 그래프: 끝점은 SVG 밖의 원으로 그려 찌그러지지 않게 한다
-    spark=`<div class="sparkbox"><svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="최근 스코어 흐름">
-      <path d="${line}L${x(L)},${H}L${x(0)},${H}Z" fill="rgba(255,255,255,.08)"/>
-      <path d="${line}" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-      </svg><i class="sparkdot" style="left:${(x(L)/W*100).toFixed(2)}%;top:${(y(pts[L])/H*100).toFixed(2)}%"></i></div>`;
+    const lo=Math.min(...pts)-2, hi=Math.max(...pts)+2, X=i=>px+i*(W-70-px)/(pts.length-1), Y=v=>top+(hi-v)/(hi-lo)*(bot-top);
+    const Yd=v=>bot+top-Y(v);   // 낮은 타수가 위로
+    const path=pts.map((v,i)=>`${i?"L":"M"}${X(i).toFixed(1)} ${Yd(v).toFixed(1)}`).join(" ");
+    const L=pts.length-1, mx=pts.indexOf(Math.max(...pts)), mn=pts.lastIndexOf(Math.min(...pts)), ay=Yd(a);
+    const lab=(i,txt,below)=>{ const x=Math.min(Math.max(X(i),34),W-34), y=Yd(pts[i]);
+      return `<circle cx="${X(i).toFixed(1)}" cy="${(below?y+12:y-12).toFixed(1)}" r="2.2" fill="var(--t4)"/><text x="${x.toFixed(1)}" y="${(below?y+28:y-20).toFixed(1)}" text-anchor="middle">${txt}</text>` };
+    chart=`<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="최근 ${pts.length}라운드 스코어 흐름. 최고 ${pts[mx]}타, 최저 ${pts[mn]}타">
+      <line x1="0" x2="${W}" y1="${ay.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="var(--t4)" stroke-width="1.2" stroke-dasharray="1.5 4" stroke-linecap="round"/>
+      <path d="${path}" fill="none" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      ${pts[mx]!==pts[mn]?lab(mx,`최고 ${pts[mx]}타`,true)+(mn!==L?lab(mn,`최저 ${pts[mn]}타`,false):""):""}
+      <circle cx="${X(L).toFixed(1)}" cy="${Yd(pts[L]).toFixed(1)}" r="7" fill="none" stroke="var(--brand)" stroke-width="1.5" opacity=".5"/>
+      <circle cx="${X(L).toFixed(1)}" cy="${Yd(pts[L]).toFixed(1)}" r="3.6" fill="var(--brand)"/>
+      <text x="${Math.min(X(L)+12,W-2).toFixed(1)}" y="${(Yd(pts[L])+(mn===L?-14:5)).toFixed(1)}" text-anchor="${X(L)+40>W?"end":"start"}" class="lastv">${mn===L?"최저 ":""}${pts[L]}타</text>
+    </svg>`;
   }
-  const slides=[`<section class="hero"><div class="lab">최근 ${last.length}라운드 평균</div>
-    <div class="big"><b>${a5.toFixed(1)}</b>${chip}</div>${spark}
-    <div class="row3"><div><b>${Math.min(...all.map(sc))}</b><span>베스트</span></div>
-      <div><b>${fwN?Math.round(fwH/fwN*100)+"%":"–"}</b><span>페어웨이</span></div>
-      <div><b>${putt}</b><span>평균 퍼팅</span></div></div></section>`, lossSlide(all)].filter(Boolean);
-  // 옆으로 넘기는 카드 묶음: 다시 그려도 보던 카드 위치를 유지
-  const keep=hero.scrollLeft;
-  hero.innerHTML=slides.join("");
-  hero.scrollLeft=keep;
-  const dots=()=>{const i=Math.round(hero.scrollLeft/Math.max(hero.clientWidth,1));
-    $("heroDots").innerHTML=slides.length>1?slides.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join(""):""};
-  hero.onscroll=dots; dots();
+  hero.innerHTML=`<div class="ah"><span>${sp.label}</span><button class="linkbtn" id="toStats">분석 보기</button></div>
+    <div class="big">${curR.length?a.toFixed(1):"—"}타</div>
+    <div class="dl"><b class="${dCls(d)}">${d==null?"비교할 이전 기록이 없어요":dTxt(d)+"타"}</b>${d==null?"":` <span>${sp.base}</span>`}</div>
+    ${chart}
+    <div class="periods" id="periods">${PERIODS.map(([k,n])=>{const v=periodDelta(periodSplit(all,k));return `<button data-p="${k}" class="${k===homePeriod?"on":""}" aria-pressed="${k===homePeriod}"><span>${n}</span><b class="${dCls(v)}">${dTxt(v)}</b></button>`}).join("")}</div>`;
+  $("toStats").onclick=()=>{renderStats();show("Stats")};
+  $("periods").onclick=e=>{const b=e.target.closest("[data-p]"); if(!b) return; homePeriod=b.dataset.p; try{localStorage.setItem("gsb.homePeriod",homePeriod)}catch(_){} renderHero()};
 }
-/* 두 번째 카드: 최근 라운드에서 타수를 어디서 잃었는지. 파 대비 점수(d)만 있는 기록으로도 계산되고,
-   홀별 파·퍼팅이 있으면 파3/4/5별 평균과 3퍼트까지 더한다. */
-function lossSlide(all){
-  const rs=all.slice(0,10).filter(r=>!isTotal(r)&&Array.isArray(r.holes)); if(!rs.length) return "";
-  const n=rs.length, hs=rs.flatMap(r=>r.holes), d=h=>+h.d||0;
-  const per=f=>hs.reduce((a,h)=>a+f(h),0)/n;
-  const bogey=per(h=>d(h)===1?1:0), dbl=per(h=>d(h)===2?2:0), tri=per(h=>d(h)>=3?d(h):0);
-  const lost=bogey+dbl+tri;
-  const saveDbl=per(h=>d(h)>=2?d(h)-1:0);
-  const det=rs.filter(hasDetail), save3=det.length?det.flatMap(r=>r.holes).reduce((a,h)=>a+Math.max(0,h.putts-2),0)/det.length:0;
-  // 퍼팅·OB까지 기록한 라운드가 3개 이상이면 원인별 1위(통계 화면 '어디서 타를 잃나'와 같은 계산)를 제목으로
-  const LC=det.length>=3?lossCauses(det):null;
-  const [head,sub]= LC&&LC.top ? [`${LC.top.label}에서<br>라운드당 ${LC.top.v.toFixed(1)}타 손실`,`💡 ${LOSS_RX[LC.top.k]}`]
-    : save3>saveDbl
-    ? [`3퍼트를 2퍼트로 줄이면<br>라운드당 −${save3.toFixed(1)}타`,`홀별 퍼팅 기록 ${det.length}라운드 기준`]
-    : [`더블 이상을 보기로 막으면<br>라운드당 −${saveDbl.toFixed(1)}타`,`더블 이상에서 라운드당 ${(dbl+tri).toFixed(1)}타를 잃고 있어요`];
-  const bar=(k,v)=>`<div class="lb"><span>${k}</span><i><b style="width:${lost?Math.round(v/lost*100):0}%"></b></i><em>${v.toFixed(1)}타</em></div>`;
-  const avgD=list=>list.length?list.reduce((a,h)=>a+d(h),0)/list.length:null, sg=v=>v==null?"–":(v>0?"+":"")+v.toFixed(1);
-  const byPar=[3,4,5].map(p=>avgD(hs.filter(h=>h.par===p)));
-  const half=k=>sg(rs.reduce((a,r)=>a+r.holes.slice(k,k+9).reduce((x,h)=>x+d(h),0),0)/n);
-  const cells = byPar.some(v=>v!=null)
-    ? byPar.map((v,i)=>`<div><b>${sg(v)}</b><span>파${i+3} 홀 평균</span></div>`).join("")
-    : `<div><b>${half(0)}</b><span>전반 평균</span></div><div><b>${half(9)}</b><span>후반 평균</span></div><div><b>${Math.round(hs.filter(h=>d(h)<=0).length/hs.length*100)}%</b><span>파 이하 홀</span></div>`;
-  return `<section class="hero loss"><div class="lab">타수 잃는 곳 · 최근 ${n}라운드</div>
-    <div class="herotitle">${head}</div><div class="sub">${sub}</div>
-    <div class="lbars">${bar("보기",bogey)}${bar("더블",dbl)}${bar("트리플+",tri)}</div>
-    <div class="row3">${cells}</div></section>`;
+// 보라 알림 띠: 진행 중 라운드의 미션, 없으면 다음 라운드용으로 골라 둔 미션
+function renderMissionNote(){
+  const p=playingRound(), nm=nextMission(), el=$("missionNote");
+  const m=p&&p.mission&&MISSIONS[p.mission.type]?p.mission:null;
+  el.hidden=!m&&!nm; if(el.hidden) return;
+  el.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="var(--notice-icon)" opacity=".25"/><circle cx="12" cy="12" r="5" fill="var(--notice-icon)"/></svg>
+    <span>${m?`이번 미션은 ${esc(missionName(m))}예요`:`다음 라운드 미션은 ${esc(missionName(nm))}예요`}</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`;
+  el.onclick=()=>m?openPlay(p.id):startNewRound();
+}
+/* 타수를 잃는 곳: 최근 10라운드(18홀) 중 홀별 기록 라운드로 벌타 · 티샷 미스 · 3퍼트.
+   퍼팅까지 기록한 라운드가 없으면 파 대비 점수만으로 보기·더블·트리플+ */
+function renderLossCard(){
+  const box=$("lossCard"), rs=statRounds().slice(0,10).filter(r=>!isTotal(r)&&Array.isArray(r.holes));
+  if(!rs.length){ box.hidden=true; return } box.hidden=false;
+  const det=rs.filter(hasDetail), ic={pen:"M12 3v18M12 4h7l-2 3.5 2 3.5h-7",tee:"M14 5c-5 2-8 7-8 14M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",putt:"M4 18h16M7 18a5 5 0 0 1 10 0M12 4v9",dbl:"M5 19V9M12 19V5M19 19v-7"};
+  const row=(k,tone,name,sub,v,vc="")=>`<button class="lrow" data-go="Stats"><span class="ltile sm t-${tone}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ic[k]}"/></svg></span><span class="lmain"><b>${name}</b><small>${sub}</small></span><span class="lval"><b class="${vc}">${v}</b></span></button>`;
+  let rows="", tip="";
+  if(det.length){
+    const n=det.length, hs=det.flatMap(r=>r.holes), ob=hs.reduce((a,h)=>a+(h.ob||0),0)/n, hz=hs.reduce((a,h)=>a+(h.hz||0),0)/n;
+    const t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, R=t.filter(h=>h.fw==="R").length, side=L>=R?"L":"R", k=Math.max(L,R);
+    const three=hs.filter(h=>h.putts>=3).length/n;
+    rows=row("pen","o","벌타",`OB ${ob.toFixed(1)} · 해저드 ${hz.toFixed(1)}`,`${(ob*2+hz).toFixed(1)}타`,ob*2+hz>0?"over":"")+
+      (t.length?row("tee","b",`티샷 ${side==="L"?"왼쪽":"오른쪽"} 미스`,`파4·5 티샷 ${t.length}번 중 ${k}번`,`${Math.round(k/t.length*100)}%`):"")+
+      row("putt","g","3퍼트",`3퍼트 이상 · 라운드당`,`${three.toFixed(1)}회`);
+    const LC=n>=3?lossCauses(det):null;
+    if(LC&&LC.top) tip=`<div class="rx"><b>가장 큰 손실: ${LC.top.label} · 라운드당 ${LC.top.v.toFixed(1)}타</b>${LOSS_RX[LC.top.k]}</div>`;
+  } else {
+    const n=rs.length, hs=rs.flatMap(r=>r.holes), d=h=>+h.d||0, per=f=>hs.reduce((a,h)=>a+f(h),0)/n;
+    rows=row("dbl","o","보기",`보기 홀 · 라운드당`,`${per(h=>d(h)===1?1:0).toFixed(1)}타`)+row("dbl","o","더블",`더블 보기 홀 · 라운드당`,`${per(h=>d(h)===2?2:0).toFixed(1)}타`)+row("dbl","o","트리플 이상",`라운드당`,`${per(h=>d(h)>=3?d(h):0).toFixed(1)}타`);
+  }
+  box.innerHTML=`<div class="ah"><h2>타수를 잃는 곳</h2><span>최근 ${det.length||rs.length}라운드 · 라운드당</span></div><div class="lrows">${rows}</div>${tip}`;
+  box.querySelectorAll("[data-go=Stats]").forEach(b=>b.onclick=()=>{renderStats();show("Stats")});
 }
 // 진행 중인 라운드는 하나만: 있으면 가운데 버튼이 '이어서 입력'이 되고, 새 라운드 대신 그 라운드를 연다
 const playingRound=()=>rounds.filter(r=>r.status==="playing").sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
@@ -1439,12 +1532,29 @@ function updFab(){
 }
 function startNewRound(){
   const p=playingRound(); if(p) return openPlay(p.id);
+  openSetup("hole");
+}
+// 새 라운드 화면 열기. mode: hole(홀별 입력) · score(지난 기록: 홀별 타수만)
+function openSetup(mode){
   if(!rcol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
   $("sDate").value=today(); fillClubList(); $("sTee").value=""; $("sTee").innerHTML=`<option>${DEFAULT_TEE}</option>`;
   const last=doneRounds()[0]; if(last && !$("sClub").value) $("sClub").value=last.club;
-  syncClears(); $("sGhost").value="best"; $("sMission").value=""; $("sMTarget").value=""; fillMission();
+  syncClears(); $("sGhost").value="best"; $("sMission").value=""; $("sMTarget").value="";
+  $("modeSeg").querySelector(`[data-m="${mode}"]`).click();
+  const nm=nextMission(); if(nm&&setupMode==="hole"&&MISSIONS[nm.type]&&nm.type!=="score") $("sMission").value=nm.type;
+  fillMission();
   fillCourseSelects(); $("setupMsg").textContent=""; show("Setup");
 }
+// 라운드 기록 → 일기 탭에서 고른 '다음 라운드 미션'. 기기에만 기억해 두고 새 라운드 미션 칸을 미리 채운다 (저장 형식은 그대로)
+function nextMission(){ try{ const v=JSON.parse(localStorage.getItem("gsb.nextMission")||"null"); return v&&MISSIONS[v.type]?v:null }catch(e){ return null } }
+// 빠른 메뉴
+$("quick").onclick=e=>{const b=e.target.closest("[data-q]"); if(!b) return; const k=b.dataset.q;
+  if(k==="new") startNewRound();
+  else if(k==="past") openSetup("score");
+  else if(k==="course"){ $("tabBar").querySelector('[data-tab="Courses"]').click() }
+  else if(k==="badge"){ renderBadges(); show("Badges") }
+  else if(k==="backup") exportCsv($("homeMsg"));
+};
 $("tabBar").onclick=e=>{const t=e.target.closest("[data-tab]"); if(!t) return; const k=t.dataset.tab;
   if(k==="new") return startNewRound();
   if(k==="Stats") renderStats();
@@ -1558,15 +1668,28 @@ function renderTrend(pts){
   </svg><p class="note" style="margin:4px 0 0">아래로 갈수록 좋은 스코어${trendTxt?" · "+trendTxt:""}</p>`;
 }
 
-function rcHtml(r){const c=scoreOf(r); const [,m,d]=r.date.split("-");
-  return `<button class="rc" data-id="${r.id}"><div class="date"><b>${d}</b><small>${+m}월</small></div>
-      <div class="m"><b>${esc(r.club)}${is9(r)?`<span class="tag9">9홀</span>`:""}${r.demo?`<span class="tag9">예시</span>`:""}${(()=>{const st=missionState(r);return st?`<span class="mtag" title="미션">🎯${st.ok?"✓":"✗"}</span>`:""})()}</b><small>${[esc(courseTxt(r," · ")), isTotal(r)?"총타만 기록":c.putts!=null?c.putts+"퍼트":"파 대비 점수만"].filter(Boolean).join(" · ")}</small></div>
-      <div class="s"><b>${c.tot??"–"}</b><small class="${relCls(c.rel)}">${relTxt(c.rel)}</small></div></button>`}
+// 골프장 타일: 이름 앞 2–3글자 + 이름으로 고정 배정한 색
+const TILE_COLORS=["#0E9A5A","#3182F6","#6E5BFF","#F2683C","#00A7B5"];
+function clubAbbr(c){ const n=String(c||"").replace(/\s*(CC|GC|C\.C|G\.C|컨트리클럽|골프클럽|골프장|골프앤리조트|리조트)\s*$/i,"").trim().split(/\s+/)[0]||String(c||"");
+  return n.length<=3?n:n.slice(0,2) }
+function clubColor(c){ let h=0; for(const ch of String(c||"")) h=(h*31+ch.charCodeAt(0))>>>0; return TILE_COLORS[h%TILE_COLORS.length] }
+const STAR='<svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.1l-5.7 3.2 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>';
+function rcHtml(r,best){const c=scoreOf(r); const [,m,d]=r.date.split("-"), st=missionState(r), pb=best!=null&&!is9(r)&&c.tot===best;
+  const tags=(is9(r)?`<em class="tg">9홀</em>`:"")+(r.demo?`<em class="tg">예시</em>`:"")+(st?`<em class="tg ${st.ok?"ok":"no"}">미션 ${st.ok?"성공":"실패"}</em>`:"");
+  const sub=[`${m}.${d}`, courseTxt(r,"·"), isTotal(r)?"총타만":""].filter(Boolean).join(" · ");
+  return `<button class="lrow" data-id="${r.id}"><span class="ltile" style="background:${clubColor(r.club)}">${esc(clubAbbr(r.club))}</span>
+      <span class="lmain"><b>${esc(r.club)}${tags}</b><small>${esc(sub)}</small></span>
+      <span class="lval"><b class="${relCls(c.rel)}">${relTxt(c.rel)}</b><small>${c.tot??"–"}타</small></span>
+      <span class="lend ${pb?"gold":""}" aria-label="${pb?"개인 최고 기록":"일반 라운드"}">${STAR}</span></button>`}
+const bestScore=()=>{const t=scoreRounds().map(r=>scoreOf(r).tot); return t.length?Math.min(...t):null};
+let rlKind="all";
+$("rlSeg").onclick=e=>{const b=e.target.closest("[data-k]"); if(!b) return; rlKind=b.dataset.k;
+  [...$("rlSeg").children].forEach(x=>x.classList.toggle("on",x===b)); renderRoundList()};
 function renderRoundList(){
-  const all=doneRounds();
-  $("allToggle").hidden=all.length<=5; $("allToggle").textContent=`전체 보기 (${all.length}) ›`;
+  const all=doneRounds(), rs=all.filter(r=>rlKind==="all"||(rlKind==="9")===is9(r)), best=bestScore();
+  $("allToggle").hidden=all.length<=4; $("allToggle").textContent=`전체 ${all.length}라운드 보기 ›`;
   if(!all.length){$("roundList").innerHTML=`<div class="empty"><b>아직 기록한 라운드가 없습니다</b>아래 ＋ 버튼으로 시작하세요.</div>`;return}
-  $("roundList").innerHTML=all.slice(0,5).map(rcHtml).join("");
+  $("roundList").innerHTML=rs.length?rs.slice(0,4).map(r=>rcHtml(r,best)).join(""):`<div class="empty">${rlKind}홀 라운드가 없어요.</div>`;
 }
 /* 전체 라운드 화면: 연도 선택 + 골프장·코스 검색 */
 let roundFrom="Home";
@@ -1586,7 +1709,8 @@ function renderAllRounds(){
     : "";
   if(!rs.length){$("rlList").innerHTML=`<div class="empty"><b>조건에 맞는 라운드가 없습니다</b>연도나 검색어를 바꿔 보세요.</div>`;return}
   let h="", last="";   // 전체 연도일 때는 연도 머리글로 나눔
-  rs.forEach(r=>{const yy=r.date.slice(0,4); if(!y&&yy!==last){h+=`<div class="ygrp">${yy}</div>`;last=yy} h+=rcHtml(r)});
+  const best=bestScore();
+  rs.forEach(r=>{const yy=r.date.slice(0,4); if(!y&&yy!==last){h+=`<div class="ygrp">${yy}</div>`;last=yy} h+=rcHtml(r,best)});
   $("rlList").innerHTML=h;
 }
 $("allToggle").onclick=openAllRounds;
@@ -2198,8 +2322,10 @@ $("cAdd").onclick=async()=>{
 
 /* ---------- CSV ---------- */
 function csvCell(v){v=String(v??"");return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v}
-$("exportBtn").onclick=async()=>{
-  const rs=doneRounds(); if(!rs.length){$("moreMsg").textContent="내보낼 라운드가 없습니다.";return}
+$("exportBtn").onclick=()=>exportCsv($("moreMsg"));
+function exportCsv(out){
+  out.className="msg";
+  const rs=doneRounds(); if(!rs.length){out.textContent="내보낼 라운드가 없습니다.";return}
   const head=["date","club","course","hole","par","strokes","vs_par","putts","gir","fairway","shape","ob","hazard","holes_played"];
   const lines=[head.join(",")];
   [...rs].reverse().forEach(r=>{ const np=holesOf(r);
@@ -2211,9 +2337,9 @@ $("exportBtn").onclick=async()=>{
     const url=URL.createObjectURL(new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"}));
     const a=document.createElement("a"); a.href=url; a.download=`golf-scorebook-${today()}.csv`;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),10000);
-    $("moreMsg").textContent=`${rs.length}라운드를 CSV 파일로 내보냈습니다.`;
-  }catch(e){$("moreMsg").textContent="파일을 만들지 못했습니다 ("+(e.message||"오류")+")."}
-};
+    out.textContent=`${rs.length}라운드를 CSV 파일로 내보냈습니다.`;
+  }catch(e){out.textContent="파일을 만들지 못했습니다 ("+(e.message||"오류")+")."}
+}
 
 /* ---------- 기본 코스 다시 맞추기 ---------- */
 $("seedCount").textContent=DEFAULT_COURSES.length;
@@ -2589,7 +2715,7 @@ function medalSpin(box,flip){
     const to=moved?Math.round(ang/180)*180:ang+180;   // 손을 떼면 앞·뒷면 중 가까운 쪽으로, 그냥 누르면 뒤집기
     if(reduceMotion()){ render(to); play() } else tween(ang,to,650) };
 }
-$("badgeBtn").onclick=()=>{renderBadges();show("Badges")};
+
 
 /* 덮는 화면(축하 카드 · 공유 이미지 미리보기) */
 function showOv(html){ const o=$("ov"); o.innerHTML=html; o.hidden=false; const c=o.querySelector("#ovClose"); if(c) c.onclick=closeOv; }
