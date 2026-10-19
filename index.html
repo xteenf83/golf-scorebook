@@ -70,8 +70,6 @@ h1{font-family:var(--f-display);font-weight:600;font-size:26px;letter-spacing:.0
 h1 small{display:block;font-family:var(--f-body);font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
 h2{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
 .sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-.dot.ok{background:var(--under)} .dot.err{background:var(--danger)}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
 .note{font-size:12px;color:var(--muted)}
 .msg{font-size:13px;color:var(--muted);min-height:1.2em}
@@ -128,8 +126,6 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .chart{width:100%;height:auto;display:block}
 .chart text{font-family:var(--f-num);font-size:10px;fill:var(--muted)}
 .list{display:flex;flex-direction:column}
-.item{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;padding:12px 2px;border-top:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-bottom:0;border-radius:0;text-align:left;font-weight:400;width:100%}
-.item:first-child{border-top:0}
 .sc{font-family:var(--f-display);font-size:28px;font-weight:500;text-align:center;line-height:1;font-variant-numeric:tabular-nums}
 .sc small{display:block;font-family:var(--f-num);font-size:11px;margin-top:4px}
 .under{color:var(--under)} .even{color:var(--even)} .over{color:var(--over)}
@@ -139,25 +135,12 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .chev{color:var(--muted);font-size:18px}
 .empty{padding:20px 8px;text-align:center;color:var(--muted)}
 .empty b{display:block;color:var(--ink);margin-bottom:4px}
-.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.menu button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px;min-width:0}
-.menu small{font-size:11px;font-weight:500;color:var(--muted)}
 @media (max-width:340px){.menu{grid-template-columns:1fr}}
-.resume{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:14px 16px}
-.resume b{display:block}
 
 /* (예전 입력 화면 공통: 새 라운드 홀별 타수만 버튼에서 사용) */
 .field{display:flex;flex-direction:column;gap:6px}
 .field > .lab{font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
 .btns{display:grid;gap:6px}
-.btns.s8{grid-template-columns:repeat(4,1fr)}
-.btns.s5{grid-template-columns:repeat(5,1fr)}
-.btns.s3{grid-template-columns:1fr 1.3fr 1fr}
-.btns.s7{grid-template-columns:repeat(7,1fr);gap:4px}
-.opt.shp{padding:6px 0 5px;min-height:0;gap:2px}
-.opt.shp svg{width:22px;height:28px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
-.opt.shp svg circle{fill:currentColor;stroke:none}
-.opt.shp small{font-size:10.5px;letter-spacing:-.5px;white-space:nowrap}
 .opt{padding:10px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;min-height:52px;justify-content:center}
 .opt b{font-family:var(--f-num);font-size:17px}
 .opt small{font-size:11px;font-weight:500;color:var(--muted)}
@@ -174,43 +157,18 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .memos h2,.diary h2{margin:0 0 8px}
 .diary textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;line-height:1.5;resize:vertical;min-height:76px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
 .diary .note{margin-top:4px;min-height:1.2em}
-.mrow{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:10px 2px}
-.mrow:first-of-type{border-top:0}
-.mrow b{flex:0 0 34px;white-space:nowrap;font-family:var(--f-num);color:var(--muted)}
-.mrow span{flex:1;white-space:pre-wrap;line-height:1.4;font-weight:400}
-.mrow small{flex:0 0 auto;color:var(--accent);font-size:12px}
 .voice textarea{font:inherit;font-size:16px;resize:vertical;min-height:52px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
 .heard{font-size:12px;color:var(--accent);min-height:1.2em}
 .heard.err{color:var(--warn)}
 
 /* round detail */
 .scroll{overflow-x:auto}
-table.card{border-collapse:collapse;font-family:var(--f-num);font-size:12px;width:100%;min-width:470px}
-table.card th,table.card td{border:1px solid var(--line);padding:5px 3px;text-align:center}
-table.card th{font-family:var(--f-body);font-size:11px;color:var(--muted);font-weight:600;background:var(--bg)}
-table.card td.sum{font-weight:700;background:var(--accent-soft)}
-.mark{display:inline-block;min-width:22px;padding:1px 2px;border-radius:50%}
 /* 타수 표시: 모양만으로 구분하고 색은 하나 (○ 버디 · ◎ 이글 · □ 보기 · 두 줄 □ 더블 이상) */
-.mark.b{border:1.5px solid var(--ink)}
-.mark.e{border:3px double var(--ink)}
-.mark.k{border:1.5px solid var(--ink);border-radius:2px}
-.mark.o{border:3px double var(--ink);border-radius:2px}
-.mlegend{display:flex;gap:14px;justify-content:flex-end;font-size:12px;color:var(--muted);margin:8px 0 0}
-.mlegend span{display:inline-flex;align-items:center;gap:5px}
-.mlegend .mark{min-width:0;width:14px;height:14px;padding:0;box-sizing:border-box}
 .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .kv div{min-width:0}
 .kv b{display:block;font-family:var(--f-display);font-size:22px;font-weight:500}
 .kv span{font-size:11px;color:var(--muted)}
 .kv b em{font-style:normal;font-family:var(--f-num);font-size:13px;font-weight:700}
-.sdist{margin-top:16px}
-.sbar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px}
-.sbar i{display:block;min-width:4px}
-.sleg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:12px;color:var(--muted)}
-.sleg span{display:inline-flex;align-items:center;gap:4px}
-.sleg span.z{opacity:.45}
-.sleg i{width:8px;height:8px;border-radius:2px;display:inline-block}
-.sleg b{color:var(--ink);font-family:var(--f-num)}
 
 /* courses */
 .course{border-top:1px solid var(--line);padding-block:12px;display:flex;flex-direction:column;gap:8px}
@@ -245,11 +203,6 @@ header.top small{display:none}
 header.top h1{font-family:var(--f-body);font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.25;overflow-wrap:anywhere}
 header.top .tsub{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 header.top .tright{flex:0 0 auto;display:flex;align-items:center;gap:6px}
-.cloud{display:flex;align-items:center;gap:4px;border:0;background:none;padding:6px;min-height:40px;color:var(--muted)}
-.cloud svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
-.cloud .ctx{display:none;font-size:11.5px;font-weight:600;line-height:1.2;max-width:150px;text-align:right}
-.cloud.ok{color:var(--accent)} .cloud.off{color:var(--warn)} .cloud.err{color:var(--danger)}
-.cloud.off .ctx,.cloud.err .ctx,.cloud.show .ctx{display:block}
 .avatar{flex:0 0 auto;width:40px;height:40px;border-radius:50%;padding:0;border:0;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:16px}
 .avatar.big{width:52px;height:52px;font-size:20px}
 h2{font-size:15px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);margin:0 0 12px}
@@ -261,25 +214,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .linkbtn.acc{color:var(--accent);text-decoration:none;font-weight:700;font-size:13px}
 
 /* hero card */
-.hero{border-radius:24px;padding:20px 20px 16px;background:linear-gradient(150deg,var(--hero1) 0%,var(--hero2) 100%);color:var(--heroInk);position:relative;overflow:hidden;isolation:isolate}
-.hero::after{content:"";position:absolute;z-index:-1;right:-50px;top:-50px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,.08);box-shadow:0 0 0 24px rgba(255,255,255,.03),0 0 0 48px rgba(255,255,255,.02)}
-.hero .lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.75;font-weight:600}
-.hero .big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:2px}
-.hero .big b{font-family:var(--f-display);font-size:58px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
-.hero .chip{font-size:12px;font-weight:600;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 9px}
-.hero .chip.bad{background:rgba(255,255,255,.1);color:var(--heroInk)}
-.hero svg.spark{display:block;width:100%;height:60px;margin-top:8px;overflow:visible}
-.hero .row3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:10px;border-top:1px solid rgba(255,255,255,.14);padding-top:12px}
-.hero .row3 b{display:block;font-family:var(--f-display);font-size:21px;font-weight:500;font-variant-numeric:tabular-nums}
-.hero .row3 span{font-size:11px;opacity:.72}
-.hero .herotitle{font-size:24px;font-weight:700;line-height:1.3;margin:6px 0 8px}
-.hero .herotext{font-size:13.5px;opacity:.82;margin:0 0 14px;line-height:1.55}
-.hero button.light{background:var(--heroInk);color:var(--hero2);border:0;border-radius:14px;padding:13px 16px;font-size:15px}
-.hero button.ghost{color:var(--heroInk);border-color:rgba(255,255,255,.28)}
-.hero .sync{color:var(--heroInk);opacity:.75}
-.resume{border-radius:20px;background:var(--paper);border:1.5px solid var(--accent);box-shadow:var(--shadow)}
-.resume .live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
-.resume .live i{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.3}}
 
 /* recent rounds */
@@ -307,11 +241,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .acct .meta .note{overflow-wrap:anywhere}
 
 /* round detail */
-.rhero .club{font-size:18px;font-weight:700}
-.rhero .sub{font-size:12.5px;opacity:.78}
-.rhero .score{display:flex;align-items:baseline;gap:10px;margin-top:10px}
-.rhero .score b{font-family:var(--f-display);font-size:58px;font-weight:500;line-height:1}
-.rhero .saved{display:inline-block;font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px;margin-bottom:10px}
 .tiles{border-radius:20px;box-shadow:var(--shadow)}
 .course .pars button{border-radius:10px}
 .dtable{overflow-x:auto;margin-top:8px}
@@ -328,7 +257,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .course .pars button{min-height:52px;font-size:17px}
 .course .pars button small{font-size:11px}
 /* 골프장·코스: 목록 → 상세 */
-.clist{display:flex;flex-direction:column}
 .crow{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:56px;padding:12px 2px;border:0;border-top:1px solid var(--line);border-radius:0;background:none;text-align:left;font-weight:500;font-size:15px;color:var(--ink)}
 .crow:first-child{border-top:0}
 .crow .nm{min-width:0;overflow-wrap:anywhere}
@@ -336,13 +264,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .crow .rt{display:flex;align-items:center;gap:8px;white-space:nowrap;font-family:var(--f-num);font-size:13px;color:var(--muted)}
 .crow .rt.warn{color:var(--warn);font-weight:600}
 .crow .chev{font-size:20px}
-.cdhead{margin-bottom:8px}
-.hrow{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center;padding-block:8px;border-top:1px solid var(--line)}
-.hrow:first-of-type{border-top:0}
-.hrow .no{font-weight:700;font-size:15px}
-.parbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.parbtns button{min-height:48px;font-size:16px}
-.parbtns button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .parsum{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding:14px 16px;border-radius:14px;background:var(--accent-soft)}
 .parsum span{font-size:14px;font-weight:600}
 .parsum b{font-family:var(--f-display);font-size:30px;font-weight:500;line-height:1}
@@ -353,18 +274,8 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:46px;text-align:left}
 input[type=date]::-webkit-date-and-time-value{text-align:left}
 #resumeBox:empty,.msg:empty{display:none}
-table.card th,table.card td{white-space:nowrap}
 /* 스코어카드: 9홀씩 한 표(18홀은 전반·후반 두 표), 홀 칸은 화면 폭을 똑같이 나눔 */
-table.card{table-layout:fixed;min-width:0}
-table.card+table.card{margin-top:12px}
 /* 모든 행 높이를 같게: 타수 행(표시 박스·합계의 +/-)도 이 높이 안에 들어가게 맞춘다 */
-table.card td,table.card th{overflow:hidden;padding:0;height:32px;line-height:1.2}
-table.card th:first-child{font-size:10.5px}
-table.card td.sum small.rel{display:block;font-size:9px;font-weight:600;color:var(--muted);line-height:1}
-table.card td.sum:has(small.rel){line-height:1}
-table.card tr.drow td{font-size:10px;letter-spacing:-.4px;color:var(--muted)}
-table.card th .dl{display:block;font-size:9px;line-height:1.1;overflow:hidden;text-overflow:ellipsis}
-table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .yearbtn{min-height:40px;padding:8px 14px;font-size:13px;border-radius:10px}
 .yearbtn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .ytable{border-collapse:separate;border-spacing:0;font-size:13.5px;width:100%;font-variant-numeric:tabular-nums}
@@ -379,47 +290,16 @@ table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box
 .back{border:0;background:none;padding:10px 4px;min-height:44px;margin-block:-10px -6px;color:var(--accent);font-size:15px;font-weight:700}
 .opt{min-height:46px;padding:7px 2px}
 /* 홈 카드 묶음: 옆으로 넘기면 다음 카드 (scroll-snap) */
-.cards{display:grid;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
-.cards::-webkit-scrollbar{display:none}
-.cards>.hero{scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column}
-.cards>.hero .row3{margin-top:auto}
-.sparkbox{position:relative;display:flex;flex:1 1 60px;min-height:60px;margin:8px 0 10px}
-.sparkbox svg.spark{height:auto;margin:0;flex:1}
-.sparkdot{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--gold)}
-.dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
-.dots:empty{display:none}
-.dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:width .2s}
-.dots i.on{width:16px;background:var(--accent)}
-.loss .herotitle{font-size:21px;margin:6px 0 2px}
-.loss .sub{font-size:12.5px;opacity:.75}
-.lbars{display:flex;flex-direction:column;gap:7px;margin:14px 0 12px}
-.lb{display:grid;grid-template-columns:52px 1fr 48px;gap:10px;align-items:center;font-size:12.5px}
-.lb span{opacity:.8}
-.lb i{height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
-.lb i b{display:block;height:100%;background:var(--gold);border-radius:4px}
-.lb em{font-style:normal;font-family:var(--f-display);font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
 /* 지금 입력할 항목 강조 + 다 채우면 다음 홀 버튼 강조 */
 .field>.lab>span:first-child{transition:color .2s}
 .field.now>.lab>span:first-child{color:var(--accent)}
 .field.now>.lab>span:first-child::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px}
 /* 지우기(×) 버튼이 붙은 입력칸 */
-.clr{position:relative;display:block}
-.clr input{padding-right:40px}
 input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
-.clr .x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:var(--muted);font-size:20px;font-weight:500;line-height:1}
 /* 재미 기능: 고스트 · 홀 브리핑 · 배지 · 미션 · 공유 이미지 */
 :root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70}}
 :root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70}
-.ghc{display:inline-block;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700;margin-left:4px;white-space:nowrap}
-.ghc.win{background:#d7f3e2;color:#145233} .ghc.lose{background:#fbe1d3;color:#8a3a17} .ghc.tie{background:rgba(255,255,255,.18);color:var(--heroInk)}
-.rhero .gline{margin-top:10px;font-size:13.5px;font-weight:600}
-.bchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.bchip{font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px}
-.mtag{font-size:12px;margin-left:6px;vertical-align:1px}
-.bbtn{display:flex;justify-content:space-between;align-items:center;width:100%;border-radius:18px;padding:14px 16px;background:var(--paper);box-shadow:var(--shadow);font-size:15px;text-align:left}
-.bbtn small{display:block;font-size:12px;font-weight:500;color:var(--muted)}
-.bbtn b{font-family:var(--f-display);font-size:22px;font-weight:500;color:var(--accent)}
 .bhead{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .bhead b{font-family:var(--f-display);font-size:40px;font-weight:500;line-height:1;color:var(--accent)}
 .bhead span{font-size:15px;font-weight:600;color:var(--muted)}
@@ -490,10 +370,6 @@ header.top h1{font-size:30px;font-weight:800;letter-spacing:-0.045em;line-height
 header.top .tsub{font-size:13px;color:var(--t3)}
 .iconbtn{width:44px;height:44px;padding:0;border:0;background:none;color:var(--t1);display:grid;place-items:center;border-radius:12px}
 .iconbtn svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.cloud{width:44px;height:44px;justify-content:center;padding:0;color:var(--t1)}
-.cloud svg{width:25px;height:25px}
-.cloud.ok{color:var(--t1)} .cloud.busy{color:var(--t4)}
-.cloud.off,.cloud.err,.cloud.show{width:auto;padding:0 8px}
 .panel{background:var(--card);border:0;border-radius:24px;padding:22px 20px;box-shadow:none}
 h2{font-size:20px;font-weight:700;letter-spacing:-0.035em;color:var(--t1);margin:0 0 12px}
 .note{font-size:13.5px;color:var(--t3);line-height:1.5}
@@ -591,6 +467,18 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 .fab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .fab svg path.fill{fill:currentColor;stroke:none}
 
+/* 새 라운드 → 홀별 타수만: 점수 버튼 4칸 */
+.btns.s8{grid-template-columns:repeat(4,1fr)}
+/* 저장 상태 구름 · 지우기(×) 입력칸 */
+.cloud{display:flex;align-items:center;gap:4px;border:0;background:none;width:44px;height:44px;justify-content:center;padding:0;min-height:40px;color:var(--t1)}
+.cloud svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.cloud .ctx{display:none;font-size:11.5px;font-weight:600;line-height:1.2;max-width:150px;text-align:right}
+.cloud.ok{color:var(--t1)} .cloud.busy{color:var(--t4)} .cloud.off{color:var(--warn)} .cloud.err{color:var(--danger)}
+.cloud.off,.cloud.err,.cloud.show{width:auto;padding:0 8px}
+.cloud.off .ctx,.cloud.err .ctx,.cloud.show .ctx{display:block}
+.clr{position:relative;display:block}
+.clr input{padding-right:40px}
+.clr .x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:36px;min-height:0;padding:0;border:0;border-radius:50%;background:none;color:var(--muted);font-size:20px;font-weight:500;line-height:1}
 /* ===== 홀 기록(입력) 화면 (HANDOFF 4-3) ===== */
 :root{--bogey-chip:#FFE3D1}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bogey-chip:rgba(255,138,61,.24)}}
@@ -714,7 +602,7 @@ header.top.home{margin:0 -4px 0 2px}
 .panel.live .lmain small{font-size:14.5px;color:var(--t3);margin-top:4px}
 .panel.live .lmain small b{display:inline;font-size:inherit;font-weight:600;letter-spacing:inherit}
 .panel.live img{width:104px;height:104px;border-radius:22px;object-fit:cover;flex:none;background:var(--fill)}
-.panel.live .more{position:absolute;top:4px;right:4px;width:40px;height:40px;color:#fff}
+.panel.live .more{position:absolute;top:24px;right:24px;width:44px;height:36px;min-height:0;color:#fff;border-radius:0 22px 0 12px}
 .panel.live .more svg{fill:#fff;stroke:none;width:22px;height:22px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
 #resumeActs{margin-top:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 #resumeActs .row{gap:8px}
@@ -749,19 +637,11 @@ button.outline{height:40px;min-height:40px;padding:0 16px;border-radius:20px;bac
 .lmain .tg{font-style:normal;font-size:11.5px;font-weight:700;color:var(--t3);background:var(--fill);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:2px}
 .lmain .tg.ok{color:var(--brand-text);background:var(--brand-soft)} .lmain .tg.no{color:var(--t3)}
 .allbtn{align-self:center;margin-top:2px!important}
-.losscard{padding:22px 8px 10px;margin-top:22px!important}
-.losscard .ah{display:flex;justify-content:space-between;align-items:center;padding:0 12px 8px}
-.losscard .ah h2{margin:0} .losscard .ah span{font-size:13.5px;color:var(--t4);font-weight:500}
-.losscard .lrows{margin:0}
-.losscard .lrow{padding:12px;border-radius:14px}
-.losscard .lmain b{font-size:16.5px} .losscard .lmain small{font-size:14px;margin-top:2px}
 .ltile.sm svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ltile.sm{width:44px;height:44px;border-radius:15px}
 .ltile.t-o{background:#FFF0EA;color:var(--over)} .ltile.t-b{background:#E8F1FE;color:var(--under)} .ltile.t-g{background:var(--brand-soft);color:var(--brand)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ltile.t-o{background:rgba(242,104,60,.18)}:root:not([data-theme="light"]) .ltile.t-b{background:rgba(77,155,255,.18)}}
 :root[data-theme="dark"] .ltile.t-o{background:rgba(242,104,60,.18)} :root[data-theme="dark"] .ltile.t-b{background:rgba(77,155,255,.18)}
-.losscard .rx{margin:6px 12px 8px;background:var(--fill2);border-radius:14px;padding:13px 14px;font-size:14px;line-height:1.5;color:var(--t2)}
-.losscard .rx b{display:block;color:var(--t1);margin-bottom:2px}
 
 /* ===== 라운드 기록 (HANDOFF 4-4): 흰 바탕 + 밑줄 탭 ===== */
 body.plain{--bg:var(--card)}
@@ -877,8 +757,6 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .cb{position:relative;height:6px;border-radius:3px;background:var(--fill)}
 .cb i{position:absolute;left:0;top:0;height:6px;border-radius:3px}
 .cb u{position:absolute;top:-3px;width:2px;height:12px;border-radius:1px;background:var(--t2);margin-left:-1px}
-.cleg{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t4);margin:12px 0 0}
-.cleg i{width:2px;height:10px;background:var(--t2);border-radius:1px}
 .diary .dh{display:flex;justify-content:space-between;align-items:baseline;padding-right:20px}
 .diary textarea{display:block;width:calc(100% - 40px);margin:4px 20px 0;background:var(--fill2);border:0;border-radius:18px;padding:18px;font-size:16px;line-height:1.7;color:var(--t1);resize:none;min-height:96px}
 .memorow{align-items:flex-start}
@@ -994,6 +872,43 @@ details.more>.screen{margin-top:12px}
 .sp-track{width:96px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}
 .sp-track i{display:block;width:40%;height:4px;border-radius:2px;background:#fff;animation:spLoad 1.6s ease-in-out infinite}
 @keyframes spLoad{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+
+/* ===== 그 밖의 화면 (HANDOFF 4-7) ===== */
+header.top.sub{justify-content:flex-start;gap:2px;margin-left:-10px}
+header.top.sub .tt{flex:1}
+header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
+.logincard{position:relative;height:420px;border-radius:24px;overflow:hidden;background:#1F3A22;color:#fff}
+.logincard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.logincard::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(4,20,10,.85) 100%)}
+.logincard>div{position:absolute;left:24px;right:24px;bottom:24px;z-index:1;display:flex;flex-direction:column;gap:12px}
+.logincard b{font-size:28px;font-weight:800;letter-spacing:-0.045em;line-height:1.25}
+.logincard p{margin:0;font-size:14.5px;opacity:.85;line-height:1.5}
+#scrLogin .panel{display:flex;flex-direction:column;gap:6px}
+.course .pars button{background:var(--fill);border:0;min-height:52px}
+.pars button.p3{background:var(--brand-soft);color:var(--brand-text)} .pars button.p5{background:var(--fill);box-shadow:inset 0 0 0 1.5px var(--t1)}
+.pars button small{color:var(--t4)}
+.crow{color:var(--t1);border-top-color:var(--line);font-size:16px}
+.crow .rt{font-family:var(--font);color:var(--t3)}
+.dtable table{font-family:var(--font)} .dtable th,.dtable td{border-bottom-color:var(--line)}
+.parsum{background:var(--brand-soft);border-radius:16px} .parsum b{font-family:var(--font);font-weight:800}
+.tag9{color:var(--brand-text);background:var(--brand-soft)} .tag{color:var(--bogey-text);border-color:var(--bogey-text)}
+.bhead b{font-family:var(--font);font-size:40px;font-weight:800;letter-spacing:-0.045em;color:var(--brand-text)}
+.bhead span{color:var(--t3)}
+.bcat{font-size:20px} .bm b{font-size:13.5px;font-weight:700} .bm small{color:var(--t4)}
+.bprog{background:var(--line)} .bprog i{background:var(--brand)}
+.bhist b{font-family:var(--font);font-weight:700}
+.acct{display:grid} .avatar{background:var(--brand-soft);color:var(--brand-text)}
+.ygrp{font-family:var(--font);color:var(--t3);font-size:14px;margin:10px 4px 0}
+.rlfilter select{background:var(--card)} #scrRounds .clr input{background:var(--card)}
+.sgrid .sc{background:var(--fill);min-height:0;border:0} .sgrid .sc small,.sgrid .sc b,.sgrid .ss{font-family:var(--font)}
+.sgrid .sc.at{box-shadow:inset 0 0 0 2px var(--brand)}
+.sgrid .sc.under b{color:var(--under)} .sgrid .sc.over b{color:var(--over)}
+.skeys .opt{background:var(--fill);border:0;border-radius:14px}
+.opt b{font-family:var(--font);font-weight:700} .opt.on{background:var(--brand);color:#fff}
+.ovcard{background:var(--card);border-radius:24px}
+.ovcard .lab{color:var(--brand-text)} .ovcard .nb{background:var(--brand-soft)}
+.ovcard .row .linkbtn{display:inline-flex;align-items:center;padding:0 14px}
+#ov .ovcard .row{gap:8px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -1025,13 +940,14 @@ details.more>.screen{margin-top:12px}
 
   <!-- LOGIN -->
   <section class="screen" id="scrLogin" hidden>
-    <section class="hero">
-      <div class="lab">Golf Scorebook</div>
-      <div class="herotitle">라운드마다 쌓이는<br>나만의 스코어 기록</div>
-      <p class="herotext">구글 계정으로 로그인하면 기록이 클라우드에 저장되어 폰을 바꿔도 그대로 남습니다.</p>
+    <section class="logincard">
+      <img src="images/splash-aerial-bunkers.jpg" alt="" onerror="this.remove()">
+      <div><div class="sp-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20.5V3.6l10 4.1-10 4.1"/></svg></div>
+      <b>라운드마다 쌓이는<br>나만의 스코어 기록</b>
+      <p>구글 계정으로 로그인하면 기록이 클라우드에 저장되어 폰을 바꿔도 그대로 남습니다.</p></div>
     </section>
     <section class="panel">
-      <button class="primary big" id="loginBtn">G 구글로 로그인</button>
+      <button class="primary big" id="loginBtn">구글로 로그인</button>
       <button class="linkbtn" id="loginRedirectBtn">로그인 창이 안 뜨거나 멈추면 여기를 누르세요</button>
       <p class="msg err" id="loginMsg" role="status"></p>
     </section>
@@ -1052,7 +968,6 @@ details.more>.screen{margin-top:12px}
 
   <!-- MORE -->
   <section class="screen" id="scrMore" hidden>
-    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
     <section class="panel acct">
       <div class="avatar big" id="avatar2"></div>
       <div class="meta"><b id="whoName"></b><span class="note" id="whoText"></span></div>
@@ -1093,6 +1008,7 @@ details.more>.screen{margin-top:12px}
       <h2>저장 방식 · 앱 정보</h2>
       <p class="note" style="margin:0">기록은 클라우드에 저장되어 폰을 바꾸거나 앱을 지워도 남아 있습니다. 본인 계정만 읽고 쓸 수 있습니다. 필드에서 신호가 약하면 폰에 먼저 저장했다가 연결되면 자동으로 올라갑니다.</p>
       <p class="note" style="margin:10px 0 0">앱 버전 <b id="appVer"></b> · 새 버전이 나오면 앱을 열 때 자동으로 바뀝니다.</p>
+      <p class="note" style="margin:10px 0 0">Photos: Unsplash</p>
     </section>
   </section>
 
@@ -1123,7 +1039,6 @@ details.more>.screen{margin-top:12px}
 
   <!-- SETUP -->
   <section class="screen" id="scrSetup" hidden>
-    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
     <section class="panel">
       <div class="row" style="justify-content:space-between;margin-bottom:12px">
         <h2 style="margin:0">입력 방식</h2>
@@ -1224,7 +1139,6 @@ details.more>.screen{margin-top:12px}
 
   <!-- ALL ROUNDS -->
   <section class="screen" id="scrRounds" hidden>
-    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
     <div class="rlfilter">
       <select id="rlYear" aria-label="연도"></select>
       <span class="clr"><input id="rlSearch" type="search" placeholder="골프장·코스 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
@@ -1248,9 +1162,7 @@ details.more>.screen{margin-top:12px}
 
   <!-- ROUND INFO EDIT -->
   <section class="screen" id="scrInfo" hidden>
-    <div class="row"><button class="back" id="infoBack">‹ 돌아가기</button></div>
     <section class="panel">
-      <h2>라운드 정보 수정</h2>
       <div class="grid2">
         <label>날짜<input type="date" id="iDate"></label>
         <label>골프장<span class="clr"><input id="iClub" list="clubList" autocomplete="off"><button type="button" class="x" aria-label="골프장 이름 지우기">×</button></span></label>
@@ -1536,7 +1448,7 @@ function teeChoices(cs, keep){
 }
 function fillTeeSelect(sel, cs, want, allowNone){
   const ts=teeChoices(cs, want);
-  sel.innerHTML=(allowNone?`<option value="">(모름)</option>`:"")+ts.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+  sel.innerHTML=(allowNone?`<option value="">(모름)</option>`:"")+ts.map(t=>`<option value="${esc(t)}">${esc(teeKo(t))}</option>`).join("");
   sel.value = want&&ts.includes(want) ? want : allowNone&&!want ? "" : ts.includes(DEFAULT_TEE) ? DEFAULT_TEE : ts[0];
 }
 const FW = [["L","왼쪽 미스"],["H","페어웨이"],["R","오른쪽 미스"]];
@@ -1575,7 +1487,9 @@ function show(name){
   $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs); if(tabs) updFab();
   document.querySelectorAll(".tab[data-tab]").forEach(t=>t.classList.toggle("on",t.dataset.tab===name));
   $("menuBtn").hidden = name!=="Home";
-  $("topBar").classList.toggle("nav",name==="Play"); $("topBack").hidden = name!=="Play";
+  const sub=["Setup","Rounds","Info","More"].includes(name);
+  $("topBar").classList.toggle("nav",name==="Play"); $("topBar").classList.toggle("sub",sub); $("topBack").hidden = name!=="Play"&&!sub;
+  $("topBack").setAttribute("aria-label", name==="Play"?"홈으로 (자동 저장됨)":name==="Info"?"돌아가기":"홈으로");
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
   $("topEyebrow").textContent=eb; $("topTitle").textContent=tt; $("topSub").hidden=true;
   if(name==="Play") playHead();
@@ -2348,7 +2262,10 @@ $("ttSave").onclick=async()=>{
   $("toTotalBox").hidden=true; await flush(); openRound(cur.id,true);
 };
 // 왼쪽 위 ←: 기록 중이면 홈으로(자동 저장됨), 완료한 라운드를 고치는 중이면 '수정 완료'와 같음
-$("topBack").onclick=()=>{ if($("scrPlay").hidden||!cur) return;
+$("topBack").onclick=()=>{
+  if(!$("scrInfo").hidden) return infoReturn();
+  if(!$("scrSetup").hidden||!$("scrRounds").hidden||!$("scrMore").hidden){ show("Home"); renderHome(); return }
+  if($("scrPlay").hidden||!cur) return;
   if(cur.status==="done") return $("doneEditBtn").click();
   flush();cur=null;show("Home");renderHome() };
 
@@ -2381,7 +2298,7 @@ $("playInfo").onclick=()=>{flush();openInfo("play")};
 function infoReturn(){
   if(infoFrom==="play"){renderPlay();show("Play")} else openRound(cur.id);
 }
-$("infoBack").onclick=infoReturn;
+
 $("infoSave").onclick=async()=>{
   const date=$("iDate").value, club=$("iClub").value.trim();
   if(!date||!club){$("infoMsg").textContent="날짜와 골프장을 입력해 주세요.";return}
@@ -2942,7 +2859,7 @@ function updGhostNote(){
     if(!c) return `${lab}새 코스 — 고스트 없음`;
     const g=pickGhost(id,mode,null);
     return g?`${lab}${c.name}: ${g.label} ${g.tot}타`:`${lab}${c.name}: 이 코스 첫 라운드 — 고스트 없음`; });
-  $("ghostNote").textContent="👻 "+txt.join(" · ");
+  $("ghostNote").textContent="고스트 · "+txt.join(" · ");
 }
 // 홀 브리핑: 이 홀(코스+홀 번호)의 과거 기록이 2회 이상일 때. OB·미스·퍼팅은 퍼팅까지 기록한 라운드만
 function briefFor(r,i){

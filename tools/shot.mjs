@@ -30,6 +30,11 @@ const SHOTS = [
   ["round-diary", "done", async p => { await click(p, "#roundList [data-id]"); await clickTab(p, "일기") }],
   ["round-scoreonly", "done", async p => { await click(p, "#allToggle"); await click(p, '#rlList [data-id="r1"]'); await clickTab(p, "스코어") }],
   ["round-total", "done", async p => { await click(p, "#allToggle"); await click(p, '#rlList [data-id="r0"]') }],
+  ["rounds", "done", async p => { await click(p, "#allToggle") }],
+  ["info", "done", async p => { await click(p, "#roundList [data-id]"); await click(p, "#roundMore"); await click(p, "#mInfo") }],
+  ["course-detail", "done", async p => { await click(p, "[data-tab=Courses]"); await click(p, "#courseList [data-club]") }],
+  ["badge-detail", "done", async p => { await click(p, "[data-tab=Badges]"); await click(p, ".bm"); await wait(1600) }],
+  ["setup-score", "done", async p => { await click(p, '#quick [data-q="past"]') }],
   ["stats", "done", async p => { await click(p, "[data-tab=Stats]") }],
   ["courses", "done", async p => { await click(p, "[data-tab=Courses]") }],
   ["badges", "done", async p => { await p.evaluate(() => document.querySelector("[data-tab=Badges],#badgeBtn").click()); await wait(400) }],
@@ -48,6 +53,11 @@ async function shootApp(browser, [name, scenario, act], scheme) {
     const src = await p.evaluate(() => { const i = document.querySelector("#ov img"); return i && i.src });
     if (src) { const b = await p.evaluate(async u => { const r = await fetch(u); const a = new Uint8Array(await r.arrayBuffer()); let s = ""; a.forEach(x => s += String.fromCharCode(x)); return btoa(s) }, src); writeFileSync(path.join(OUT, `${tag}-image.png`), Buffer.from(b, "base64")) }
   }
+  // 가로 넘침 점검: 화면 밖으로 삐져나간 요소 (가로 스크롤 영역 안쪽은 제외)
+  const over = await p.evaluate(() => { const W = innerWidth, out = [];
+    document.querySelectorAll("body *").forEach(el => { if (!el.offsetParent || el.closest(".strip,.rchips,.scroll,.dtable,svg,#ov,.splash")) return; const r = el.getBoundingClientRect(); if (r.width && (r.right > W + 1 || r.left < -1)) out.push((el.id ? "#" + el.id : el.className && el.className.baseVal === undefined ? "." + String(el.className).split(" ")[0] : el.tagName) + ` ${Math.round(r.left)}~${Math.round(r.right)}`) });
+    return [...new Set(out)].slice(0, 6) });
+  if (over.length) errs.push("넘침: " + over.join(", "));
   await p.screenshot({ path: path.join(OUT, `${tag}.png`) });
   // 긴 화면: 안쪽 스크롤 영역을 펼쳐서 전체를 한 장으로
   await p.addStyleTag({ content: "html,body{height:auto!important;overflow:visible!important}#scroller{position:static!important;overflow:visible!important;height:auto!important}" });
