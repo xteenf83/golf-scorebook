@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>나의 골프 스코어북</title>
-<meta name="theme-color" content="#f2f5f2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1411" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2F4F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101013" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <!-- default(불투명) 상태바: black-translucent는 iOS 26+ 홈 화면 앱에서 화면 아래가 상태바 높이만큼 비는 WebKit 버그가 있음 -->
@@ -14,29 +14,52 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png?v=2">
 <link rel="icon" href="icons/icon-192.png?v=2">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&family=Oswald:wght@500;600&display=swap">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 /* Layout: one phone-width column; screens (home / setup / play / round / courses) swap in place; play screen has a fixed bottom nav for one-handed input */
+/* 디자인 v3 토큰 (design/v3/HANDOFF.md 2장). 예전 이름(--paper, --ink …)은 새 토큰을 가리키는 별칭 */
 :root{
-  --bg:#f2f5f2; --paper:#ffffff; --ink:#18261e; --muted:#5f6f66; --line:#d8e0da;
-  --accent:#1d6a45; --accent-ink:#ffffff; --accent-soft:#e1eee6;
-  --under:#1d6a45; --even:#4f6158; --over:#b24f2a; --danger:#b3261e; --warn:#9a6a00;
-  --hero1:#1f6d48; --hero2:#123f2a; --heroInk:#f2f7f3; --gold:#f3d27e; --shadow:0 1px 2px rgba(20,40,30,.05),0 6px 18px -10px rgba(20,40,30,.18);
-  --f-display:"Oswald","IBM Plex Sans KR",system-ui,sans-serif;
-  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,sans-serif;
-  --f-num:"IBM Plex Mono",ui-monospace,monospace;
+  --bg:#F2F4F6; --card:#FFFFFF; --fill:#F2F4F6; --fill2:#F7F8FA;
+  --t1:#191F28; --t2:#4E5968; --t3:#6B7684; --t4:#8B95A1; --t5:#B0B8C1;
+  --line:#E5E8EB; --line2:#D1D6DB;
+  --brand:#0E9A5A; --brand-text:#0A7A47; --brand-soft:#E6F6EE;
+  --under:#2D74E6; --under-fill:#3182F6; --under-soft:#E8F1FE;
+  --over:#E5671E; --bogey:#FFB37A; --bogey-text:#C2540F; --bogey-soft:#FFF0E6; --double:#F2683C; --triple:#D8323C; --triple-soft:#FDECEC;
+  --gold:#FFC800; --gold-num:#F5C451; --gold-soft:#FFF6D6; --gold-text:#B38600;
+  --notice-bg:#EEEBFF; --notice-bg2:#F3F1FF; --notice-text:#5B4FD6; --notice-icon:#6E5BFF;
+  --tab:rgba(255,255,255,.96); --tab-shadow:0 8px 28px rgba(0,0,0,.10),0 0 0 .5px rgba(0,0,0,.05);
+  --knob:#FFFFFF; --knob-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04);
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo",sans-serif;
+  --paper:var(--card); --ink:var(--t1); --muted:var(--t3); --accent:var(--brand); --accent-ink:#FFFFFF; --accent-soft:var(--brand-soft);
+  --even:var(--t2); --danger:var(--triple); --warn:var(--bogey-text);
+  --hero1:#1f6d48; --hero2:#123f2a; --heroInk:#f2f7f3; --shadow:none;
+  --f-display:var(--font); --f-body:var(--font); --f-num:var(--font);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0e1411; --paper:#16201a; --ink:#e3ebe5; --muted:#91a198; --line:#29352e;
-  --accent:#5cc28d; --accent-ink:#0a1510; --accent-soft:#1c3026;
-  --under:#5cc28d; --even:#9fb0a6; --over:#e88a60; --danger:#ef7a70; --warn:#e0b44a;
-  --hero1:#1d5a3d; --hero2:#0f2e1f; --heroInk:#eaf3ed; --gold:#f0cf7a; --shadow:none; color-scheme:dark}}
+  --bg:#101013; --card:#1D1D22; --fill:#26262D; --fill2:#232329;
+  --t1:#F2F4F6; --t2:#C3C8CE; --t3:#8B95A1; --t4:#6B7684; --t5:#565E69;
+  --line:#2A2A31; --line2:#3A3A42;
+  --brand:#1DB46F; --brand-text:#3DD68C; --brand-soft:rgba(29,180,111,.16);
+  --under:#4D9BFF; --under-fill:#4D9BFF; --under-soft:rgba(77,155,255,.16);
+  --over:#FF8A3D; --bogey-text:#FFB37A; --bogey-soft:rgba(255,138,61,.16); --triple-soft:rgba(216,50,60,.2);
+  --gold-soft:rgba(245,196,81,.16); --gold-text:#F5C451;
+  --notice-bg:rgba(124,108,255,.16); --notice-bg2:rgba(124,108,255,.16); --notice-text:#B8AEFF; --notice-icon:#9A8CFF;
+  --tab:rgba(36,36,42,.94); --tab-shadow:0 8px 28px rgba(0,0,0,.5),0 0 0 .5px rgba(255,255,255,.06);
+  --knob:#3A3A42; --knob-shadow:0 1px 3px rgba(0,0,0,.4);
+  --hero1:#1d5a3d; --hero2:#0f2e1f; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1411; --paper:#16201a; --ink:#e3ebe5; --muted:#91a198; --line:#29352e;
-  --accent:#5cc28d; --accent-ink:#0a1510; --accent-soft:#1c3026;
-  --under:#5cc28d; --even:#9fb0a6; --over:#e88a60; --danger:#ef7a70; --warn:#e0b44a;
-  --hero1:#1d5a3d; --hero2:#0f2e1f; --heroInk:#eaf3ed; --gold:#f0cf7a; --shadow:none; color-scheme:dark}
+  --bg:#101013; --card:#1D1D22; --fill:#26262D; --fill2:#232329;
+  --t1:#F2F4F6; --t2:#C3C8CE; --t3:#8B95A1; --t4:#6B7684; --t5:#565E69;
+  --line:#2A2A31; --line2:#3A3A42;
+  --brand:#1DB46F; --brand-text:#3DD68C; --brand-soft:rgba(29,180,111,.16);
+  --under:#4D9BFF; --under-fill:#4D9BFF; --under-soft:rgba(77,155,255,.16);
+  --over:#FF8A3D; --bogey-text:#FFB37A; --bogey-soft:rgba(255,138,61,.16); --triple-soft:rgba(216,50,60,.2);
+  --gold-soft:rgba(245,196,81,.16); --gold-text:#F5C451;
+  --notice-bg:rgba(124,108,255,.16); --notice-bg2:rgba(124,108,255,.16); --notice-text:#B8AEFF; --notice-icon:#9A8CFF;
+  --tab:rgba(36,36,42,.94); --tab-shadow:0 8px 28px rgba(0,0,0,.5),0 0 0 .5px rgba(255,255,255,.06);
+  --knob:#3A3A42; --knob-shadow:0 1px 3px rgba(0,0,0,.4);
+  --hero1:#1d5a3d; --hero2:#0f2e1f; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent}
@@ -298,17 +321,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .rc .s small{font-family:var(--f-num);font-size:11.5px}
 .rounds .empty{background:var(--paper);border:1px dashed var(--line);border-radius:18px}
 
-/* tab bar */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--paper);border-top:1px solid var(--line);padding:6px 8px max(6px, calc(env(safe-area-inset-bottom,0px) - 16px))}
-.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:end}
-.tab{border:0;background:none;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--muted);font-weight:600;border-radius:10px}
-.tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tab.on{color:var(--accent)}
-.tab.fabwrap{color:var(--accent);font-weight:700}
-.fab{width:58px;height:58px;border-radius:50%;background:var(--accent);display:grid;place-items:center;margin-top:-30px;box-shadow:0 8px 18px -6px rgba(29,106,69,.55);border:4px solid var(--paper)}
-.fab svg{width:24px;height:24px;stroke:var(--accent-ink);stroke-width:2.4}
-.fab svg path.fill{fill:var(--accent-ink);stroke-width:2}
-
 /* more */
 .acct{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
 .acct .meta b{display:block;font-size:16px}
@@ -526,6 +538,118 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 .ovcard .row{justify-content:center}
 .pop{animation:pop .35s ease-out}
 @keyframes pop{from{transform:scale(.85);opacity:0}}
+
+/* ===== 디자인 v3 공통 (HANDOFF 2·3장) ===== */
+body{font-family:var(--font);letter-spacing:-0.02em;font-feature-settings:'tnum';font-size:16px;font-weight:500;color:var(--t1)}
+button,input,select,textarea{letter-spacing:inherit;font-feature-settings:inherit}
+.wrap{gap:12px;padding-inline:16px;padding-block:6px 40px}
+body.tabs .wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+.screen{gap:12px}
+header.top{min-height:52px}
+header.top h1{font-size:30px;font-weight:800;letter-spacing:-0.045em;line-height:1.2}
+header.top .tsub{font-size:13px;color:var(--t3)}
+.iconbtn{width:44px;height:44px;padding:0;border:0;background:none;color:var(--t1);display:grid;place-items:center;border-radius:12px}
+.iconbtn svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.cloud{width:44px;height:44px;justify-content:center;padding:0;color:var(--t1)}
+.cloud svg{width:25px;height:25px}
+.cloud.ok{color:var(--t1)} .cloud.busy{color:var(--t4)}
+.cloud.off,.cloud.err,.cloud.show{width:auto;padding:0 8px}
+.panel{background:var(--card);border:0;border-radius:24px;padding:22px 20px;box-shadow:none}
+h2{font-size:20px;font-weight:700;letter-spacing:-0.035em;color:var(--t1);margin:0 0 12px}
+.note{font-size:13.5px;color:var(--t3);line-height:1.5}
+.msg{font-size:14px;color:var(--t3)}
+button{font-weight:600;font-size:15px;border-radius:14px;padding:10px 14px;border:0;background:var(--fill);color:var(--t1);min-height:44px}
+button.primary{background:var(--brand);color:#fff}
+button.ghost{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)}
+button.danger{background:transparent;color:var(--triple);box-shadow:inset 0 0 0 1.5px var(--triple)}
+button.big,button.primary.big{height:58px;border-radius:29px;font-size:17px;font-weight:700;padding:0 20px}
+button:focus-visible,input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:1px}
+label{font-size:13.5px;color:var(--t3);font-weight:600;gap:6px}
+input,select,textarea,.panel input,.panel select{font-size:16px;background:var(--fill);border:0;border-radius:14px;padding:12px 14px;color:var(--t1);min-height:48px}
+.linkbtn{color:var(--t3);font-size:14px;text-decoration:none;font-weight:600;min-height:44px}
+.linkbtn.acc{color:var(--brand-text)}
+.back{color:var(--t1);font-size:16px;font-weight:600}
+.under{color:var(--under)} .even{color:var(--t2)} .over{color:var(--over)}
+.empty{color:var(--t3)}
+.empty b{color:var(--t1)}
+
+/* 세그먼트: 회색 트랙 + 손잡이 */
+.seg{display:inline-flex;background:var(--fill);border:0;border-radius:12px;padding:3px;gap:2px;overflow:visible}
+.seg button{min-height:36px;border:0;border-radius:9px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--t3);background:transparent}
+.seg button.on{background:var(--knob);color:var(--t1);font-weight:700;box-shadow:var(--knob-shadow)}
+.seg.full{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);width:100%}
+/* 기간 버튼 줄: 라벨 위 · 변화량 아래, 선택칸만 회색 */
+.periods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}
+.periods button{height:56px;border-radius:14px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0}
+.periods button span{font-size:13.5px;font-weight:500;color:var(--t3)}
+.periods button b{font-size:13.5px;font-weight:700}
+.periods button.on{background:var(--fill)} .periods button.on span{font-weight:700;color:var(--t1)}
+/* 밑줄 탭 */
+.utabs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border-bottom:1px solid var(--fill)}
+.utabs button{height:50px;border:0;border-radius:0;background:transparent;font-size:17px;font-weight:600;color:var(--t4)}
+.utabs button[aria-selected=true]{color:var(--t1);font-weight:700;box-shadow:inset 0 -3px 0 var(--t1)}
+.utabs button:disabled{opacity:.4}
+/* 목록 행 (토스 종목 행): 색 타일 + 제목/부제 + 오른쪽 값 2줄 + 끝 아이콘 */
+.lrows{display:flex;flex-direction:column;margin:0 -10px}
+.lrow{display:flex;align-items:center;gap:14px;width:100%;padding:13px 14px;border-radius:16px;background:transparent;text-align:left;font-weight:500;min-height:0}
+.lrow:active{background:var(--fill)}
+.ltile{width:50px;height:50px;border-radius:17px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800;letter-spacing:-0.04em;line-height:1.1;background:var(--fill)}
+.ltile.gray{color:var(--t1)} .ltile small{font-size:11px;font-weight:600;color:var(--t4)}
+.ltile.sm{width:46px;height:46px;border-radius:16px}
+.lmain{flex:1;min-width:0}
+.lmain b{display:block;font-size:17px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lmain small{display:block;font-size:14.5px;color:var(--t3);margin-top:3px}
+.lval{text-align:right;flex:none}
+.lval b{display:block;font-size:17px;font-weight:700}
+.lval small{display:block;font-size:14.5px;color:var(--t2);margin-top:3px}
+.lend{width:24px;flex:none;display:flex;justify-content:center;color:var(--line2)}
+.lend svg{width:20px;height:20px;fill:currentColor}
+.lend.gold{color:var(--gold)}
+/* 보라 알림 띠 */
+.notice{display:flex;align-items:center;gap:10px;width:100%;background:var(--notice-bg);border-radius:18px;padding:15px 16px;color:var(--notice-text);font-size:15px;font-weight:600;text-align:left;min-height:0}
+.notice svg{width:20px;height:20px;flex:none}
+.notice span{flex:1}
+.notice .chev{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+/* 큰 알약 버튼 2개 (판매/구매) */
+.pills{display:flex;gap:10px}
+.pill{flex:1;height:58px;border-radius:29px;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 12px}
+.pill.soft{background:var(--brand-soft);color:var(--brand-text)}
+.pill.solid{background:var(--brand);color:#fff}
+.pill.gray{background:var(--line);color:var(--t2);flex:0 0 100px}
+/* 스코어 표기: 버디 ○ 파랑, 이글 ◎, 파 숫자, 보기 □ 주황 테두리, 더블 ■, 트리플+ ■ 빨강 */
+.sm{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;box-sizing:border-box;font-weight:700}
+.sm.b{border:1.5px solid var(--under-fill);border-radius:50%;color:var(--under)}
+.sm.e{border:3px double var(--under-fill);border-radius:50%;color:var(--under)}
+.sm.k{border:1.5px solid #F2883C;border-radius:7px;color:var(--bogey-text)}
+.sm.d{background:var(--double);border-radius:7px;color:#fff}
+.sm.t{background:var(--triple);border-radius:7px;color:#fff}
+/* 18홀 결과 띠 */
+.rstrip{display:flex;gap:3px}
+.rstrip i{flex:1;height:8px;border-radius:2px;background:var(--line2)}
+.rstrip i.u{background:var(--under-fill)} .rstrip i.k{background:var(--bogey)} .rstrip i.d{background:var(--double)} .rstrip i.t{background:var(--triple)}
+
+/* 켜기/끄기 스위치 */
+.panel .tgl input,.tgl input{min-height:0;padding:0;border-radius:15px;flex:0 0 51px;width:51px;min-width:51px;height:31px;background:var(--line2)}
+.panel .tgl input::after,.tgl input::after{top:2px;left:2px;width:27px;height:27px;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.panel .tgl input:checked,.tgl input:checked{background:var(--brand)}
+.panel .tgl input:checked::after,.tgl input:checked::after{left:22px}
+.tgl{font-size:16px;color:var(--t1);border-top-color:var(--line)}
+.tgl small{font-size:13.5px;color:var(--t3)}
+/* 떠 있는 탭 바: 캡슐(홈·분석·코스·배지) + 초록 원 버튼 */
+.tabbar{position:fixed;left:12px;right:12px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:10;pointer-events:none}
+@media (display-mode:standalone){.tabbar{bottom:max(14px, env(safe-area-inset-bottom,0px))}}
+.tabbar .in{max-width:536px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.tabcap{flex:1;height:68px;border-radius:34px;background:var(--tab);box-shadow:var(--tab-shadow);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;pointer-events:auto}
+.tab{border:0;background:none;padding:0;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--t2);border-radius:30px}
+.tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab svg .f{fill:currentColor;stroke:none}
+.tab svg .k{stroke:var(--card);stroke-width:2}
+.tab svg.on,.tab.on svg.off{display:none}
+.tab.on svg.on{display:block}
+.tab.on{color:var(--t1);font-weight:700}
+.fab{flex:none;width:68px;height:68px;border-radius:34px;padding:0;background:var(--brand);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(14,154,90,.35);pointer-events:auto}
+.fab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.fab svg path.fill{fill:currentColor;stroke:none}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -541,7 +665,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
     </div>
     <div class="tright">
       <button class="cloud busy" id="cloud" aria-label="연결 중…"><span class="ctx" id="cloudTxt">연결 중…</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .4-8.6A6.2 6.2 0 0 0 5.8 9.4 4.6 4.6 0 0 0 7 18.5z"/><path class="mk" id="cloudMk" d="M12 16.2v-4.6M9.8 13.6 12 11.4l2.2 2.2"/></svg></button>
-      <button class="avatar" id="avatar" hidden aria-label="더보기"></button>
+      <button class="iconbtn" id="menuBtn" hidden aria-label="메뉴 (더보기)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg></button>
     </div>
   </header>
 
@@ -571,6 +695,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 
   <!-- MORE -->
   <section class="screen" id="scrMore" hidden>
+    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
     <section class="panel acct">
       <div class="avatar big" id="avatar2"></div>
       <div class="meta"><b id="whoName"></b><span class="note" id="whoText"></span></div>
@@ -754,7 +879,6 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 
   <!-- BADGES -->
   <section class="screen" id="scrBadges" hidden>
-    <div class="row"><button class="back" data-go="home">‹ 홈</button></div>
     <div class="screen" id="badgeBox"></div>
   </section>
 
@@ -815,11 +939,13 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 
 <nav class="tabbar" id="tabBar" hidden>
   <div class="in">
-    <button class="tab" data-tab="Home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
-    <button class="tab" data-tab="Stats"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>통계</button>
-    <button class="tab fabwrap" data-tab="new" id="fabTab" aria-label="새 라운드"><span class="fab"><svg viewBox="0 0 24 24"><path id="fabIcon" d="M12 5v14M5 12h14"/></svg></span><span id="fabLbl">새 라운드</span></button>
-    <button class="tab" data-tab="Courses"><svg viewBox="0 0 24 24"><path d="M6 21V3l11 4-11 4"/><ellipse cx="12" cy="21" rx="8" ry="1.5"/></svg>코스</button>
-    <button class="tab" data-tab="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>더보기</button>
+    <div class="tabcap">
+      <button class="tab" data-tab="Home"><svg class="off" viewBox="0 0 24 24"><path d="M12 3.6 4 10v10.3h5.3v-6h5.4v6H20V10z"/></svg><svg class="on" viewBox="0 0 24 24"><path class="f" d="M12 3.2 3.5 10v10.3c0 .4.3.7.7.7H9.5v-6h5v6h5.3c.4 0 .7-.3.7-.7V10z"/></svg>홈</button>
+      <button class="tab" data-tab="Stats"><svg class="off" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8 14l2.6-2.8 2.2 2 3.2-3.7"/></svg><svg class="on" viewBox="0 0 24 24"><circle class="f" cx="12" cy="12" r="9.5"/><path class="k" d="M7.5 14.5l3-3.2 2.4 2.2 3.6-4.2"/></svg>분석</button>
+      <button class="tab" data-tab="Courses"><svg class="off" viewBox="0 0 24 24"><path d="M7 20.5V3.5l10.5 4.3L7 12"/><path d="M3.5 20.5h9"/></svg><svg class="on" viewBox="0 0 24 24"><path class="f" d="M6.1 3.5a.9.9 0 0 1 1.2-.8l10.5 4.3a.9.9 0 0 1 0 1.6L7.9 12.6v6.9h4.6a1 1 0 0 1 0 2h-9a1 1 0 0 1 0-2h2.6z"/></svg>코스</button>
+      <button class="tab" data-tab="Badges"><svg class="off" viewBox="0 0 24 24"><path d="M12 3.5l2.4 5 5.4.6-4 3.8 1 5.4L12 15.6l-4.8 2.7 1-5.4-4-3.8 5.4-.6z"/></svg><svg class="on" viewBox="0 0 24 24"><path class="f" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.1l-5.7 3.2 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>배지</button>
+    </div>
+    <button class="fab" data-tab="new" id="fabTab" aria-label="새 라운드"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="fabIcon" d="M12 5v14M5 12h14"/></svg></button>
   </div>
 </nav>
 <div class="ov" id="ov" hidden></div>
@@ -1078,7 +1204,7 @@ function clone(o){return JSON.parse(JSON.stringify(o))}
 let userName="";
 const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],
   Round:["Scorecard","라운드 기록"],Rounds:["All Rounds","전체 라운드"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"],Badges:["Badges","배지"]};
-const TAB_SCREENS=["Home","Stats","Courses","More"];
+const TAB_SCREENS=["Home","Stats","Courses","Badges","More"];
 function scrollTop(){$("scroller").scrollTop=0}
 function show(name){
   if(pendingReload && !["Play","Setup","Info"].includes(name)){ location.reload(); return; }
@@ -1087,7 +1213,7 @@ function show(name){
   const tabs=TAB_SCREENS.includes(name);
   $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs); if(tabs) updFab();
   document.querySelectorAll(".tab[data-tab]").forEach(t=>t.classList.toggle("on",t.dataset.tab===name));
-  $("avatar").hidden = name!=="Home";
+  $("menuBtn").hidden = name!=="Home";
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
   $("topEyebrow").textContent=eb; $("topTitle").textContent=tt; $("topSub").hidden=true;
   if(name==="Play") playHead();
@@ -1258,8 +1384,8 @@ function lossSlide(all){
 const playingRound=()=>rounds.filter(r=>r.status==="playing").sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
 function updFab(){
   const p=playingRound();
-  $("fabLbl").textContent=p?"이어서 입력":"새 라운드"; $("fabTab").setAttribute("aria-label",p?"진행 중인 라운드 이어서 입력":"새 라운드");
-  $("fabIcon").setAttribute("d",p?"M9 6.5l8.5 5.5L9 17.5z":"M12 5v14M5 12h14"); $("fabIcon").classList.toggle("fill",!!p);
+  $("fabTab").setAttribute("aria-label",p?"진행 중인 라운드 이어서 기록":"새 라운드");
+  $("fabIcon").setAttribute("d",p?"M7.5 4.8v14.4c0 .8.9 1.3 1.6.8l10.6-7.2a1 1 0 0 0 0-1.6L9.1 4c-.7-.5-1.6 0-1.6.8z":"M12 5v14M5 12h14"); $("fabIcon").classList.toggle("fill",!!p);
 }
 function startNewRound(){
   const p=playingRound(); if(p) return openPlay(p.id);
@@ -1273,10 +1399,10 @@ $("tabBar").onclick=e=>{const t=e.target.closest("[data-tab]"); if(!t) return; c
   if(k==="new") return startNewRound();
   if(k==="Stats") renderStats();
   if(k==="Courses"){clubSel=null;renderCourses();$("courseMsg").textContent=""}
-  if(k==="More") $("moreMsg").textContent="";
+  if(k==="Badges") renderBadges();
   show(k); if(k==="Home") renderHome();
 };
-$("avatar").onclick=()=>{$("moreMsg").textContent="";show("More")};
+$("menuBtn").onclick=()=>{$("moreMsg").textContent="";show("More")};
 
 function renderStats(){
   const all=statRounds(), rs = range? all.slice(0,range) : all;
@@ -2699,7 +2825,7 @@ function start(user){
   rcol=colApi(base+"/rounds"); ccol=colApi(base+"/courses");
   userName=(user.displayName||"").trim().split(/\s+/)[0]||"";
   const ini=(user.displayName||user.email||"?").trim().charAt(0).toUpperCase();
-  $("avatar").textContent=ini; $("avatar2").textContent=ini;
+  $("avatar2").textContent=ini;
   $("whoName").textContent=user.displayName||"로그인됨"; $("whoText").textContent=user.email||"";
   show("Home"); renderHome();
   unsubs.push(rcol.onSnapshot(snap=>{
