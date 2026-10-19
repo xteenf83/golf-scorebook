@@ -483,16 +483,14 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 .bprog i{display:block;height:100%;background:var(--accent)}
 .bdv{position:fixed;inset:0;z-index:60;background:#000;color:#f2f2f2;overflow-y:auto;display:flex;flex-direction:column;align-items:center;text-align:center;padding:calc(env(safe-area-inset-top,0px) + 72px) 28px calc(env(safe-area-inset-bottom,0px) + 40px)}
 .bdx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;width:46px;height:46px;border-radius:50%;border:0;background:#1f1f21;color:#fff;font-size:30px;line-height:1;padding:0 2px 4px 0}
-.m3d{position:relative;isolation:isolate;width:min(70vw,290px);aspect-ratio:120/132;perspective:1000px;margin:0 0 18px;touch-action:pan-y;cursor:grab;flex:0 0 auto}
+.m3d{position:relative;isolation:isolate;width:min(70vw,290px);aspect-ratio:120/132;margin:0 0 18px;touch-action:pan-y;cursor:grab;flex:0 0 auto}
 /* 그림자는 돌지 않는 바닥 그림자로 (메달에 filter를 걸면 아이폰이 매 프레임 다시 그려 끊긴다) */
 .m3d::after{content:"";position:absolute;left:14%;right:14%;bottom:-7%;height:10%;background:radial-gradient(closest-side,rgba(0,0,0,.35),transparent);z-index:-1}
 .m3d.sm{width:150px;margin:0 auto}
-.flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.8,.2,1);will-change:transform}
-.flip.drag{transition:none}
-.flip.spin{animation:mspin 1.4s cubic-bezier(.12,.7,.22,1)}
-@keyframes mspin{from{transform:rotateY(-720deg) scale(.7);opacity:0}25%{opacity:1}to{transform:rotateY(0) scale(1)}}
-.mface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(1px)}
-.mface.mback{transform:rotateY(180deg) translateZ(1px)}
+/* 앞·뒷면은 각각 따로 돌리고, 각도에 따라 보이는 면을 JS가 고른다 (아이폰은 backface-visibility가 SVG에서 자주 안 먹어 글자가 거꾸로 보임) */
+.flip{position:relative;width:100%;height:100%}
+.mface{position:absolute;inset:0;will-change:transform,opacity}
+.mface.mback{opacity:0}
 .mface .mdl{width:100%;height:100%;display:block}
 .bhint{font-size:12px;color:#8a8a8e;margin:0 0 18px}
 .btitle{font-size:28px;font-weight:800;color:#fff;margin:0 0 10px;letter-spacing:-.01em}
@@ -836,7 +834,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v60";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v61";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2371,20 +2369,29 @@ function openBadge(id,B){
   medalSpin($("m3d"),$("flip"));
 }
 function medalSpin(box,flip){
-  let ang=0, x0=null, a0=0, moved=false, raf=0, idle=0;
-  const set=a=>{ang=a;flip.style.transform=`rotateY(${a}deg)`};
-  // 빛 반사(SVG 애니메이션)는 메달이 멈춰 있을 때만: 돌거나 끄는 동안 그림이 바뀌면 매 프레임 다시 그려져 끊긴다
-  const svgs=[...flip.querySelectorAll("svg")];
+  const [front,back]=flip.children, svgs=[...flip.querySelectorAll("svg")];
+  let ang=0, sc=1, op=1, x0=null, a0=0, moved=false, xn=0, raf=0, anim=0, idle=0;
+  // 각도 a에서 앞면(-90~90)과 뒷면 중 하나만 보인다. 뒷면은 180도 더 돌려 글자가 바로 읽히게
+  const render=a=>{ ang=a; const n=((a%360)+360)%360, bk=n>90&&n<270, p="perspective(1000px)";
+    front.style.transform=`${p} rotateY(${a}deg) scale(${sc})`; back.style.transform=`${p} rotateY(${a+180}deg) scale(${sc})`;
+    front.style.opacity=bk?0:op; back.style.opacity=bk?op:0; };
+  // 빛 반사(SVG 애니메이션)는 메달이 멈춰 있을 때만
   const pause=()=>{ clearTimeout(idle); svgs.forEach(s=>s.pauseAnimations&&s.pauseAnimations()) };
   const play=(ms=0)=>{ clearTimeout(idle); idle=setTimeout(()=>svgs.forEach(s=>s.unpauseAnimations&&s.unpauseAnimations()),ms) };
-  pause();
-  if(!reduceMotion()){ flip.classList.add("spin"); flip.addEventListener("animationend",()=>{flip.classList.remove("spin");play()},{once:true}) } else play();
-  box.onpointerdown=e=>{x0=e.clientX;a0=ang;moved=false;pause();flip.classList.add("drag");try{box.setPointerCapture(e.pointerId)}catch(_){}};
-  let xn=0;
+  const ease=t=>1-Math.pow(1-t,3);
+  const tween=(from,to,ms,step,done)=>{ cancelAnimationFrame(anim); pause(); const t0=performance.now();
+    const f=t=>{ const k=Math.min(1,(t-t0)/ms), e=ease(k); step&&step(e); render(from+(to-from)*e); if(k<1) anim=requestAnimationFrame(f); else { anim=0; done&&done(); play(200) } };
+    anim=requestAnimationFrame(f) };
+  if(reduceMotion()){ render(0); play() }
+  else { sc=.7; op=0; render(-720);
+    // 첫 프레임은 그림을 미리 그려 두기만 하고(두 번 화면을 넘긴 뒤) 돌기 시작한다 → 시작할 때 끊기지 않게
+    requestAnimationFrame(()=>requestAnimationFrame(()=>tween(-720,0,1400,e=>{sc=.7+.3*e; op=Math.min(1,e*4)},()=>{sc=1;op=1}))) }
+  box.onpointerdown=e=>{ if(anim) return; x0=xn=e.clientX; a0=ang; moved=false; pause(); try{box.setPointerCapture(e.pointerId)}catch(_){} };
   box.onpointermove=e=>{ if(x0==null) return; xn=e.clientX; if(Math.abs(xn-x0)>6) moved=true;
-    if(moved&&!raf) raf=requestAnimationFrame(()=>{raf=0; if(x0!=null) set(a0+(xn-x0)*.8)}) };   // 화면 한 번 그릴 때 한 번만 돌린다
-  box.onpointerup=box.onpointercancel=()=>{ if(x0==null) return; x0=null; cancelAnimationFrame(raf); raf=0; flip.classList.remove("drag");
-    set(moved?Math.round(ang/180)*180:ang+180); play(850) };   // 손을 떼면 앞면·뒷면 중 가까운 쪽으로, 그냥 누르면 뒤집기
+    if(moved&&!raf) raf=requestAnimationFrame(()=>{raf=0; if(x0!=null) render(a0+(xn-x0)*.8)}) };   // 화면 한 번 그릴 때 한 번만
+  box.onpointerup=box.onpointercancel=()=>{ if(x0==null) return; x0=null; cancelAnimationFrame(raf); raf=0;
+    const to=moved?Math.round(ang/180)*180:ang+180;   // 손을 떼면 앞·뒷면 중 가까운 쪽으로, 그냥 누르면 뒤집기
+    if(reduceMotion()){ render(to); play() } else tween(ang,to,650) };
 }
 $("badgeBtn").onclick=()=>{renderBadges();show("Badges")};
 
