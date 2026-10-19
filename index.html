@@ -475,7 +475,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 .bcat{margin:0 0 12px}
 .bmgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 10px}
 .bm{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:0;font-weight:400;min-width:0}
-.bm .mdl{width:100%;max-width:112px;height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));transition:transform .15s}
+.bm .mdl{width:100%;max-width:112px;height:auto;transition:transform .15s}
 .bm:active .mdl{transform:scale(.94)}
 .bm b{font-size:13px;margin-top:6px;text-align:center;line-height:1.25}
 .bm small{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -483,15 +483,17 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 .bprog i{display:block;height:100%;background:var(--accent)}
 .bdv{position:fixed;inset:0;z-index:60;background:#000;color:#f2f2f2;overflow-y:auto;display:flex;flex-direction:column;align-items:center;text-align:center;padding:calc(env(safe-area-inset-top,0px) + 72px) 28px calc(env(safe-area-inset-bottom,0px) + 40px)}
 .bdx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:16px;width:46px;height:46px;border-radius:50%;border:0;background:#1f1f21;color:#fff;font-size:30px;line-height:1;padding:0 2px 4px 0}
-.m3d{width:min(70vw,290px);aspect-ratio:120/132;perspective:1000px;margin:0 0 18px;touch-action:pan-y;cursor:grab;flex:0 0 auto}
+.m3d{position:relative;isolation:isolate;width:min(70vw,290px);aspect-ratio:120/132;perspective:1000px;margin:0 0 18px;touch-action:pan-y;cursor:grab;flex:0 0 auto}
+/* 그림자는 돌지 않는 바닥 그림자로 (메달에 filter를 걸면 아이폰이 매 프레임 다시 그려 끊긴다) */
+.m3d::after{content:"";position:absolute;left:14%;right:14%;bottom:-7%;height:10%;background:radial-gradient(closest-side,rgba(0,0,0,.35),transparent);z-index:-1}
 .m3d.sm{width:150px;margin:0 auto}
-.flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.8,.2,1);will-change:transform}
 .flip.drag{transition:none}
 .flip.spin{animation:mspin 1.4s cubic-bezier(.12,.7,.22,1)}
-@keyframes mspin{from{transform:rotateY(-720deg) scale(.25);opacity:0}30%{opacity:1}to{transform:rotateY(0) scale(1)}}
-.mface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-.mface.mback{transform:rotateY(180deg)}
-.mface .mdl{width:100%;height:100%;filter:drop-shadow(0 20px 34px rgba(0,0,0,.55))}
+@keyframes mspin{from{transform:rotateY(-720deg) scale(.7);opacity:0}25%{opacity:1}to{transform:rotateY(0) scale(1)}}
+.mface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(1px)}
+.mface.mback{transform:rotateY(180deg) translateZ(1px)}
+.mface .mdl{width:100%;height:100%;display:block}
 .bhint{font-size:12px;color:#8a8a8e;margin:0 0 18px}
 .btitle{font-size:28px;font-weight:800;color:#fff;margin:0 0 10px;letter-spacing:-.01em}
 .bdesc{font-size:15.5px;color:#a1a1a6;line-height:1.55;margin:0;max-width:340px}
@@ -834,7 +836,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v59";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v60";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2369,13 +2371,20 @@ function openBadge(id,B){
   medalSpin($("m3d"),$("flip"));
 }
 function medalSpin(box,flip){
-  let ang=0, x0=null, a0=0, moved=false;
+  let ang=0, x0=null, a0=0, moved=false, raf=0, idle=0;
   const set=a=>{ang=a;flip.style.transform=`rotateY(${a}deg)`};
-  if(!reduceMotion()){ flip.classList.add("spin"); flip.addEventListener("animationend",()=>flip.classList.remove("spin"),{once:true}) }
-  box.onpointerdown=e=>{x0=e.clientX;a0=ang;moved=false;flip.classList.add("drag");try{box.setPointerCapture(e.pointerId)}catch(_){}};
-  box.onpointermove=e=>{ if(x0==null) return; const dx=e.clientX-x0; if(Math.abs(dx)>6) moved=true; if(moved) set(a0+dx*.8) };
-  box.onpointerup=box.onpointercancel=()=>{ if(x0==null) return; x0=null; flip.classList.remove("drag");
-    set(moved?Math.round(ang/180)*180:ang+180) };   // 손을 떼면 앞면·뒷면 중 가까운 쪽으로, 그냥 누르면 뒤집기
+  // 빛 반사(SVG 애니메이션)는 메달이 멈춰 있을 때만: 돌거나 끄는 동안 그림이 바뀌면 매 프레임 다시 그려져 끊긴다
+  const svgs=[...flip.querySelectorAll("svg")];
+  const pause=()=>{ clearTimeout(idle); svgs.forEach(s=>s.pauseAnimations&&s.pauseAnimations()) };
+  const play=(ms=0)=>{ clearTimeout(idle); idle=setTimeout(()=>svgs.forEach(s=>s.unpauseAnimations&&s.unpauseAnimations()),ms) };
+  pause();
+  if(!reduceMotion()){ flip.classList.add("spin"); flip.addEventListener("animationend",()=>{flip.classList.remove("spin");play()},{once:true}) } else play();
+  box.onpointerdown=e=>{x0=e.clientX;a0=ang;moved=false;pause();flip.classList.add("drag");try{box.setPointerCapture(e.pointerId)}catch(_){}};
+  let xn=0;
+  box.onpointermove=e=>{ if(x0==null) return; xn=e.clientX; if(Math.abs(xn-x0)>6) moved=true;
+    if(moved&&!raf) raf=requestAnimationFrame(()=>{raf=0; if(x0!=null) set(a0+(xn-x0)*.8)}) };   // 화면 한 번 그릴 때 한 번만 돌린다
+  box.onpointerup=box.onpointercancel=()=>{ if(x0==null) return; x0=null; cancelAnimationFrame(raf); raf=0; flip.classList.remove("drag");
+    set(moved?Math.round(ang/180)*180:ang+180); play(850) };   // 손을 떼면 앞면·뒷면 중 가까운 쪽으로, 그냥 누르면 뒤집기
 }
 $("badgeBtn").onclick=()=>{renderBadges();show("Badges")};
 
