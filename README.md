@@ -14,6 +14,9 @@
 | `manifest.webmanifest`, `icons/` | 홈 화면 앱 이름·아이콘 |
 | `sw.js` | 오프라인에서도 앱이 열리도록 하는 캐시 |
 | `firestore.rules` | Firebase 콘솔에 붙여넣을 보안 규칙 (본인 데이터만 읽기/쓰기) |
+| `images/` | 앱 사진 (시작 화면·홈·분석·공유 이미지, 출처 Unsplash) |
+| `design/v3/` | 디자인 v3 지시서(HANDOFF.md)·화면 시안·사진 원본 |
+| `tools/` | 화면 점검 도구 (배포 안 됨, 아래 참고) |
 | `reference/golf-scorebook-v5.html` | 이전(claude.ai 아티팩트) 버전 원본 |
 
 ## 기본 코스
@@ -46,4 +49,27 @@
             {"par":null,"d":0},{"par":null,"d":1},{"par":null,"d":1},{"par":null,"d":2}],
    "total":51,"par":36}
 ]}
+```
+
+## 디자인 v3 (v64)
+`design/v3/HANDOFF.md`의 시안대로 화면만 바꿨습니다. 저장 형식(라운드·코스·설정)은 그대로입니다.
+
+- 글꼴 Pretendard 하나, 색은 토스증권 느낌(타수가 늘면 주황/빨강, 줄면 파랑, 초록은 누를 수 있는 것, 금색은 개인 최고). 라이트/다크는 아이폰 설정을 따름.
+- 아래 떠 있는 탭 바: 홈 · 분석 · 코스 · 배지 + 초록 원 버튼(새 라운드 / 이어서 기록). 더보기는 홈 오른쪽 위 ≡.
+- 시작 화면(사진형), 홈(진행 중 라운드 카드·빠른 메뉴·기간별 평균·미션 띠·최근 라운드·타수를 잃는 곳), 홀 기록, 라운드 기록 4탭(요약·스코어·샷·일기), 분석(기존 통계는 맨 아래 '자세히'), 공유 이미지.
+- 지시서와 다르게 **기존 동작을 유지**한 것: 벌타를 더해도 스코어가 자동으로 +1 되지 않음 · 홀 입력 순서는 티샷 → 벌타 → 퍼팅 → 스코어.
+- 라운드 기록 → 일기 탭의 '다음 라운드 미션'은 저장 형식을 바꾸지 않으려고 **이 기기에만** 기억합니다(`localStorage`). 새 라운드를 시작할 때 미션 칸에 미리 채워지고, 라운드를 시작하면 기존처럼 그 라운드에 `mission`으로 저장됩니다.
+- 오프라인: 사진 4장과 글꼴도 서비스워커가 저장합니다.
+
+## 화면 점검 도구 (`tools/`, 개발용)
+Playwright(Chromium)로 가짜 로그인·예시 데이터(`tools/seed.mjs`)를 넣어 앱을 엽니다. 실제 계정·Firebase에는 접속하지 않습니다.
+
+```sh
+node tools/shot.mjs shots                  # 모든 화면 390×844 라이트/다크 스크린샷 (+ 가로 넘침 점검)
+node tools/shot.mjs shots --width=375      # 폭 바꾸기,  --only=home,play  로 일부만
+node tools/shot.mjs shots --design         # design/v3 시안을 같은 크기 그림으로
+python3 tools/compare.py out.png a.png b.png   # 여러 장을 나란히 한 장으로
+node tools/flow-test.mjs                   # 홀 입력 흐름 회귀 테스트
+node tools/calc-check.mjs                  # 분석 숫자 손계산 대조
+node tools/offline-test.mjs                # 비행기 모드(서비스워커) 점검
 ```
