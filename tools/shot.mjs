@@ -21,18 +21,19 @@ const SHOTS = [
   ["home-done", "done", async p => {}],
   ["home-empty", "empty", async p => {}],
   ["play", "full", async p => { await p.evaluate(() => document.querySelector("[data-tab=new],#fabTab,.fabbtn").click()); await wait(500) }],
-  ["play-edit", "done", async p => { await click(p, "#roundList [data-id]"); await p.evaluate(() => document.querySelector("#editRound").click()); await wait(500) }],
+  ["play-edit", "done", async p => { await click(p, "#roundList [data-id]"); await p.evaluate(() => document.querySelector("#roundEdit").click()); await wait(500) }],
   ["setup", "done", async p => { await p.evaluate(() => document.querySelector("[data-tab=new],#fabTab,.fabbtn").click()); await wait(400) }],
   ["round", "done", async p => { await click(p, "#roundList [data-id]") }],
   ["round-score", "done", async p => { await click(p, "#roundList [data-id]"); await clickTab(p, "스코어") }],
   ["round-shot", "done", async p => { await click(p, "#roundList [data-id]"); await clickTab(p, "샷") }],
   ["round-diary", "done", async p => { await click(p, "#roundList [data-id]"); await clickTab(p, "일기") }],
-  ["round-total", "done", async p => { await p.evaluate(() => window.__open && window.__open("r0")); await wait(400) }],
+  ["round-scoreonly", "done", async p => { await click(p, "#allToggle"); await click(p, '#rlList [data-id="r1"]'); await clickTab(p, "스코어") }],
+  ["round-total", "done", async p => { await click(p, "#allToggle"); await click(p, '#rlList [data-id="r0"]') }],
   ["stats", "done", async p => { await click(p, "[data-tab=Stats]") }],
   ["courses", "done", async p => { await click(p, "[data-tab=Courses]") }],
   ["badges", "done", async p => { await p.evaluate(() => document.querySelector("[data-tab=Badges],#badgeBtn").click()); await wait(400) }],
   ["more", "done", async p => { await p.evaluate(() => document.querySelector("#avatar,#menuBtn").click()); await wait(400) }],
-  ["share", "done", async p => { await click(p, "#roundList [data-id]"); await p.evaluate(() => document.querySelector("#shareRound").click()); await wait(1500) }],
+  ["share", "done", async p => { await click(p, "#roundList [data-id]"); await p.evaluate(() => document.querySelector("#roundShare").click()); await wait(1500) }],
 ];
 async function clickTab(p, name) { const t = p.locator(`[role=tab]:has-text("${name}")`); if (await t.count()) { await t.first().click(); await wait(300) } }
 
