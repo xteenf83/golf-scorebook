@@ -85,6 +85,12 @@ const browser = await chromium.launch();
   const p = await openApp(browser, { scenario: "full" });
   await p.click("#fabTab"); await wait(400);
   ok(await curHole(p) === 3, "초록 원 버튼 → 보던 4번 홀로");
+  // 아래 고정 메모 버튼: 메모 칸으로 가서 바로 입력, 메모가 있으면 표시
+  await p.click("#memoBtn"); await wait(700);
+  ok(await p.evaluate(() => document.activeElement && document.activeElement.id === "memoIn"), "메모 버튼 → 메모 칸에 바로 입력");
+  ok(await p.evaluate(() => { const r = document.querySelector(".memocard").getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight }), "메모 칸이 화면 안에 보임");
+  await p.keyboard.type("오르막 퍼팅 짧았음"); await wait(700);
+  ok(await p.evaluate(() => document.querySelector("#memoBtn").classList.contains("has") && document.querySelector('#strip [data-h="3"]').classList.contains("memo")), "메모 남기면 버튼·홀 번호에 표시");
   await p.click("#topBack"); await wait(400);
   ok(!(await p.isHidden("#scrHome")), "← 버튼 → 홈");
   ok(!p.errs.length, "오류 없음 " + p.errs.join(" | "));
