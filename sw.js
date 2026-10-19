@@ -1,13 +1,19 @@
-// 오프라인 캐시: 앱 화면 파일은 "인터넷 먼저, 안 되면 저장본", 라이브러리·글꼴은 "저장본 먼저".
+// 오프라인 캐시: 앱 화면 파일·사진은 "인터넷 먼저, 안 되면 저장본", 라이브러리·글꼴(Pretendard)은 "저장본 먼저".
 // 데이터(Firestore)와 로그인 요청은 건드리지 않습니다 — Firestore가 자체적으로 오프라인 저장을 합니다.
-const CACHE = "golf-scorebook-v63";
+const CACHE = "golf-scorebook-v64";
 const SHELL = ["./", "./index.html", "./firebase-config.js", "./manifest.webmanifest",
-  "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
-const CDN_HOSTS = ["www.gstatic.com", "fonts.googleapis.com", "fonts.gstatic.com"];
+  "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png",
+  "./images/splash-aerial-bunkers.jpg", "./images/home-live-aerial.jpg", "./images/insights-header-bunker.jpg", "./images/share-card-lush.jpg"];
+// 글꼴 CSS도 설치 때 받아 둔다 (글자 조각 woff2는 처음 쓰일 때 저장)
+const FONT_CSS = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
+const CDN_HOSTS = ["www.gstatic.com", "cdn.jsdelivr.net"];
 
 self.addEventListener("install", e => {
   // cache:"reload" = 새 버전 설치 때 보관된 옛 사본이 아니라 서버의 최신 파일을 받음
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all([
+    c.addAll(SHELL.map(u => new Request(u, { cache: "reload" }))),
+    c.add(new Request(FONT_CSS, { mode: "cors" })).catch(() => {})   // 글꼴을 못 받아도 설치는 계속 (기본 글꼴로 표시)
+  ])).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys()
@@ -48,7 +54,7 @@ self.addEventListener("fetch", e => {
     if (url.pathname.includes("/__/")) return;
     e.respondWith(networkFirst(req));
   } else if (CDN_HOSTS.includes(url.hostname) &&
-             (url.hostname !== "www.gstatic.com" || url.pathname.startsWith("/firebasejs/"))) {
+             (url.hostname === "www.gstatic.com" ? url.pathname.startsWith("/firebasejs/") : url.pathname.startsWith("/gh/orioncactus/pretendard@"))) {
     e.respondWith(cacheFirst(req));
   }
 });

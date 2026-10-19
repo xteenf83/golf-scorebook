@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>홀 기록</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Pretendard';src:url('/_blob/77c1edea46852986bc49b845e8f20c35') format('woff2-variations'),url('/_blob/77c1edea46852986bc49b845e8f20c35') format('woff2');font-weight:45 920;font-display:swap}
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{opacity:.85}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+</style>
+</helmet>
+<div style="width:390px;height:1290px;position:relative;overflow:hidden;background:#F2F4F6;color:#191F28;font-family:Pretendard,-apple-system,sans-serif;letter-spacing:-0.02em;font-feature-settings:'tnum'">
+<div style="display:flex;flex-direction:column;gap:12px;padding:50px 16px 130px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <a href="Home.dc.html" aria-label="홈으로" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <div style="text-align:center"><div style="font-size:16px;font-weight:700">서원힐스CC</div><div style="font-size:12.5px;color:#6B7684;margin-top:1px">10월 19일 · 사우스 → 웨스트</div></div>
+    <button type="button" aria-label="저장됨" style="width:44px;height:44px;border:0;background:transparent;color:#8B95A1;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .6-8.6A6.2 6.2 0 0 0 6 9.4a4.6 4.6 0 0 0 1 9.1z"/><path d="M9.6 13.9l1.9 1.9 3.4-3.6"/></svg></button>
+  </div>
+
+  <div style="display:flex;gap:6px;overflow-x:auto;padding:2px 2px 4px;margin:0 -16px;padding-left:18px">
+    <sc-for list="{{holes}}" as="h" hint-placeholder-count="18">
+      <button type="button" aria-label="{{h.aria}}" style="flex:none;width:40px;height:40px;border-radius:20px;border:0;padding:0;font-size:15px;font-weight:700;{{h.style}}">{{h.no}}</button>
+    </sc-for>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:22px 20px 18px;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div style="font-size:30px;font-weight:800;letter-spacing:-0.045em;line-height:1.15">4번 홀</div><div style="font-size:15px;color:#6B7684;margin-top:4px">사우스 · 화이트 267m</div></div>
+      <div style="text-align:center;background:#F2F4F6;border-radius:14px;padding:8px 14px"><div style="font-size:12px;color:#6B7684;font-weight:600">PAR</div><div style="font-size:26px;font-weight:800;line-height:1.1">4</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div><div style="font-size:12.5px;color:#6B7684;font-weight:500">누적</div><div style="font-size:18px;font-weight:700;margin-top:3px">13타 <span style="color:#E5671E">+1</span></div></div>
+      <div style="border-left:1px solid #E5E8EB;padding-left:14px"><div style="font-size:12.5px;color:#6B7684;font-weight:500">베스트와 비교</div><div style="font-size:18px;font-weight:700;margin-top:3px;color:#2D74E6">2타 앞</div></div>
+      <div style="border-left:1px solid #E5E8EB;padding-left:14px"><div style="font-size:12.5px;color:#6B7684;font-weight:500">이 홀 평균</div><div style="font-size:18px;font-weight:700;margin-top:3px">+0.7</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#F7F8FA;border-radius:14px;padding:12px 14px">
+      <span style="width:28px;height:28px;border-radius:9px;background:#E6F6EE;color:#0A7A47;display:flex;align-items:center;justify-content:center;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg></span>
+      <span style="flex:1;font-size:14px;font-weight:600">미션 · 슬라이스 3개 이하</span>
+      <span style="font-size:14px;font-weight:700;color:#0A7A47">{{slices}} / 3</span>
+    </div>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:18px;font-weight:700">티샷</div><div style="font-size:14px;color:#6B7684;font-weight:500">{{teeSummary}}</div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#F2F4F6;border-radius:13px;padding:3px;gap:2px">
+      <sc-for list="{{fws}}" as="b" hint-placeholder-count="3">
+        <button type="button" onClick="{{b.pick}}" style="height:42px;border:0;border-radius:10px;font-size:15px;{{b.style}}">{{b.label}}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#8B95A1;font-weight:500;margin-top:4px"><span>← 공이 간 방향</span><span>좌타 기준</span><span>→</span></div>
+    <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px">
+      <sc-for list="{{shapes}}" as="s" hint-placeholder-count="7">
+        <button type="button" onClick="{{s.pick}}" aria-label="{{s.name}}" style="height:70px;border-radius:14px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;{{s.style}}">
+          <svg width="26" height="30" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="{{s.d}}"/><circle cx="12" cy="25" r="2.2" fill="currentColor" stroke="none"/></svg>
+          <span style="font-size:11.5px;font-weight:600">{{s.name}}</span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:18px;font-weight:700">퍼팅</div><span style="font-size:13px;font-weight:700;border-radius:8px;padding:5px 9px;{{girStyle}}">{{girLabel}}</span></div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#F2F4F6;border-radius:13px;padding:3px;gap:2px">
+      <sc-for list="{{putts}}" as="p" hint-placeholder-count="5">
+        <button type="button" onClick="{{p.pick}}" style="height:44px;border:0;border-radius:10px;font-size:17px;{{p.style}}">{{p.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:6px 20px;display:flex;flex-direction:column">
+    <sc-for list="{{pens}}" as="p" hint-placeholder-count="2">
+      <div style="display:flex;align-items:center;height:62px;border-bottom:{{p.border}}">
+        <div style="flex:1"><div style="font-size:16px;font-weight:600">{{p.name}}</div></div>
+        <span style="font-size:20px;font-weight:700;width:36px;text-align:center;color:{{p.col}}">{{p.v}}</span>
+        <div style="display:flex;align-items:center;background:#F2F4F6;border-radius:10px;height:36px;margin-left:8px">
+          <button type="button" onClick="{{p.dec}}" aria-label="{{p.name}} 줄이기" style="width:46px;height:36px;border:0;background:transparent;color:#4E5968;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+          <span style="width:1px;height:18px;background:#D1D6DB"></span>
+          <button type="button" onClick="{{p.inc}}" aria-label="{{p.name}} 늘리기" style="width:46px;height:36px;border:0;background:transparent;color:#4E5968;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:20px 20px 22px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:18px;font-weight:700">스코어</div><div style="font-size:13.5px;color:#6B7684;font-weight:500">벌타 포함</div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button type="button" onClick="{{minus}}" aria-label="한 타 줄이기" style="width:60px;height:60px;border-radius:30px;border:0;background:#F2F4F6;color:#191F28;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="font-size:64px;font-weight:800;letter-spacing:-0.05em;line-height:1">{{strokes}}</div>
+        <span style="font-size:14px;font-weight:700;border-radius:8px;padding:4px 10px;{{resStyle}}">{{resLabel}}</span>
+      </div>
+      <button type="button" onClick="{{plus}}" aria-label="한 타 늘리기" style="width:60px;height:60px;border-radius:30px;border:0;background:#F2F4F6;color:#191F28;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    </div>
+  </div>
+
+  <a href="#" style="background:#FFFFFF;border-radius:20px;padding:0 16px 0 20px;height:58px;display:flex;align-items:center;gap:12px">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7684" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+    <span style="flex:1;font-size:15.5px;color:#6B7684;font-weight:500">홀 메모 남기기</span>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+  </a>
+</div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;padding:24px 16px 30px;background:linear-gradient(180deg,rgba(242,244,246,0),#F2F4F6 30%);display:flex;gap:8px">
+  <button type="button" style="width:100px;height:58px;border-radius:29px;border:0;background:#E5E8EB;color:#4E5968;font-size:16px;font-weight:700">이전</button>
+  <a href="#" style="flex:1;height:58px;border-radius:29px;background:#0E9A5A;color:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:17px;font-weight:700">다음 홀</span><span style="font-size:12px;font-weight:500;opacity:.85">5번 · Par 3 · 152m</span></a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1290}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var self = this, par = 4;
+    var st = Object.assign({ fw: 'hit', shape: '직진', ob: 0, hz: 0, putts: 2, strokes: 4 }, this.state || {});
+    var set = function (o) { return function () { self.setState(o); }; };
+    var segOn = 'background:#FFFFFF;color:#191F28;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04);';
+    var segOff = 'background:transparent;color:#6B7684;font-weight:600;';
+    var fws = [{ id: 'L', label: '왼쪽 미스' }, { id: 'hit', label: '페어웨이' }, { id: 'R', label: '오른쪽 미스' }]
+      .map(function (b) { return { label: b.label, pick: set({ fw: b.id }), style: st.fw === b.id ? segOn : segOff }; });
+    var sd = { '슬라이스': 'M12 22 C12 13 9 7 3 5', '페이드': 'M12 22 C12 13 11 8 8 3', '푸시': 'M12 22 L7 3', '직진': 'M12 22 L12 3', '풀': 'M12 22 L17 3', '드로우': 'M12 22 C12 13 13 8 16 3', '훅': 'M12 22 C12 13 15 7 21 5' };
+    var shapes = Object.keys(sd).map(function (k) {
+      return { name: k, d: sd[k], pick: set({ shape: k }), style: st.shape === k ? 'border:1.5px solid #0E9A5A;background:#E6F6EE;color:#0A7A47;' : 'border:1.5px solid transparent;background:#F2F4F6;color:#4E5968;' };
+    });
+    var putts = [0, 1, 2, 3, 4].map(function (n) { return { label: n === 4 ? '4+' : String(n), pick: set({ putts: n }), style: st.putts === n ? segOn : segOff }; });
+    var pens = [{ k: 'ob', name: 'OB' }, { k: 'hz', name: '해저드' }].map(function (p, i) {
+      var v = st[p.k], dec = {}, inc = {};
+      dec[p.k] = Math.max(0, v - 1); inc[p.k] = v + 1;
+      return { name: p.name, v: v, col: v > 0 ? '#D8323C' : '#B0B8C1', dec: set(dec), inc: set(inc), border: i === 0 ? '1px solid #F2F4F6' : '0' };
+    });
+    var diff = st.strokes - par;
+    var names = { '-3': '알바트로스', '-2': '이글', '-1': '버디', '0': '파', '1': '보기', '2': '더블 보기', '3': '트리플 보기' };
+    var resLabel = (names[String(diff)] || ('+' + diff)) + (diff > 0 ? ' · +' + diff : diff < 0 ? ' · ' + diff : '');
+    var resStyle = diff < 0 ? 'background:#E8F1FE;color:#2D74E6;' : diff === 0 ? 'background:#F2F4F6;color:#4E5968;' : diff === 1 ? 'background:#FFF0E6;color:#C2540F;' : 'background:#FDECEC;color:#C62A33;';
+    var gir = st.strokes - st.putts <= par - 2;
+    var res = [0, 1, 0];
+    var holes = [];
+    for (var i = 1; i <= 18; i++) {
+      var s = 'background:#FFFFFF;color:#B0B8C1;';
+      var aria = i + '번 홀';
+      if (i <= 3) { s = res[i - 1] === 0 ? 'background:#E5E8EB;color:#4E5968;' : 'background:#FFE3D1;color:#C2540F;'; aria += res[i - 1] === 0 ? ' 파' : ' 보기'; }
+      if (i === 4) { s = 'background:#191F28;color:#FFFFFF;'; aria += ' 기록 중'; }
+      holes.push({ no: i, style: s, aria: aria });
+    }
+    return {
+      holes: holes, fws: fws, shapes: shapes, putts: putts, pens: pens,
+      strokes: st.strokes, resLabel: resLabel, resStyle: resStyle,
+      minus: set({ strokes: Math.max(1, st.strokes - 1) }), plus: set({ strokes: st.strokes + 1 }),
+      teeSummary: (st.fw === 'hit' ? '페어웨이' : st.fw === 'L' ? '왼쪽 미스' : '오른쪽 미스') + ' · ' + st.shape,
+      slices: st.shape === '슬라이스' ? 1 : 0,
+      girLabel: gir ? '그린 적중' : '그린 미스',
+      girStyle: gir ? 'background:#E6F6EE;color:#0A7A47;' : 'background:#F2F4F6;color:#6B7684;'
+    };
+  }
+}
+</script>
+</body>
+</html>

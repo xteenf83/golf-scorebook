@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>분석</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:'Pretendard';src:url('/_blob/77c1edea46852986bc49b845e8f20c35') format('woff2-variations'),url('/_blob/77c1edea46852986bc49b845e8f20c35') format('woff2');font-weight:45 920;font-display:swap}
+body{margin:0}
+a{color:inherit;text-decoration:none}a:hover{opacity:.85}
+button{font-family:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width:390px;height:2420px;position:relative;overflow:hidden;background:#F2F4F6;color:#191F28;font-family:Pretendard,-apple-system,sans-serif;letter-spacing:-0.02em;font-feature-settings:'tnum'">
+<div style="display:flex;flex-direction:column;gap:12px;padding:62px 16px 130px">
+
+  <div style="position:relative;height:210px;border-radius:24px;overflow:hidden;margin-top:-6px">
+    <img src="/_blob/9de3599be213f91662feb55d2fbe889c" alt="" style="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.6) 100%)"></div>
+    <div style="position:absolute;left:20px;right:20px;bottom:18px;color:#FFFFFF">
+      <div style="font-size:30px;font-weight:800;letter-spacing:-0.045em">분석</div>
+      <div style="font-size:14.5px;font-weight:500;opacity:.9;margin-top:2px">최근 5라운드 · 평균 93.8타 · 4.4타 개선</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;padding:0 2px 6px">
+    <button type="button" style="height:38px;padding:0 16px;border:0;border-radius:19px;background:#191F28;color:#FFFFFF;font-size:14.5px;font-weight:700">최근 5라운드</button>
+    <button type="button" style="height:38px;padding:0 16px;border:0;border-radius:19px;background:#FFFFFF;color:#4E5968;font-size:14.5px;font-weight:600">10라운드</button>
+    <button type="button" style="height:38px;padding:0 16px;border:0;border-radius:19px;background:#FFFFFF;color:#4E5968;font-size:14.5px;font-weight:600">2026년</button>
+    <button type="button" style="height:38px;padding:0 16px;border:0;border-radius:19px;background:#FFFFFF;color:#4E5968;font-size:14.5px;font-weight:600">전체</button>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:22px 20px 18px;display:flex;flex-direction:column;gap:4px">
+    <div style="font-size:14.5px;color:#6B7684;font-weight:600">평균 스코어</div>
+    <div style="font-size:34px;font-weight:800;letter-spacing:-0.045em">93.8타</div>
+    <div style="font-size:15px;font-weight:600;color:#2D74E6">이전 5라운드보다 4.4타 줄었어요</div>
+    <svg width="350" height="170" viewBox="0 0 350 170" role="img" aria-label="최근 10라운드 스코어, 마지막 89타가 개인 최고" style="margin-top:18px">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="10">
+        <rect x="{{b.x}}" y="{{b.y}}" width="22" height="{{b.h}}" rx="6" fill="{{b.c}}"/>
+        <text x="{{b.cx}}" y="{{b.ty}}" text-anchor="middle" fill="{{b.tc}}" font-size="12" font-weight="700" font-family="Pretendard">{{b.v}}</text>
+      </sc-for>
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#8B95A1;font-weight:500;padding:0 6px"><span>8월</span><span>9월</span><span>10월</span></div>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:22px 20px 20px;display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="font-size:14.5px;color:#6B7684;font-weight:600">타수를 잃는 홀</div>
+      <div style="font-size:21px;font-weight:700;letter-spacing:-0.03em;margin-top:4px;line-height:1.4">오버파 21.8타 중 절반 이상이<br>파4에서 나와요</div>
+    </div>
+    <div style="display:flex;height:40px;border-radius:12px;overflow:hidden;gap:3px">
+      <div style="flex:4.1;background:#FFD2B3"></div>
+      <div style="flex:12.3;background:#F2683C;color:#FFFFFF;display:flex;align-items:center;padding-left:12px;font-size:14px;font-weight:700">파4 · 12.3타</div>
+      <div style="flex:5.4;background:#FFB37A"></div>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <sc-for list="{{pars}}" as="p" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #F2F4F6">
+          <span style="width:10px;height:10px;border-radius:3px;background:{{p.c}}"></span>
+          <span style="flex:1;font-size:15.5px;font-weight:600">{{p.k}} <span style="font-size:13.5px;color:#8B95A1;font-weight:500;margin-left:4px">{{p.n}}</span></span>
+          <span style="font-size:13.5px;color:#6B7684;margin-right:10px">홀당 {{p.per}}</span>
+          <span style="font-size:16px;font-weight:700;width:50px;text-align:right">{{p.v}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:22px 20px 20px;display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="font-size:14.5px;color:#6B7684;font-weight:600">티샷 방향 · 좌타 기준</div>
+      <div style="font-size:21px;font-weight:700;letter-spacing:-0.03em;margin-top:4px;line-height:1.4">왼쪽으로 빠지는 공이<br>오른쪽보다 1.4배 많아요</div>
+    </div>
+    <svg width="350" height="200" viewBox="0 0 350 200" role="img" aria-label="티샷 결과: 왼쪽 미스 34퍼센트, 페어웨이 41퍼센트, 오른쪽 미스 25퍼센트">
+      <defs><clipPath id="fwc"><path d="M118 200 C112 140 104 80 112 20 Q175 4 238 20 C246 80 238 140 232 200 Z"/></clipPath></defs>
+      <rect x="0" y="0" width="350" height="200" rx="18" fill="#EAF6EF"/>
+      <path d="M118 200 C112 140 104 80 112 20 Q175 4 238 20 C246 80 238 140 232 200 Z" fill="#BFE6CF"/>
+      <g clip-path="url(#fwc)" fill="#B1DFC4"><rect x="100" y="0" width="22" height="200"/><rect x="144" y="0" width="22" height="200"/><rect x="188" y="0" width="22" height="200"/><rect x="232" y="0" width="22" height="200"/></g>
+      <text x="58" y="96" text-anchor="middle" fill="#C2540F" font-size="30" font-weight="800" font-family="Pretendard" letter-spacing="-1">34%</text>
+      <text x="58" y="118" text-anchor="middle" fill="#4E5968" font-size="13" font-weight="600" font-family="Pretendard">왼쪽 미스</text>
+      <text x="175" y="96" text-anchor="middle" fill="#0A5C37" font-size="36" font-weight="800" font-family="Pretendard" letter-spacing="-1">41%</text>
+      <text x="175" y="118" text-anchor="middle" fill="#0A5C37" font-size="13" font-weight="600" font-family="Pretendard">페어웨이</text>
+      <text x="292" y="96" text-anchor="middle" fill="#4E5968" font-size="30" font-weight="800" font-family="Pretendard" letter-spacing="-1">25%</text>
+      <text x="292" y="118" text-anchor="middle" fill="#4E5968" font-size="13" font-weight="600" font-family="Pretendard">오른쪽 미스</text>
+      <circle cx="175" cy="186" r="5" fill="#FFFFFF" stroke="#0A5C37" stroke-width="2"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:15px;font-weight:700">구질 분포</div>
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end;height:96px">
+        <sc-for list="{{shapes}}" as="s" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:96px">
+            <span style="font-size:12.5px;font-weight:700;color:{{s.tc}}">{{s.v}}</span>
+            <span style="width:100%;border-radius:7px;height:{{s.h}};background:{{s.c}}"></span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px">
+        <sc-for list="{{shapes}}" as="s" hint-placeholder-count="7"><span style="font-size:11.5px;color:#6B7684;text-align:center;font-weight:500">{{s.name}}</span></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;background:#F7F8FA;border-radius:16px;padding:14px">
+      <span style="width:36px;height:36px;border-radius:12px;background:#E6F6EE;color:#0A7A47;display:flex;align-items:center;justify-content:center;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6 4 4 6-7"/><path d="M15 8h5v5"/></svg></span>
+      <span style="font-size:14.5px;line-height:1.5;color:#333D4B">슬라이스가 <b>24% → 18%</b>로 줄었어요. 인아웃 연습이 효과를 내고 있어요.</span>
+    </div>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:22px 20px 20px;display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="font-size:14.5px;color:#6B7684;font-weight:600">홀 난이도 · 서원힐스CC 4라운드</div>
+      <div style="font-size:21px;font-weight:700;letter-spacing:-0.03em;margin-top:4px;line-height:1.4">웨스트 8번에서 평균 2.1타를<br>잃고 있어요</div>
+    </div>
+    <sc-for list="{{heat}}" as="row" hint-placeholder-count="2">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:13px;color:#6B7684;font-weight:600">{{row.name}}</div>
+        <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px">
+          <sc-for list="{{row.cells}}" as="c" hint-placeholder-count="9">
+            <div style="height:50px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-sizing:border-box;background:{{c.bg}};{{c.ring}}">
+              <span style="font-size:10.5px;font-weight:600;color:{{c.nc}}">{{c.no}}</span><span style="font-size:13.5px;font-weight:700;color:{{c.tc}}">{{c.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+    <div style="background:#FFFFFF;border-radius:20px;padding:16px 14px;display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;color:#6B7684;font-weight:600">후반 체력</div><div style="font-size:22px;font-weight:800;color:#C2540F">+1.6타</div><div style="font-size:12px;color:#8B95A1;line-height:1.4">후반이 전반보다</div></div>
+    <div style="background:#FFFFFF;border-radius:20px;padding:16px 14px;display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;color:#6B7684;font-weight:600">바운스백</div><div style="font-size:22px;font-weight:800">28%</div><div style="font-size:12px;color:#8B95A1;line-height:1.4">보기 뒤 바로 파</div></div>
+    <div style="background:#FFFFFF;border-radius:20px;padding:16px 14px;display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;color:#6B7684;font-weight:600">기복</div><div style="font-size:22px;font-weight:800">±3.4</div><div style="font-size:12px;color:#8B95A1;line-height:1.4">라운드 간 편차</div></div>
+  </div>
+
+  <div style="background:#FFFFFF;border-radius:24px;padding:22px 20px;display:flex;flex-direction:column;gap:18px">
+    <div style="font-size:19px;font-weight:700;letter-spacing:-0.03em">미션 달성</div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr))">
+      <sc-for list="{{missions}}" as="m" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+          <svg width="76" height="76" viewBox="0 0 76 76" role="img" aria-label="{{m.aria}}">
+            <circle cx="38" cy="38" r="31" fill="none" stroke="#F2F4F6" stroke-width="9"/>
+            <circle cx="38" cy="38" r="31" fill="none" stroke="{{m.c}}" stroke-width="9" stroke-linecap="round" stroke-dasharray="{{m.dash}}" transform="rotate(-90 38 38)"/>
+            <text x="38" y="44" text-anchor="middle" fill="#191F28" font-size="17" font-weight="800" font-family="Pretendard">{{m.v}}</text>
+          </svg>
+          <span style="font-size:13px;font-weight:600;color:#4E5968;text-align:center;line-height:1.35">{{m.name}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+
+<div style="position:absolute;left:12px;right:12px;bottom:22px;display:flex;gap:10px;align-items:center">
+  <nav style="flex:1;height:68px;border-radius:34px;background:rgba(255,255,255,.96);box-shadow:0 8px 28px rgba(0,0,0,.10),0 0 0 0.5px rgba(0,0,0,.05);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center">
+    <a href="Home.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#4E5968;font-size:11.5px;font-weight:600"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6 4 10v10.3h5.3v-6h5.4v6H20V10z"/></svg>홈</a>
+    <a href="#" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#191F28;font-size:11.5px;font-weight:700"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="#191F28"/><path d="M7.5 14.5l3-3.2 2.4 2.2 3.6-4.2" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>분석</a>
+    <a href="#" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#4E5968;font-size:11.5px;font-weight:600"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 20.5V3.5l10.5 4.3L7 12"/><path d="M3.5 20.5h9"/></svg>코스</a>
+    <a href="#" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#4E5968;font-size:11.5px;font-weight:600"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.4 5 5.4.6-4 3.8 1 5.4L12 15.6l-4.8 2.7 1-5.4-4-3.8 5.4-.6z"/></svg>배지</a>
+  </nav>
+  <a href="HoleInput.dc.html" aria-label="이어서 기록" style="width:68px;height:68px;border-radius:34px;background:#0E9A5A;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(14,154,90,.35);flex:none"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 4.8v14.4c0 .8.9 1.3 1.6.8l10.6-7.2a1 1 0 0 0 0-1.6L9.1 4c-.7-.5-1.6 0-1.6.8z"/></svg></a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var sc = [101, 98, 99, 96, 97, 95, 94, 98, 93, 89];
+    var lo = 80, hi = 102, top = 20, bot = 170, step = 350 / 10;
+    var Y = function (v) { return bot - (v - lo) / (hi - lo) * (bot - top); };
+    var bars = sc.map(function (v, i) {
+      var x = i * step + (step - 22) / 2, y = Y(v), best = v === 89, rec = i >= 5;
+      return { x: x.toFixed(1), y: y.toFixed(1), h: (bot - y).toFixed(1), cx: (x + 11).toFixed(1), ty: (y - 7).toFixed(1), v: v,
+        c: best ? '#F5C451' : rec ? '#0E9A5A' : '#E5E8EB', tc: best ? '#9A6B00' : rec ? '#191F28' : '#B0B8C1' };
+    });
+    var sh = [['슬라이스', 18], ['페이드', 14], ['푸시', 6], ['직진', 31], ['풀', 9], ['드로우', 14], ['훅', 8]];
+    var shapes = sh.map(function (s) {
+      var main = s[0] === '직진', bad = s[0] === '슬라이스';
+      return { name: s[0], v: s[1] + '%', h: (s[1] / 31 * 70).toFixed(0) + 'px', c: main ? '#0E9A5A' : bad ? '#F2883C' : '#E5E8EB', tc: main ? '#0A7A47' : bad ? '#C2540F' : '#6B7684' };
+    });
+    var shade = function (v) { return v <= 0.6 ? '#F2F4F6' : v <= 1.0 ? '#FFE8D9' : v <= 1.5 ? '#FFC9A3' : '#F2683C'; };
+    var row = function (name, vals) {
+      return { name: name, cells: vals.map(function (v, i) {
+        var hot = v > 1.5;
+        return { no: i + 1, v: '+' + v.toFixed(1), bg: shade(v), tc: hot ? '#FFFFFF' : '#191F28', nc: hot ? 'rgba(255,255,255,.85)' : '#8B95A1', ring: v >= 2 ? 'box-shadow:0 0 0 2px #FFFFFF,0 0 0 3.5px #D8323C;' : '' };
+      }) };
+    };
+    var C = 2 * Math.PI * 31;
+    var ring = function (name, a, b, c) { return { name: name, v: a + '/' + b, c: c, dash: (C * a / b).toFixed(1) + ' ' + C.toFixed(1), aria: name + ' ' + a + '번 성공, ' + b + '번 중' }; };
+    return {
+      bars: bars, shapes: shapes,
+      pars: [
+        { k: '파4', n: '10홀', per: '+1.23', v: '12.3타', c: '#F2683C' },
+        { k: '파5', n: '4홀', per: '+1.35', v: '5.4타', c: '#FFB37A' },
+        { k: '파3', n: '4홀', per: '+1.03', v: '4.1타', c: '#FFD2B3' }
+      ],
+      heat: [row('사우스 · 전반', [0.5, 1.0, 0.8, 0.8, 1.8, 1.0, 0.5, 1.3, 1.5]), row('웨스트 · 후반', [1.0, 0.8, 1.5, 1.8, 0.5, 1.3, 0.8, 2.1, 1.3])],
+      missions: [ring('슬라이스 3개 이하', 4, 5, '#0E9A5A'), ring('3퍼트 1개 이하', 2, 5, '#3182F6'), ring('OB 1개 이하', 1, 5, '#F2883C')]
+    };
+  }
+}
+</script>
+</body>
+</html>
