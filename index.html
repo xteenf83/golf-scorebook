@@ -487,6 +487,7 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 /* 그림자는 돌지 않는 바닥 그림자로 (메달에 filter를 걸면 아이폰이 매 프레임 다시 그려 끊긴다) */
 .m3d::after{content:"";position:absolute;left:14%;right:14%;bottom:-7%;height:10%;background:radial-gradient(closest-side,rgba(0,0,0,.35),transparent);z-index:-1}
 .m3d.sm{width:150px;margin:0 auto}
+.m3d.still{cursor:default}
 /* 앞·뒷면은 각각 따로 돌리고, 각도에 따라 보이는 면을 JS가 고른다 (아이폰은 backface-visibility가 SVG에서 자주 안 먹어 글자가 거꾸로 보임) */
 .flip{position:relative;width:100%;height:100%}
 .mface{position:absolute;inset:0;will-change:transform,opacity}
@@ -834,7 +835,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v61";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v62";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2359,14 +2360,14 @@ function openBadge(id,B){
     (goal?`<div class="bdprog"><i style="width:${Math.round(Math.min(1,stats[goal[0]]/goal[1])*100)}%"></i></div><p class="bdesc" style="margin-top:6px">${Math.min(stats[goal[0]],goal[1])} / ${goal[1]}</p>`:"");
   const ov=$("bdv");
   ov.innerHTML=`<button class="bdx" id="bdvClose" aria-label="닫기">‹</button>
-    <div class="m3d" id="m3d"><div class="flip" id="flip"><div class="mface">${medalSvg(id,on,{shine:on&&!reduceMotion()})}</div><div class="mface mback">${medalSvg(id,on,{back})}</div></div></div>
-    <p class="bhint">눌러서 뒤집기 · 옆으로 밀어 돌리기</p>
+    <div class="m3d${on?"":" still"}" id="m3d"><div class="flip" id="flip"><div class="mface">${medalSvg(id,on,{shine:on&&!reduceMotion()})}</div><div class="mface mback">${medalSvg(id,on,{back})}</div></div></div>
+    ${on?`<p class="bhint">눌러서 뒤집기 · 옆으로 밀어 돌리기</p>`:""}
     <h2 class="btitle">${esc(b.name)}</h2>${body}
     ${rr?`<p class="bdesc" style="margin-top:4px">${esc(rr.club)} · ${sc&&sc.tot!=null?sc.tot+"타":""}</p><button class="bround" id="bdvRound">이 라운드 보기 ›</button>`:""}`;
   ov.hidden=false; ov.scrollTop=0;
   $("bdvClose").onclick=()=>{ov.hidden=true;ov.innerHTML=""};
   if(rr) $("bdvRound").onclick=()=>{ov.hidden=true;ov.innerHTML="";roundFrom="Home";openRound(rr.id)};
-  medalSpin($("m3d"),$("flip"));
+  if(on) medalSpin($("m3d"),$("flip"));   // 받지 못한 메달은 돌지 않고 그대로 보여 준다
 }
 function medalSpin(box,flip){
   const [front,back]=flip.children, svgs=[...flip.querySelectorAll("svg")];
