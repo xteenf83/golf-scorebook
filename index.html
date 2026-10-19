@@ -977,10 +977,36 @@ details.more>.screen{margin-top:12px}
 .rx{background:var(--fill2);color:var(--t2)}
 .ytable thead th{border-bottom-color:var(--t1);font-weight:700}
 .ytable tbody th,.ytable thead th:first-child{background:var(--card)}
+
+/* ===== 시작 화면 (HANDOFF 4-1) ===== */
+.splash{position:fixed;inset:0;z-index:100;background:#1F3A22;color:#fff;overflow:hidden;transition:opacity .3s ease}
+.splash.bye{opacity:0;pointer-events:none}
+.splash img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.splash::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,0) 45%,rgba(4,20,10,.82) 100%)}
+.sp-main,.sp-load{position:absolute;left:28px;right:28px;z-index:1}
+.sp-main{bottom:calc(118px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
+.sp-icon{width:56px;height:56px;border-radius:17px;background:#0E9A5A;display:grid;place-items:center}
+.sp-icon svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.sp-t{font-size:36px;font-weight:800;letter-spacing:-0.05em;line-height:1.15}
+.sp-s{font-size:15px;font-weight:500;opacity:.8;margin-top:10px}
+.sp-load{bottom:calc(48px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:12px;font-size:13px;font-weight:500}
+.sp-load span{opacity:.8}
+.sp-track{width:96px;height:4px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}
+.sp-track i{display:block;width:40%;height:4px;border-radius:2px;background:#fff;animation:spLoad 1.6s ease-in-out infinite}
+@keyframes spLoad{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
+<!-- 시작 화면: 기록을 불러오는 동안 (최소 0.8초), 사진을 못 불러오면 짙은 초록 단색 -->
+<div class="splash" id="splash" role="status" aria-label="기록을 불러오는 중">
+  <img src="images/splash-aerial-bunkers.jpg" alt="" onerror="this.remove()">
+  <div class="sp-main">
+    <div class="sp-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20.5V3.6l10 4.1-10 4.1"/></svg></div>
+    <div><div class="sp-t">오늘의 한 타까지,<br>빠짐없이.</div><div class="sp-s">나의 골프 스코어북</div></div>
+  </div>
+  <div class="sp-load"><div class="sp-track"><i></i></div><span>기록을 불러오는 중</span></div>
+</div>
 <div class="statusbar"></div>
 <div id="scroller">
 <div class="wrap">
@@ -1293,7 +1319,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v63";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v64";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -3354,6 +3380,14 @@ if("serviceWorker" in navigator){
   navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(hadController) reloadForUpdate(); });
 }
 
+/* ---------- 시작 화면: 첫 데이터(또는 로그인 화면)가 준비되면 최소 0.8초 뒤 0.3초 동안 사라짐 ---------- */
+const splashT0=performance.now();
+function splashDone(){
+  const el=$("splash"); if(!el||el.dataset.bye) return; el.dataset.bye="1";
+  setTimeout(()=>{ el.classList.add("bye"); setTimeout(()=>el.remove(),reduceMotion()?0:320) }, Math.max(0,800-(performance.now()-splashT0)));
+}
+setTimeout(splashDone,6000);   // 느린 연결에서도 시작 화면에 갇히지 않게
+
 /* ---------- Firebase: login · storage ---------- */
 let fs=null, auth=null, unsubs=[], curUid=null;
 function bg(fn){ // 기기에 먼저 저장하고 서버 업로드는 뒤에서 진행 (오프라인에서도 멈추지 않도록)
@@ -3413,7 +3447,7 @@ function start(user){
   show("Home"); renderHome();
   unsubs.push(rcol.onSnapshot(snap=>{
     rounds=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>(Array.isArray(r.holes)&&(r.holes.length===18||r.holes.length===9))||(r.type==="total"&&typeof r.total==="number"));
-    syncFrom(snap);
+    syncFrom(snap); splashDone();
     if(!$("tabBar").hidden) updFab();
     if(!$("scrHome").hidden) renderHome();
     autoResume();
@@ -3444,10 +3478,10 @@ function loginRedirect(){
   signInWithRedirect(auth,new GoogleAuthProvider()).catch(e=>$("loginMsg").textContent=authErr(e));
 }
 
-(function boot(){ try{ bootInner(); }catch(e){ setSync("err","시작 오류: "+(e.message||e)); show("Login"); $("loginMsg").textContent="앱을 시작하지 못했습니다: "+(e.message||e); } })();
+(function boot(){ try{ bootInner(); }catch(e){ setSync("err","시작 오류: "+(e.message||e)); show("Login"); splashDone(); $("loginMsg").textContent="앱을 시작하지 못했습니다: "+(e.message||e); } })();
 function bootInner(){
   if(!firebaseConfig || !firebaseConfig.apiKey){
-    setSync("err","설정 필요"); show("Login"); $("loginBtn").disabled=true; $("loginRedirectBtn").hidden=true;
+    setSync("err","설정 필요"); show("Login"); splashDone(); $("loginBtn").disabled=true; $("loginRedirectBtn").hidden=true;
     $("loginMsg").textContent="Firebase 설정값이 아직 없습니다. firebase-config.js 에 설정값을 넣어 주세요."; return;
   }
   const app=initializeApp(firebaseConfig);
@@ -3457,7 +3491,7 @@ function bootInner(){
   onAuthStateChanged(auth,user=>{
     if(user){ start(user); }
     else { unsubs.forEach(u=>u()); unsubs=[]; rcol=null; ccol=null; curUid=null; rounds=[]; courses=[]; cur=null; settings={};
-      setSync("","로그인 필요"); show("Login"); }
+      setSync("","로그인 필요"); show("Login"); splashDone(); }
   });
   $("loginBtn").onclick=async()=>{
     $("loginMsg").textContent="";

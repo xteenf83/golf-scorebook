@@ -16,6 +16,7 @@ mkdirSync(OUT, { recursive: true });
 // ---------- 찍을 화면들: [이름, 시나리오, 동작] ----------
 const click = async (p, sel) => { await p.locator(sel).first().click(); await wait(350) };
 const SHOTS = [
+  ["splash", "done", async p => {}],
   ["login", "login", async p => {}],
   ["home", "full", async p => {}],
   ["home-done", "done", async p => {}],
@@ -38,10 +39,10 @@ const SHOTS = [
 async function clickTab(p, name) { const t = p.locator(`[role=tab]:has-text("${name}")`); if (await t.count()) { await t.first().click(); await wait(300) } }
 
 async function shootApp(browser, [name, scenario, act], scheme) {
-  const p = await openApp(browser, { scenario, scheme, width: WIDTH, height: HEIGHT }), ctx = p.context(), errs = p.errs;
+  const p = await openApp(browser, { scenario, scheme, width: WIDTH, height: HEIGHT, early: name === "splash" }), ctx = p.context(), errs = p.errs;
   try { await act(p) } catch (e) { errs.push("action: " + e.message) }
   await p.evaluate(() => document.fonts && document.fonts.ready);
-  await wait(300);
+  if (name !== "splash") await wait(300);
   const tag = `${name}-${scheme}${WIDTH !== 390 ? "-" + WIDTH : ""}`;
   if (name === "share") {
     const src = await p.evaluate(() => { const i = document.querySelector("#ov img"); return i && i.src });
