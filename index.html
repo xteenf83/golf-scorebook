@@ -835,7 +835,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v62";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v63";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2231,7 +2231,7 @@ const BADGES=[
   ["홀",[["bd1","🐦","첫 버디","파보다 1타 적게"],["eg1","🦅","첫 이글","파보다 2타 적게"],["par3","🔗","파 행진 3","3홀 연속 파 이하"],["par5","⛓️","파 행진 5","5홀 연속 파 이하"],["chip","🪄","칩인","퍼팅 없이 홀아웃"]]],
   ["라운드",[["clean","🧼","클린 라운드","OB·해저드 0개"],["no3","🎳","노 3퍼트","3퍼트 0개"],["p30","⛳","퍼팅 30","총 퍼팅 30개 이하"],["fw50","🛡️","페어웨이 수호자","페어웨이 적중 50% 이상"],["nodbl","🙌","더블 없는 날","더블보기 이상 0개"]]],
   ["스윙 교정",[["sl0","🧭","슬라이스 제로","슬라이스 0개 (구질 기록)"],["str","📏","스트레이트 머신","스트레이트+드로우가 티샷의 50% 이상"]]],
-  ["누적",[["n10","🔟","10 라운드","18홀 10라운드 완료"],["n25","🏌️","25 라운드","18홀 25라운드 완료"],["n50","🏅","50 라운드","18홀 50라운드 완료"],
+  ["누적",[["r1","⛳","첫 라운드","스코어북에 첫 라운드 기록 (9홀·총타만 포함)"],["n10","🔟","10 라운드","18홀 10라운드 완료"],["n25","🏌️","25 라운드","18홀 25라운드 완료"],["n50","🏅","50 라운드","18홀 50라운드 완료"],
     ["bd10","🐤","버디 10","누적 버디 10개"],["bd30","🦜","버디 30","누적 버디 30개"],["c5","🗺️","골프장 5곳","다른 골프장 5곳"],["c10","🧳","골프장 10곳","다른 골프장 10곳"]]]
 ];
 const BADGE_LIST=BADGES.flatMap(([cat,bs])=>bs.map(([id,icon,name,desc])=>({id,icon,name,desc,cat})));
@@ -2240,6 +2240,7 @@ const PB_BADGE={id:"pb",icon:"🏆",name:"개인 베스트",desc:"지금까지 �
 function computeBadges(list=rounds){
   const got={}, pbs=[], hit=(id,r)=>{ if(!got[id]) got[id]={id:r.id,date:r.date} };
   let n=0, birdies=0, best=Infinity; const clubSet=new Set();
+  const first=list.filter(r=>r.status==="done").sort(byDate)[0]; if(first) hit("r1",first);   // 첫 라운드: 9홀·총타만 기록도 포함
   scoreRounds(list).reverse().forEach(r=>{
     const tot=scoreOf(r).tot; n++; clubSet.add(String(r.club).trim());
     if(tot<=99) hit("s100",r); if(tot<=89) hit("s90",r); if(tot<=79) hit("s80",r);
@@ -2285,7 +2286,7 @@ const CAT_KEY={"스코어":"sc","홀":"ho","라운드":"ro","스윙 교정":"sw"
 const BADGE_MARK={s100:["99","BREAK 100"],s90:["89","BREAK 90"],s80:["79","BREAK 80"],w40:["40","HALF 40"],pb:["PB","BEST"],
   bd1:["-1","BIRDIE"],eg1:["-2","EAGLE"],par3:["3","PAR RUN"],par5:["5","PAR RUN"],chip:["0","CHIP-IN"],
   clean:["OB","CLEAN"],no3:["3P","NO 3PUTT"],p30:["30","PUTTS"],fw50:["50","FAIRWAY"],nodbl:["+1","NO DOUBLE"],
-  sl0:["0","NO SLICE"],str:["S","STRAIGHT"],n10:["10","ROUNDS"],n25:["25","ROUNDS"],n50:["50","ROUNDS"],
+  sl0:["0","NO SLICE"],str:["S","STRAIGHT"],r1:["1","1ST ROUND"],n10:["10","ROUNDS"],n25:["25","ROUNDS"],n50:["50","ROUNDS"],
   bd10:["10","BIRDIES"],bd30:["30","BIRDIES"],c5:["5","CLUBS"],c10:["10","CLUBS"]};
 // 누적 배지 진행도: [통계 키, 목표]
 const BADGE_GOAL={n10:["n",10],n25:["n",25],n50:["n",50],bd10:["birdies",10],bd30:["birdies",30],c5:["clubs",5],c10:["clubs",10]};
