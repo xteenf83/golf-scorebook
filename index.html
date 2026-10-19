@@ -146,21 +146,7 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .resume{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:14px 16px}
 .resume b{display:block}
 
-/* play */
-.play{padding-bottom:120px}
-.strip{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
-.strip::-webkit-scrollbar{display:none}
-.strip button{flex:0 0 auto;width:38px;padding:4px 0;border-radius:8px;font-size:11px;line-height:1.2;display:flex;flex-direction:column;align-items:center}
-.strip button b{font-family:var(--f-num);font-size:13px}
-.strip button.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
-.strip button.done{background:var(--accent-soft)}
-.strip .gap{flex:0 0 6px}
-.holehead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.holehead .no{font-family:var(--f-display);font-size:40px;font-weight:600;line-height:1}
-.holehead .no small{font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:500;margin-left:8px}
-.parpick{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
-.parpick b{font-family:var(--f-num);font-size:22px;color:var(--gold);margin-left:2px}
-.running{font-family:var(--f-num);font-size:13px;color:var(--muted)}
+/* (예전 입력 화면 공통: 새 라운드 홀별 타수만 버튼에서 사용) */
 .field{display:flex;flex-direction:column;gap:6px}
 .field > .lab{font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
 .btns{display:grid;gap:6px}
@@ -194,14 +180,8 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .mrow span{flex:1;white-space:pre-wrap;line-height:1.4;font-weight:400}
 .mrow small{flex:0 0 auto;color:var(--accent);font-size:12px}
 .voice textarea{font:inherit;font-size:16px;resize:vertical;min-height:52px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink)}
-.strip button.memo{position:relative}
-.strip button.memo::after{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--warn)}
 .heard{font-size:12px;color:var(--accent);min-height:1.2em}
 .heard.err{color:var(--warn)}
-.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--paper);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
-.bottomnav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr;gap:8px}
-.bottomnav .in.edit{grid-template-columns:1fr 1.4fr 1fr}
-.bottomnav button{padding:14px;font-size:16px}
 
 /* round detail */
 .scroll{overflow-x:auto}
@@ -326,28 +306,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .acct .meta b{display:block;font-size:16px}
 .acct .meta .note{overflow-wrap:anywhere}
 
-/* play: hole card */
-.holecard{padding:18px 18px 14px;display:flex;flex-direction:column;gap:12px}
-.holecard .holehead{align-items:center}
-.holecard .no{font-size:46px;color:var(--heroInk)}
-.holecard .no small{color:var(--heroInk);opacity:.75}
-.holecard .parpick{color:var(--heroInk);opacity:1;flex-direction:column;align-items:flex-end;gap:2px}
-.holecard .parpick .hlen{font-size:12px;opacity:.85}
-.holecard .parpick .hlen b{font-family:var(--f-num);font-size:16px;color:var(--heroInk);margin:0 1px 0 2px}
-.holecard .parpick button{background:transparent;color:var(--heroInk);border-color:rgba(255,255,255,.3)}
-.holecard .parpick button.on{background:var(--gold);color:#1b2a20;border-color:var(--gold)}
-.holecard .holefoot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.14);padding-top:10px}
-.holecard .running{color:var(--heroInk);opacity:.9;font-size:14px}
-.holecard .running b{font-family:var(--f-display);font-size:24px;font-weight:500;line-height:1}
-.holecard .running .rel{font-family:var(--f-num);font-size:13px;margin-left:2px}
-.gbox{display:flex;align-items:center;gap:8px;color:var(--heroInk);font-size:13px}
-.gbox b{font-family:var(--f-num);font-size:16px;margin:0 1px}
-.holecard .holefoot button{padding:6px 10px;font-size:12.5px}
-.strip button{border-radius:10px}
-.opt{border-radius:14px;background:var(--paper)}
-.step{border-radius:14px}
-.bottomnav button{border-radius:14px}
-
 /* round detail */
 .rhero .club{font-size:18px;font-weight:700}
 .rhero .sub{font-size:12.5px;opacity:.78}
@@ -394,7 +352,6 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:46px;text-align:left}
 input[type=date]::-webkit-date-and-time-value{text-align:left}
-.bottomnav{padding-bottom:max(10px, calc(env(safe-area-inset-bottom,0px) - 12px))}
 #resumeBox:empty,.msg:empty{display:none}
 table.card th,table.card td{white-space:nowrap}
 /* 스코어카드: 9홀씩 한 표(18홀은 전반·후반 두 표), 홀 칸은 화면 폭을 똑같이 나눔 */
@@ -420,11 +377,6 @@ table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box
 /* UI 다듬기: 한글 문장은 본문 폰트(Plex Mono에는 한글이 없어 글자 간격이 벌어짐), 작은 뒤로 버튼, 홀 화면 세로 길이 줄이기 */
 .running,.crow .rt{font-family:var(--f-body);font-variant-numeric:tabular-nums}
 .back{border:0;background:none;padding:10px 4px;min-height:44px;margin-block:-10px -6px;color:var(--accent);font-size:15px;font-weight:700}
-.play.screen{gap:12px}
-.play .field{gap:4px}
-.holecard{padding:14px 18px 10px;gap:8px}
-.holecard .no{font-size:42px}
-.holecard .holefoot{padding-top:8px}
 .opt{min-height:46px;padding:7px 2px}
 /* 홈 카드 묶음: 옆으로 넘기면 다음 카드 (scroll-snap) */
 .cards{display:grid;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
@@ -447,12 +399,9 @@ table.card .mark{min-width:0;width:24px;max-width:100%;height:24px;padding:0;box
 .lb i b{display:block;height:100%;background:var(--gold);border-radius:4px}
 .lb em{font-style:normal;font-family:var(--f-display);font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
 /* 지금 입력할 항목 강조 + 다 채우면 다음 홀 버튼 강조 */
-#scrPlay .field[data-step]{scroll-margin:70px 0 110px}
 .field>.lab>span:first-child{transition:color .2s}
 .field.now>.lab>span:first-child{color:var(--accent)}
 .field.now>.lab>span:first-child::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:1px}
-#nextBtn.go{animation:gopulse 1.4s ease-in-out 2}
-@keyframes gopulse{50%{box-shadow:0 0 0 6px var(--accent-soft)}}
 /* 지우기(×) 버튼이 붙은 입력칸 */
 .clr{position:relative;display:block}
 .clr input{padding-right:40px}
@@ -462,17 +411,8 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 :root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70}}
 :root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70}
-.strip button{position:relative}
-.strip button.gw::before,.strip button.gl::before{content:"";position:absolute;bottom:2px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%}
-.strip button.gw::before{background:var(--under)} .strip button.gl::before{background:var(--over)}
 .ghc{display:inline-block;border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700;margin-left:4px;white-space:nowrap}
 .ghc.win{background:#d7f3e2;color:#145233} .ghc.lose{background:#fbe1d3;color:#8a3a17} .ghc.tie{background:rgba(255,255,255,.18);color:var(--heroInk)}
-.brief{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;background:rgba(255,255,255,.08);border:0;color:var(--heroInk);border-radius:12px;padding:8px 12px;font-weight:500;font-size:12.5px;line-height:1.45}
-.brief .bh{display:flex;justify-content:space-between;gap:8px;font-weight:700;opacity:.85}
-.brief .bh em{font-style:normal;font-weight:500;opacity:.8}
-.brief .tip{color:var(--gold)}
-.mline{font-size:12.5px;color:var(--heroInk);opacity:.9}
-.mline.fail{color:#ffb38a;opacity:1;font-weight:700}
 .rhero .gline{margin-top:10px;font-size:13.5px;font-weight:600}
 .bchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .bchip{font-size:12px;font-weight:700;background:rgba(243,210,126,.16);color:var(--gold);border-radius:999px;padding:3px 10px}
@@ -650,6 +590,117 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 .fab{flex:none;width:68px;height:68px;border-radius:34px;padding:0;background:var(--brand);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(14,154,90,.35);pointer-events:auto}
 .fab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .fab svg path.fill{fill:currentColor;stroke:none}
+
+/* ===== 홀 기록(입력) 화면 (HANDOFF 4-3) ===== */
+:root{--bogey-chip:#FFE3D1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bogey-chip:rgba(255,138,61,.24)}}
+:root[data-theme="dark"]{--bogey-chip:rgba(255,138,61,.24)}
+header.top.nav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;margin-inline:-6px}
+header.top.nav .tt{text-align:center;align-items:center}
+header.top.nav h1{font-size:16px;font-weight:700;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+header.top.nav .tsub{font-size:12.5px;margin-top:1px}
+header.top.nav .cloud{color:var(--t4)}
+header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{width:44px;padding:0} header.top.nav .cloud .ctx{display:none}
+.play{padding-bottom:110px}
+.play.screen{gap:12px}
+.strip{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:4px 18px 10px}
+.strip button{flex:none;width:40px;height:40px;min-height:0;border-radius:20px;padding:0;font-size:15px;font-weight:700;background:var(--card);color:var(--t5);position:relative;line-height:40px}
+.strip button.rp{background:var(--line);color:var(--t2)}
+.strip button.rk{background:var(--bogey-chip);color:var(--bogey-text)}
+.strip button.ru{background:var(--under-soft);color:var(--under)}
+.strip button.rd{background:var(--double);color:#fff}
+.strip button.rt{background:var(--triple);color:#fff}
+.strip button.cur{background:var(--t1);color:var(--card)}
+.strip button.memo::after{content:"";position:absolute;top:1px;right:1px;width:7px;height:7px;border-radius:50%;background:var(--notice-icon);border:1.5px solid var(--bg)}
+.strip button.gw::before,.strip button.gl::before{content:"";position:absolute;bottom:-7px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%}
+.strip button.gw::before{background:var(--under)} .strip button.gl::before{background:var(--over)}
+.strip .gap{flex:0 0 4px}
+.holecard{display:flex;flex-direction:column;gap:18px;padding:22px 20px 18px}
+.hhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.hno{font-size:30px;font-weight:800;letter-spacing:-0.045em;line-height:1.15}
+.hsub{font-size:15px;color:var(--t3);margin-top:4px}
+.parbox{text-align:center;background:var(--fill);border-radius:14px;padding:8px 14px;flex:none}
+.parbox small{display:block;font-size:12px;color:var(--t3);font-weight:600}
+.parbox b{display:block;font-size:26px;font-weight:800;line-height:1.1}
+.hstats{display:grid}
+.hstats>div{min-width:0}
+.hstats>div+div{border-left:1px solid var(--line);padding-left:14px}
+.hstats small{display:block;font-size:12.5px;color:var(--t3);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hstats b{display:block;font-size:18px;font-weight:700;margin-top:3px}
+.hstats em{font-style:normal}
+.hstats i{display:block;font-style:normal;font-size:12px;color:var(--t4);margin-top:1px}
+.brief{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;background:var(--fill2);color:var(--t2);border-radius:14px;padding:12px 14px;font-size:14px;font-weight:500;line-height:1.5;min-height:0}
+.brief .bh{display:flex;justify-content:space-between;gap:8px;font-weight:600;color:var(--t1);opacity:1}
+.brief .bh em{font-style:normal;font-weight:500;color:var(--t4);opacity:1}
+.brief .tip{color:var(--brand-text);font-weight:600}
+.mline{display:flex;align-items:center;gap:10px;background:var(--fill2);border-radius:14px;padding:12px 14px;font-size:14px;font-weight:600;color:var(--t1);opacity:1}
+.mline span:nth-child(2){flex:1;min-width:0}
+.mline b{font-weight:700;color:var(--brand-text);white-space:nowrap}
+.mline.fail b{color:var(--triple)}
+.mic2{width:28px;height:28px;border-radius:9px;background:var(--brand-soft);color:var(--brand-text);display:grid;place-items:center;flex:none}
+.mline.fail .mic2{background:var(--triple-soft);color:var(--triple)}
+.mic2 svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2}
+.icard{display:flex;flex-direction:column;gap:14px;padding:20px}
+.ihead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ititle{font-size:18px;font-weight:700}
+.isum{font-size:14px;color:var(--t3);font-weight:500}
+.icard.now .ititle::before,.icard.field.now .ititle::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--brand);margin-right:7px;vertical-align:3px}
+.icard .field{gap:0}
+.icard .seg.full button{height:42px;font-size:15px}
+.icard .seg.putts button{height:44px;font-size:17px}
+.dirlab{display:flex;justify-content:space-between;font-size:12.5px;color:var(--t4);font-weight:500;margin:4px 0 14px}
+.shapes{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.shapes button{height:70px;min-height:0;border-radius:14px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;border:1.5px solid transparent;background:var(--fill);color:var(--t2)}
+.shapes button.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-text)}
+.shapes svg{width:26px;height:30px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.shapes svg circle{fill:currentColor;stroke:none}
+.shapes span{font-size:11.5px;font-weight:600;letter-spacing:-0.04em;white-space:nowrap}
+.chip{font-size:13px;font-weight:700;border-radius:8px;padding:5px 9px;background:var(--fill);color:var(--t3)}
+.chip.on{background:var(--brand-soft);color:var(--brand-text)}
+.pencard{padding:6px 20px;gap:0}
+.pencard .pen-h{height:48px;padding-top:8px}
+.prow{display:flex;align-items:center;height:62px;border-top:1px solid var(--fill)}
+.prow>span:first-child{flex:1;font-size:16px;font-weight:600}
+.prow b{font-size:20px;font-weight:700;width:36px;text-align:center;color:var(--t5)}
+.prow b.on{color:var(--triple)}
+.stepper{display:flex;align-items:center;background:var(--fill);border-radius:10px;height:44px;margin-left:8px}
+.stepper button{width:50px;height:44px;min-height:0;border:0;background:transparent;color:var(--t2);display:grid;place-items:center;padding:0}
+.stepper svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;fill:none}
+.stepper i{width:1px;height:18px;background:var(--line2)}
+.scorebox{display:flex;align-items:center;justify-content:space-between}
+.scorebox .rb{width:60px;height:60px;border-radius:30px;background:var(--fill);color:var(--t1);display:grid;place-items:center;padding:0}
+.scorebox .rb svg{width:22px;height:22px;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;fill:none}
+.sval{display:flex;flex-direction:column;align-items:center;gap:6px}
+.sval b{font-size:64px;font-weight:800;letter-spacing:-0.05em;line-height:1}
+.sval .chip{font-size:14px;padding:4px 10px}
+.chip.ru{background:var(--under-soft);color:var(--under)} .chip.rp{background:var(--fill);color:var(--t2)} .chip.rk{background:var(--bogey-soft);color:var(--bogey-text)}
+.chip.rd,.chip.rt{background:var(--triple-soft);color:#C62A33}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.rd,:root:not([data-theme="light"]) .chip.rt{color:#FF7B82}}
+:root[data-theme="dark"] .chip.rd,:root[data-theme="dark"] .chip.rt{color:#FF7B82}
+.memocard{padding:0 16px 0 20px}
+.memocard .voice{display:flex;align-items:center;gap:12px;min-height:58px}
+.micic,.memocard .mic svg{width:20px;height:20px;fill:none;stroke:var(--t3);stroke-width:1.9;stroke-linecap:round;flex:none}
+.memocard .mic{width:44px;height:44px;min-height:0;padding:0;margin-left:-12px;border-radius:22px;background:transparent;display:grid;place-items:center}
+.memocard .mic.on{background:var(--triple)} .memocard .mic.on svg{stroke:#fff}
+.memocard textarea{flex:1;background:transparent;border:0;border-radius:0;padding:17px 0;min-height:0;resize:none;font-size:15.5px;font-weight:500;line-height:1.5;color:var(--t1);outline:none}
+.memocard textarea::placeholder{color:var(--t3)}
+.memocard .heard{padding:0 0 12px;font-size:13px}
+.memocard .heard:empty{display:none}
+.voicetip{margin:-4px 4px 0;font-size:12.5px;color:var(--t4)}
+.playlinks{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.playlinks .linkbtn{font-size:14px;color:var(--t3)}
+.deftip{text-align:center;margin:-8px 0 0;font-size:12.5px;color:var(--t4)}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:linear-gradient(180deg,transparent,var(--bg) 30%);border:0;padding:24px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+@media (display-mode:standalone){.bottomnav{padding-bottom:max(14px, env(safe-area-inset-bottom,0px))}}
+.bottomnav .in{max-width:560px;margin:0 auto;display:flex;gap:8px;grid-template-columns:none}
+.bottomnav .in.edit{grid-template-columns:none}
+.bottomnav .pill{min-height:0}
+.bottomnav #nextBtn{flex-direction:column;gap:1px}
+.bottomnav #nextBtn small{font-size:12px;font-weight:500;opacity:.85}
+.bottomnav .in.edit .pill{flex:1}
+#nextBtn.go{animation:gopulse 1.4s ease-in-out 2}
+@keyframes gopulse{50%{box-shadow:0 0 0 6px var(--brand-soft)}}
+#scrPlay .field[data-step]{scroll-margin:70px 0 110px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -658,6 +709,7 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 <div id="scroller">
 <div class="wrap">
   <header class="top" id="topBar">
+    <button class="iconbtn" id="topBack" hidden aria-label="홈으로 (자동 저장됨)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
     <div class="tt">
       <small id="topEyebrow">Golf Scorebook · 좌타</small>
       <h1 id="topTitle">나의 골프 스코어북</h1>
@@ -799,55 +851,49 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
   <!-- PLAY -->
   <section class="screen play" id="scrPlay" hidden>
     <div class="strip" id="strip"></div>
-    <section class="hero holecard">
-      <div class="holehead">
-        <div class="no" id="hNo">1<small></small></div>
-        <div class="parpick" id="parPick"></div>
+    <section class="panel holecard">
+      <div class="hhead">
+        <div><div class="hno" id="hNo">1번 홀</div><div class="hsub" id="hSub"></div></div>
+        <div class="parbox"><small>PAR</small><b id="hPar">4</b></div>
       </div>
+      <div class="hstats" id="hStats"></div>
       <button type="button" class="brief" id="brief" hidden></button>
-      <div class="holefoot">
-        <div class="running" id="running"></div>
-        <div class="gbox" id="gbox" hidden></div>
-      </div>
       <div class="mline" id="mline" hidden></div>
     </section>
 
-    <div class="field" id="fwField" data-step="fw">
-      <div class="lab"><span>티샷 페어웨이</span></div>
-      <div class="btns s3" id="fwBtns"></div>
-    </div>
-    <div class="field" data-step="shape">
-      <div class="lab"><span>티샷 구질</span><span>공이 간 방향 (좌타)</span></div>
-      <div class="btns s7" id="shapeBtns"></div>
-    </div>
-    <div class="field" data-step="pen">
-      <div class="lab"><span>벌타 기록</span></div>
-      <div class="pen">
-        <div class="step"><span>OB</span><button data-pen="ob" data-v="-1" aria-label="OB 빼기">−</button><b id="obV">0</b><button data-pen="ob" data-v="1" aria-label="OB 더하기">＋</button></div>
-        <div class="step"><span>해저드</span><button data-pen="hz" data-v="-1" aria-label="해저드 빼기">−</button><b id="hzV">0</b><button data-pen="hz" data-v="1" aria-label="해저드 더하기">＋</button></div>
+    <section class="panel icard" id="teeCard">
+      <div class="ihead"><span class="ititle">티샷</span><span class="isum" id="teeSum"></span></div>
+      <div class="field" id="fwField" data-step="fw"><div class="seg full" id="fwBtns"></div></div>
+      <div class="field" data-step="shape">
+        <div class="dirlab"><span>← 공이 간 방향</span><span>좌타 기준</span><span>→</span></div>
+        <div class="shapes" id="shapeBtns"></div>
       </div>
-    </div>
-    <div class="field" data-step="putt">
-      <div class="lab"><span>퍼팅</span><span id="girLbl"></span></div>
-      <div class="btns s5" id="puttBtns"></div>
-    </div>
-    <div class="field" data-step="score">
-      <div class="lab"><span>스코어 (벌타 포함)</span><span id="strokesLbl"></span></div>
-      <div class="btns s8" id="scoreBtns"></div>
-    </div>
-    <div class="field">
-      <div class="lab"><span id="voiceLbl">홀 메모 · 키보드 🎤로 말하기</span><span class="note" id="memoSaved"></span></div>
+    </section>
+    <section class="panel icard pencard field" data-step="pen">
+      <div class="ihead pen-h"><span class="ititle">벌타</span></div>
+      <div class="prow"><span>OB</span><b id="obV">0</b><span class="stepper"><button data-pen="ob" data-v="-1" aria-label="OB 줄이기"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><i></i><button data-pen="ob" data-v="1" aria-label="OB 늘리기"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></span></div>
+      <div class="prow"><span>해저드</span><b id="hzV">0</b><span class="stepper"><button data-pen="hz" data-v="-1" aria-label="해저드 줄이기"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><i></i><button data-pen="hz" data-v="1" aria-label="해저드 늘리기"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></span></div>
+    </section>
+    <section class="panel icard field" data-step="putt">
+      <div class="ihead"><span class="ititle">퍼팅</span><span class="chip" id="girLbl"></span></div>
+      <div class="seg full putts" id="puttBtns"></div>
+    </section>
+    <section class="panel icard field" data-step="score">
+      <div class="ihead"><span class="ititle">스코어</span><span class="isum">벌타 포함</span></div>
+      <div class="scorebox" id="scoreIn"></div>
+    </section>
+    <section class="panel memocard">
       <div class="voice">
-        <button type="button" class="mic" id="micBtn" hidden aria-label="말하기">🎤</button>
-        <textarea id="memoIn" rows="2" placeholder="샷 메모나 그날의 생각을 자유롭게. 바쁠 땐 말로 대충 남기고 나중에 보며 입력하세요." autocomplete="off"></textarea>
+        <button type="button" class="mic" id="micBtn" hidden aria-label="말하기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button>
+        <svg class="micic" id="micIc" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+        <textarea id="memoIn" rows="1" aria-label="홀 메모" placeholder="홀 메모 남기기" autocomplete="off"></textarea>
+        <span class="note" id="memoSaved"></span>
       </div>
       <div class="heard" id="heard" role="status"></div>
-    </div>
-    <div class="row" style="justify-content:space-between">
-      <button class="ghost" id="playHome">← 홈 (자동 저장됨)</button>
-      <span class="row" style="gap:14px"><button class="linkbtn" id="playInfo">코스·날짜 수정</button><button class="linkbtn" id="toTotalBtn">총 타수만 기록하고 끝내기</button></span>
-    </div>
-    <p class="note" style="margin:-8px 0 0">기본값: 파 · 2퍼트 · 적중 · 스트레이트</p>
+    </section>
+    <p class="note voicetip" id="voiceLbl">키보드의 🎤(받아쓰기)로 말해서 남길 수 있어요 · 바쁠 땐 대충 남기고 나중에 보며 입력하세요</p>
+    <div class="playlinks"><button class="linkbtn" id="playInfo">코스·날짜 수정</button><button class="linkbtn" id="toTotalBtn">총 타수만 기록하고 끝내기</button></div>
+    <p class="note deftip">기본값: 파 · 2퍼트 · 페어웨이 · 직진 — 평범한 홀은 ‘다음 홀’만 누르면 돼요</p>
     <div class="panel" id="toTotalBox" hidden>
       <h2>총 타수로 라운드 저장</h2>
       <p class="note" style="margin-top:0">홀별 점수를 다 챙기지 못했을 때 사용하세요. 이 라운드는 스코어 통계(평균·베스트·추이)에만 들어가고, 지금까지 입력한 홀별 기록은 사용되지 않습니다.</p>
@@ -860,9 +906,9 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
       <div class="row"><button class="primary" id="ttSave">총 타수로 저장</button><button class="ghost" id="ttCancel">취소</button></div>
     </div>
     <div class="bottomnav" id="bottomNav" hidden><div class="in">
-      <button id="prevBtn">◀ 이전</button>
-      <button class="primary" id="doneEditBtn" hidden>수정 완료 ✓</button>
-      <button class="primary" id="nextBtn">다음 홀 ▶</button>
+      <button class="pill gray" id="prevBtn">이전</button>
+      <button class="pill soft" id="doneEditBtn" hidden>수정 완료</button>
+      <button class="pill solid" id="nextBtn"><span id="nextT">다음 홀</span><small id="nextS"></small></button>
     </div></div>
   </section>
 
@@ -1151,18 +1197,21 @@ const SHAPE_NAME = Object.fromEntries(SHAPES.map(s=>[s[0],s[1]]));
 // 홀 화면 구질 버튼: 공이 가는 방향대로 왼쪽→오른쪽 한 줄 (좌타 기준). 가운데 셋은 곧게 가는 공, 바깥은 휘는 공
 // [키, 짧은 이름, 공 궤적(아래 가운데에서 출발)]
 const SHAPE_ROW = [
-  ["slice","슬라이스","M12 27 Q16 5 1 10"],
-  ["fade","페이드","M12 27 Q12 9 6 3"],
-  ["push","푸시","M12 27 L5 3"],
-  ["straight","직진","M12 27 L12 3"],
-  ["pull","풀","M12 27 L19 3"],
-  ["draw","드로우","M12 27 Q12 9 18 3"],
-  ["hook","훅","M12 27 Q8 5 23 10"]];
+  ["slice","슬라이스","M12 22 C12 13 9 7 3 5"],
+  ["fade","페이드","M12 22 C12 13 11 8 8 3"],
+  ["push","푸시","M12 22 L7 3"],
+  ["straight","직진","M12 22 L12 3"],
+  ["pull","풀","M12 22 L17 3"],
+  ["draw","드로우","M12 22 C12 13 13 8 16 3"],
+  ["hook","훅","M12 22 C12 13 15 7 21 5"]];
 const TEE_ORDER = ["Black","Gold","Blue","Green","White","Yellow","Silver","Red","Lady"];
 // 티 순서: 긴 티부터 (골프장마다 Gold 등의 위치가 달라서 이름이 아니라 합계 거리로 정렬)
 const teeLen = a => {const v=a.filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};   // 빈 홀은 빼고 평균
 const teesOf = dist => dist&&typeof dist==="object" ? Object.keys(dist).filter(t=>Array.isArray(dist[t])).sort((a,b)=>teeLen(dist[b])-teeLen(dist[a])||TEE_ORDER.indexOf(a)-TEE_ORDER.indexOf(b)) : [];
 const DEFAULT_TEE = "White";
+// 화면에 보이는 티 이름 (저장 값은 영어 그대로)
+const TEE_KO = {Black:"블랙",Gold:"골드",Blue:"블루",Green:"그린",White:"화이트",Yellow:"옐로",Silver:"실버",Red:"레드",Lady:"레이디"};
+const teeKo = t => TEE_KO[t]||t;
 // 라운드 전반·후반의 코스 찾기 (courseId가 없던 예전 기록은 골프장+코스명으로)
 const courseOf = (r,half) => half&&(courses.find(c=>c.id===half.courseId)||courses.find(c=>c.club===r.club&&c.name===half.course))||null;
 // 고른 코스들의 거리 데이터에 있는 티 (긴 티부터). 거리 데이터가 없으면 흔한 티 목록
@@ -1178,7 +1227,7 @@ function fillTeeSelect(sel, cs, want, allowNone){
   sel.innerHTML=(allowNone?`<option value="">(모름)</option>`:"")+ts.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
   sel.value = want&&ts.includes(want) ? want : allowNone&&!want ? "" : ts.includes(DEFAULT_TEE) ? DEFAULT_TEE : ts[0];
 }
-const FW = [["L","◀ 좌 미스"],["H","● 적중"],["R","우 미스 ▶"]];
+const FW = [["L","왼쪽 미스"],["H","페어웨이"],["R","오른쪽 미스"]];
 
 let db=null, rcol=null, ccol=null, rounds=[], courses=[], cur=null, hole=0, range=10;
 let saving=false, dirty=false, saveTimer=null, pendingDel=null;
@@ -1214,6 +1263,7 @@ function show(name){
   $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs); if(tabs) updFab();
   document.querySelectorAll(".tab[data-tab]").forEach(t=>t.classList.toggle("on",t.dataset.tab===name));
   $("menuBtn").hidden = name!=="Home";
+  $("topBar").classList.toggle("nav",name==="Play"); $("topBack").hidden = name!=="Play";
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
   $("topEyebrow").textContent=eb; $("topTitle").textContent=tt; $("topSub").hidden=true;
   if(name==="Play") playHead();
@@ -1695,52 +1745,66 @@ const lastHole=()=>cur.holes.length-1;
 function playHead(){
   if(!cur) return; const d=new Date(cur.date+"T00:00");
   $("topTitle").textContent=cur.club;
-  $("topSub").textContent=`${dotDate(cur.date)} (${"일월화수목금토"[d.getDay()]||""})`; $("topSub").hidden=false;
+  $("topSub").textContent=`${d.getMonth()+1}월 ${d.getDate()}일 · ${[cur.front&&cur.front.course,cur.back&&cur.back.course].filter(Boolean).join(" → ")}`; $("topSub").hidden=false;
 }
+// 홀 길이(m): 라운드 티(없으면 White)의 거리. 거리 데이터가 없으면 null
+function holeLen(r,i){
+  const half=i<9?r.front:r.back, dist=(courseOf(r,half)||{}).dist, tees=teesOf(dist), tee=r.tee||DEFAULT_TEE;
+  return tees.includes(tee)?dist[tee][i%9]:null;
+}
+const SCORE_CHIP=d=>d<=-3?"알바트로스":({"-2":"이글","-1":"버디","0":"파","1":"보기","2":"더블 보기","3":"트리플 보기","4":"쿼드러플 보기"})[d]||"+"+d;
+const scoreCls=d=>d<0?"u":d===0?"p":d===1?"k":d===2?"d":"t";
 function renderPlay(){
-  const h=cur.holes[hole], c=holeCalc(h);
-  // strip
-  const gs=setOn("ghost")&&cur.ghost?ghostStrokes(cur):[];   // 고스트를 이긴 홀 초록 점, 진 홀 주황 점
+  const h=cur.holes[hole], c=holeCalc(h), N=cur.holes.length;
+  // 홀 번호 줄: 끝난 홀은 결과 색, 지금 홀은 검정. 고스트를 이긴 홀 파랑 점·진 홀 주황 점, 메모가 있는 홀은 오른쪽 위 점
+  const gs=setOn("ghost")&&cur.ghost?ghostStrokes(cur):[];
   let s=""; cur.holes.forEach((x,i)=>{ if(i===9) s+=`<span class="gap"></span>`;
     const gc=x.done&&gs[i]!=null?(x.par+x.d<gs[i]?"gw":x.par+x.d>gs[i]?"gl":""):"";
-    s+=`<button class="${i===hole?"cur":""} ${x.done?"done":""} ${gc}" data-h="${i}"><span>${i%9+1}</span><b class="${x.done?relCls(x.d):""}">${x.done?(x.d>0?"+"+x.d:x.d):"·"}</b></button>`});
+    s+=`<button class="${i===hole?"cur":x.done?"r"+scoreCls(x.d):""} ${gc}" data-h="${i}" aria-label="${i%9+1}번 홀${x.done?" "+SCORE_CHIP(x.d):""}${i===hole?" 기록 중":""}">${i%9+1}</button>`});
   $("strip").innerHTML=s; markStrip();
   if(document.activeElement!==$("memoIn")){ $("memoIn").value=h.memo||""; requestAnimationFrame(growMemo) } $("memoSaved").textContent="";
-  const cb=$("strip").children[hole+(hole>=9?1:0)]; cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
-  const half=hole<9?cur.front:cur.back;
-  $("hNo").innerHTML=`${hole%9+1}<small>번 홀 · ${esc(half.course)}</small>`;
-  const dist=(courseOf(cur,half)||{}).dist, tees=teesOf(dist);
-  // 홀 전장: 라운드에서 고른 티(안 골랐으면 White)의 거리만 PAR 바로 아래에. 그 티 거리가 없으면 표시하지 않음
-  const tee=cur.tee||DEFAULT_TEE, m=tees.includes(tee)?dist[tee][hole%9]:null;
-  $("parPick").innerHTML=`<span>PAR <b>${h.par}</b></span>`+(m!=null&&tee?`<small class="hlen">${esc(tee)} <b>${m}</b>m</small>`:"");   // 파는 코스 기준정보: 홀 화면에서는 보기만 (바꾸려면 코스 탭 → 수정)
-  // running total over done holes
-  const dn=cur.holes.filter(x=>x.done); const tot=dn.reduce((a,x)=>a+x.par+x.d,0), rel=dn.reduce((a,x)=>a+x.d,0);
-  // 홀 카드 아래 줄: 왼쪽 내 누적 타수, 오른쪽 고스트(이 홀 고스트 타수 + 누적 앞섬/뒤짐). 고스트는 첫 홀 입력 전부터 보인다
-  $("running").innerHTML = dn.length ? `<b>${tot}</b>타 <span class="rel">${relTxt(rel)}</span>` : "입력 전";
-  const ghostOn=gs.some(v=>v!=null); $("gbox").hidden=!ghostOn;
-  if(ghostOn){ const g=ghostDiff(cur,true)||{d:0};
-    $("gbox").innerHTML=`<span>👻${gs[hole]!=null?` 이 홀 <b>${gs[hole]}</b>타`:""}</span><span class="ghc ${g.d<0?"win":g.d>0?"lose":"tie"}">${g.d<0?`${-g.d}타 앞섬`:g.d>0?`${g.d}타 뒤짐`:"동률"}</span>` }
+  const cb=$("strip").querySelector(`[data-h="${hole}"]`); cb&&cb.scrollIntoView({inline:"center",block:"nearest"});
+  const half=hole<9?cur.front:cur.back, m=holeLen(cur,hole), tee=cur.tee||DEFAULT_TEE;
+  $("hNo").textContent=`${hole%9+1}번 홀`;
+  $("hSub").textContent=[half.course, m!=null?`${teeKo(tee)} ${m}m`:""].filter(Boolean).join(" · ");
+  $("hPar").textContent=h.par;   // 파는 코스 기준정보: 홀 화면에서는 보기만 (바꾸려면 코스 탭 → 수정)
+  // 누적 · 고스트와 비교 · 이 홀 평균 (정보가 없는 칸은 숨김)
+  const dn=cur.holes.filter(x=>x.done), tot=dn.reduce((a,x)=>a+x.par+x.d,0), rel=dn.reduce((a,x)=>a+x.d,0);
+  const cols=[`<div><small>누적</small><b>${dn.length?`${tot}타 <em class="${relCls(rel)}">${relTxt(rel)}</em>`:"입력 전"}</b></div>`];
+  if(gs.some(v=>v!=null)){ const g=ghostDiff(cur,true)||{d:0}, gl=((cur.ghost[hole<9?"front":"back"]||cur.ghost.front||cur.ghost.back||{}).label||"");
+    const who=/직전/.test(gl)?"직전과":"베스트와";
+    cols.push(`<div><small>${who} 비교</small><b class="${g.d<0?"under":g.d>0?"over":""}">${g.d<0?`${-g.d}타 앞`:g.d>0?`${g.d}타 뒤`:"동률"}</b>${gs[hole]!=null?`<i>이 홀 고스트 ${gs[hole]}타</i>`:""}</div>`) }
+  const bf=cur.status==="playing"?briefFor(cur,hole):null;
+  if(bf) cols.push(`<div><small>이 홀 평균</small><b>${sg1(bf.avg)}</b></div>`);
+  $("hStats").innerHTML=cols.join(""); $("hStats").style.gridTemplateColumns=`repeat(${cols.length},minmax(0,1fr))`;
   renderBrief(); renderMissionLine(); if(!$("scrPlay").hidden) playHead();
-  // score
-  $("scoreBtns").innerHTML=SCORE_OPTS.map(([d,n])=>`<button class="opt ${h.d===d?"on":""} ${h.d===d&&d>0?"overc":""}" data-d="${d}"><b>${d>0?"+"+d:d}</b><small>${d===5?(h.par+5)+"타":n}</small></button>`).join("");
-  $("strokesLbl").textContent=`${c.strokes}타`;
-  // putts
-  $("puttBtns").innerHTML=[0,1,2,3,4].map(p=>`<button class="opt ${h.putts===p?"on":""}" data-p="${p}"><b>${p===4?"4+":p}</b><small>${["칩인","1퍼트","2퍼트","3퍼트","4퍼트+"][p]}</small></button>`).join("");
-  $("girLbl").innerHTML=c.gir?`<span style="color:var(--under)">그린 적중 (GIR)</span>`:`그린 미스`;
-  // fairway
+  // 티샷
   $("fwField").hidden=h.par<4;
-  $("fwBtns").innerHTML=FW.map(([k,n])=>`<button class="opt ${h.fw===k?"on":""}" data-fw="${k}"><b style="font-family:var(--f-body);font-size:14px">${n}</b></button>`).join("");
-  // shape
-  $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="opt shp ${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 30" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="27" r="2"/></svg><small>${n}</small></button>`).join("");
-  $("obV").textContent=h.ob||0; $("hzV").textContent=h.hz||0;
+  $("fwBtns").innerHTML=FW.map(([k,n])=>`<button class="${h.fw===k?"on":""}" data-fw="${k}">${n}</button>`).join("");
+  $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="25" r="2.2"/></svg><span>${n}</span></button>`).join("");
+  $("teeSum").textContent=[h.par>=4?(FW.find(f=>f[0]===h.fw)||["",""])[1]:"",(SHAPE_ROW.find(x=>x[0]===h.shape)||["","",""])[1]].filter(Boolean).join(" · ");
+  // 벌타
+  [["obV",h.ob],["hzV",h.hz]].forEach(([id,v])=>{ $(id).textContent=v||0; $(id).classList.toggle("on",(v||0)>0) });
+  // 퍼팅 + 그린 적중 자동 표시
+  $("puttBtns").innerHTML=[0,1,2,3,4].map(p=>`<button class="${h.putts===p?"on":""}" data-p="${p}" aria-label="${["칩인","1퍼트","2퍼트","3퍼트","4퍼트 이상"][p]}">${p===4?"4+":p}</button>`).join("");
+  $("girLbl").textContent=c.gir?"그린 적중":"그린 미스"; $("girLbl").className="chip "+(c.gir?"on":"");
+  // 스코어: −/+ 로 한 타씩 (이글 ~ +5)
+  const lo=-2, hi=5;
+  $("scoreIn").innerHTML=`<button class="rb" data-d="${h.d-1}" ${h.d<=lo?"disabled":""} aria-label="한 타 줄이기"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+    <div class="sval"><b>${c.strokes}</b><span class="chip r${scoreCls(h.d)}">${SCORE_CHIP(h.d)}${h.d?` · ${relTxt(h.d)}`:""}</span></div>
+    <button class="rb" data-d="${h.d+1}" ${h.d>=hi?"disabled":""} aria-label="한 타 늘리기"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button>`;
+  // 아래 고정 버튼
   $("prevBtn").disabled=hole===0;
-  const editing=cur.status==="done";
+  const editing=cur.status==="done", last=hole===lastHole();
   $("bottomNav").querySelector(".in").classList.toggle("edit",editing);
   $("doneEditBtn").hidden=!editing;
-  $("nextBtn").className = editing?"":"primary";
-  $("nextBtn").textContent= editing ? (hole===lastHole()?"끝":"다음 ▶") : (hole===lastHole() ? "라운드 완료 ✓" : "다음 홀 ▶");
-  $("nextBtn").disabled = editing && hole===lastHole();
-  $("playHome").hidden=editing; $("toTotalBtn").hidden=editing;
+  $("nextBtn").className = editing?"pill gray":"pill solid";
+  const nx=cur.holes[hole+1], nm=nx?holeLen(cur,hole+1):null;
+  $("nextT").textContent = editing ? "다음" : last ? "라운드 완료" : "다음 홀";
+  $("nextS").textContent = editing||!nx ? (last&&!editing?`${N}홀 · ${dn.length+(h.done?0:1)}/${N} 기록`:"") : [`${hole+1===9?(cur.back?cur.back.course+" ":""):""}${(hole+1)%9+1}번`,`Par ${nx.par}`,nm!=null?`${nm}m`:""].filter(Boolean).join(" · ");
+  $("nextS").hidden=!$("nextS").textContent;
+  $("nextBtn").disabled = editing && last;
+  $("toTotalBtn").hidden=editing;
   markStep(false);
 }
 function touch(){cur.holes[hole].done=true;queueSave();renderPlay()}
@@ -1752,6 +1816,7 @@ function markStep(scroll){
   const h=cur.holes[hole], order=stepOrder(h), editing=cur.status==="done";
   if(stepHole!==hole||!order.includes(step)){step=order[0];stepHole=hole}
   document.querySelectorAll("#scrPlay .field[data-step]").forEach(f=>f.classList.toggle("now",!editing&&f.dataset.step===step));
+  $("teeCard").classList.toggle("now",!editing&&(step==="fw"||step==="shape"));
   $("nextBtn").classList.toggle("go",!editing&&step==="done");
   const el=document.querySelector(`#scrPlay .field[data-step="${step}"]`);
   if(scroll&&el&&!editing) el.scrollIntoView({block:"nearest",behavior:"smooth"});
@@ -1819,7 +1884,10 @@ $("ttSave").onclick=async()=>{
   if(o) cur.out=o; if(i) cur.in=i;
   $("toTotalBox").hidden=true; await flush(); openRound(cur.id,true);
 };
-$("playHome").onclick=()=>{flush();cur=null;show("Home");renderHome()};
+// 왼쪽 위 ←: 기록 중이면 홈으로(자동 저장됨), 완료한 라운드를 고치는 중이면 '수정 완료'와 같음
+$("topBack").onclick=()=>{ if($("scrPlay").hidden||!cur) return;
+  if(cur.status==="done") return $("doneEditBtn").click();
+  flush();cur=null;show("Home");renderHome() };
 
 /* ---------- round info edit (date / club / courses) ---------- */
 let infoFrom="play";
@@ -1878,7 +1946,7 @@ $("memoIn").addEventListener("input",()=>{
   const v=$("memoIn").value; if(v.trim()) h.memo=v; else delete h.memo;
   $("memoSaved").textContent="저장됨"; queueSave(); markStrip(); growMemo();
 });
-function growMemo(){const t=$("memoIn"); t.style.height="auto"; t.style.height=Math.max(52,t.scrollHeight+2)+"px"}
+function growMemo(){const t=$("memoIn"); t.style.height="auto"; t.style.height=Math.max(24,t.scrollHeight)+"px"}
 function markStrip(){ [...$("strip").querySelectorAll("button[data-h]")].forEach(b=>b.classList.toggle("memo",!!cur.holes[+b.dataset.h].memo)) }
 
 /* ---------- 🎤 speech (Web Speech API) ---------- */
@@ -1888,7 +1956,7 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const iosHomeApp = (navigator.standalone===true || matchMedia("(display-mode: standalone)").matches)
   && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1));
 if(SR && !iosHomeApp){
-  $("micBtn").hidden=false; $("voiceLbl").textContent="홀 메모 · 🎤 누르고 말하기";
+  $("micBtn").hidden=false; $("micIc").setAttribute("hidden",""); $("voiceLbl").textContent="마이크를 누르고 말하면 메모로 남아요 · 바쁠 땐 대충 남기고 나중에 보며 입력하세요";
   let rec=null;
   $("micBtn").onclick=()=>{
     if(rec){rec.abort();return}   // stop()은 결과를 기다리다 멈출 수 있어 바로 끊는다
@@ -2341,14 +2409,14 @@ function briefFor(r,i){
     if(!tip&&three>=2) tip="그린이 어려운 홀: 첫 퍼트는 홀컵 주변 1m 원 안에 붙이는 것만 목표";
   }
   if(!tip&&avg<0.5) tip="강한 홀: 평소대로 공격적으로";
-  return {n,text:parts.join(" · "),tip};
+  return {n,avg,text:parts.join(" · "),tip};
 }
 let briefOpen=true; try{ briefOpen=localStorage.getItem("gsb.briefOpen")!=="0" }catch(e){}
 function renderBrief(){
   const b=setOn("brief")&&cur.status==="playing"?briefFor(cur,hole):null;
   $("brief").hidden=!b; if(!b) return;
-  $("brief").innerHTML=`<span class="bh"><span>📋 이 홀 내 기록 · ${b.n}회</span><em>${briefOpen?"접기 ▴":"펼치기 ▾"}</em></span>`+
-    (briefOpen?`<span>${b.text}</span>${b.tip?`<span class="tip">💡 ${b.tip}</span>`:""}`:"");
+  $("brief").innerHTML=`<span class="bh"><span>이 홀 내 기록 · ${b.n}회</span><em>${briefOpen?"접기":"펼치기"}</em></span>`+
+    (briefOpen?`<span>${b.text}</span>${b.tip?`<span class="tip">${b.tip}</span>`:""}`:"");
 }
 
 /* ---------- 배지: 저장하지 않고 라운드를 날짜순으로 훑어 매번 계산 ---------- */
@@ -2577,7 +2645,7 @@ function missionState(r){
   const m=r.mission; if(!m||!MISSIONS[m.type]) return null;
   if(isTotal(r)) return m.type==="score"?{txt:`${r.total}타`,ok:r.total<=m.target,fail:r.total>m.target}:null;
   const fin=r.status==="done", hs=r.holes, dn=hs.filter(h=>h.done||fin);
-  const cap=v=>({txt:`현재 ${v}개`,fail:v>m.target,ok:v<=m.target});
+  const cap=v=>({txt:`현재 ${v}개`,n:v,fail:v>m.target,ok:v<=m.target});
   switch(m.type){
     case "ob": return cap(dn.reduce((a,h)=>a+(h.ob||0),0));
     case "slice": case "hook": return cap(dn.filter(h=>h.shape===m.type).length);
@@ -2593,7 +2661,8 @@ function missionState(r){
 function renderMissionLine(){
   const st=missionState(cur); $("mline").hidden=!st||cur.status!=="playing"; if($("mline").hidden) return;
   $("mline").className="mline"+(st.fail?" fail":"");
-  $("mline").textContent=`🎯 ${missionName(cur.mission)} — ${st.txt}${st.fail?" · 실패 확정":""}`;
+  const v=st.n!=null?`${st.n} / ${cur.mission.target}`:st.txt.replace(/^현재 /,"");
+  $("mline").innerHTML=`<span class="mic2"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg></span><span>미션 · ${esc(missionName(cur.mission))}</span><b>${st.fail?"실패 확정 · ":""}${v}</b>`;
 }
 // 라운드 카드(완료·상세 화면): 고스트 결과 · 미션 · 이 라운드에서 받은 배지
 function heroExtras(r){

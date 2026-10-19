@@ -2,54 +2,18 @@
 //   node tools/shot.mjs [출력폴더=shots] [--only=home,play] [--width=390] [--design]
 // - 앱: 가짜 로그인·예시 데이터(tools/seed.mjs)로 index.html을 열어 라이트/다크로 찍는다.
 // - --design: design/v3/screens/*.dc.html 시안을 그대로 그려서 같이 찍는다 (비교용).
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { createRequire } from "node:module";
-import { MOCK } from "./mock-firebase.mjs";
-import { makeSeed, NOW } from "./seed.mjs";
 
-// playwright: 프로젝트에 없으면 전역 설치본을 쓴다
-const req = createRequire(import.meta.url);
-let pw; try { pw = req("playwright") } catch { pw = req(path.join(execFileSync("npm", ["root", "-g"]).toString().trim(), "playwright")) }
-const { chromium } = pw;
-const ROOT = path.resolve(new URL("..", import.meta.url).pathname);
+import { chromium, routeAll, openApp, wait, ROOT } from "./harness.mjs";
 const args = process.argv.slice(2);
 const opt = k => (args.find(a => a.startsWith(`--${k}=`)) || "").split("=")[1];
 const OUT = path.resolve(args.find(a => !a.startsWith("--")) || "shots");
 const ONLY = opt("only") ? opt("only").split(",") : null;
 const WIDTH = +(opt("width") || 390), HEIGHT = 844;
-const CACHE = process.env.SHOT_CACHE || "/tmp/claude-0/shot-cache";
-mkdirSync(OUT, { recursive: true }); mkdirSync(CACHE, { recursive: true });
-
-const TYPES = { html: "text/html", js: "text/javascript", mjs: "text/javascript", css: "text/css", png: "image/png", jpg: "image/jpeg", webmanifest: "application/manifest+json", json: "application/json", woff2: "font/woff2" };
-// 바깥 파일(글꼴 등)은 curl로 한 번 받아 두고 재사용 (브라우저가 프록시를 못 쓰는 환경 대비)
-function external(url) {
-  const f = path.join(CACHE, createHash("md5").update(url).digest("hex"));
-  if (!existsSync(f)) execFileSync("curl", ["-sSfL", "-o", f, url], { timeout: 30000 });
-  const ext = (url.split("?")[0].match(/\.(\w+)$/) || [])[1];
-  return { body: readFileSync(f), contentType: url.includes("fonts.googleapis.com/css") ? "text/css" : TYPES[ext] || "application/octet-stream" };
-}
-async function routeAll(ctx) {
-  await ctx.route("**/*", async route => {
-    const u = new URL(route.request().url());
-    try {
-      if (u.hostname === "app.local") {
-        const p = path.join(ROOT, decodeURIComponent(u.pathname));
-        if (!existsSync(p)) return route.fulfill({ status: 404, body: "" });
-        return route.fulfill({ body: readFileSync(p), contentType: TYPES[p.split(".").pop()] || "application/octet-stream" });
-      }
-      if (u.hostname === "www.gstatic.com" && u.pathname.startsWith("/firebasejs/"))
-        return route.fulfill({ body: MOCK[u.pathname.split("/").pop()], contentType: "text/javascript" });
-      const r = external(u.href);
-      return route.fulfill({ ...r, headers: { "access-control-allow-origin": "*" } });
-    } catch (e) { return route.fulfill({ status: 404, body: "" }) }
-  });
-}
+mkdirSync(OUT, { recursive: true });
 
 // ---------- 찍을 화면들: [이름, 시나리오, 동작] ----------
-const wait = ms => new Promise(r => setTimeout(r, ms));
 const click = async (p, sel) => { await p.locator(sel).first().click(); await wait(350) };
 const SHOTS = [
   ["login", "login", async p => {}],
@@ -57,6 +21,7 @@ const SHOTS = [
   ["home-done", "done", async p => {}],
   ["home-empty", "empty", async p => {}],
   ["play", "full", async p => { await p.evaluate(() => document.querySelector("[data-tab=new],#fabTab,.fabbtn").click()); await wait(500) }],
+  ["play-edit", "done", async p => { await click(p, "#roundList [data-id]"); await p.evaluate(() => document.querySelector("#editRound").click()); await wait(500) }],
   ["setup", "done", async p => { await p.evaluate(() => document.querySelector("[data-tab=new],#fabTab,.fabbtn").click()); await wait(400) }],
   ["round", "done", async p => { await click(p, "#roundList [data-id]") }],
   ["round-score", "done", async p => { await click(p, "#roundList [data-id]"); await clickTab(p, "스코어") }],
@@ -72,16 +37,7 @@ const SHOTS = [
 async function clickTab(p, name) { const t = p.locator(`[role=tab]:has-text("${name}")`); if (await t.count()) { await t.first().click(); await wait(300) } }
 
 async function shootApp(browser, [name, scenario, act], scheme) {
-  const ctx = await browser.newContext({ viewport: { width: WIDTH, height: HEIGHT }, deviceScaleFactor: 2, colorScheme: scheme, timezoneId: "Asia/Seoul", locale: "ko-KR", serviceWorkers: "block" });
-  await routeAll(ctx);
-  const seed = makeSeed(scenario === "login" ? "empty" : scenario); seed.signedIn = scenario !== "login";
-  await ctx.addInitScript(s => { window.__SEED = s }, seed);
-  const p = await ctx.newPage();
-  const errs = []; p.on("pageerror", e => errs.push(e.message));
-  await p.clock.setFixedTime(new Date(NOW));
-  await p.goto("http://app.local/index.html");
-  await p.waitForFunction(() => [...document.querySelectorAll("section.screen")].some(s => !s.hidden && s.id !== "scrSplash"), null, { timeout: 8000 }).catch(() => {});
-  await wait(1200);
+  const p = await openApp(browser, { scenario, scheme, width: WIDTH, height: HEIGHT }), ctx = p.context(), errs = p.errs;
   try { await act(p) } catch (e) { errs.push("action: " + e.message) }
   await p.evaluate(() => document.fonts && document.fonts.ready);
   await wait(300);
