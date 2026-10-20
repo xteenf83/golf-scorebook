@@ -1704,7 +1704,7 @@ function renderMissionNote(){
     <span>${m?`이번 미션은 ${esc(missionName(m))}예요`:`다음 라운드 미션은 ${esc(missionName(nm))}예요`}</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`;
   el.onclick=()=>m?openPlay(p.id):startNewRound();
 }
-/* 타수를 잃는 곳: 최근 10라운드(18홀) 중 홀별 기록 라운드로 벌타 · 티샷 미스 · 3퍼트.
+/* 타수를 잃는 곳: 분석 '어디서 타를 잃나'(lossCauses)의 요약 — 최근 10라운드(18홀) 홀별 기록으로 잃은 타 상위 3개.
    퍼팅까지 기록한 라운드가 없으면 파 대비 점수만으로 보기·더블·트리플+ */
 function renderLossCard(){
   const box=$("lossCard"), rs=statRounds().slice(0,10).filter(r=>!isTotal(r)&&Array.isArray(r.holes));
@@ -1712,20 +1712,22 @@ function renderLossCard(){
   const det=rs.filter(hasDetail), ic={pen:"M12 3v18M12 4h7l-2 3.5 2 3.5h-7",tee:"M14 5c-5 2-8 7-8 14M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",putt:"M4 18h16M7 18a5 5 0 0 1 10 0M12 4v9",dbl:"M5 19V9M12 19V5M19 19v-7"};
   const row=(k,tone,name,sub,v,vc="")=>`<button class="lrow" data-go="Stats"><span class="ltile sm t-${tone}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ic[k]}"/></svg></span><span class="lmain"><b>${name}</b><small>${sub}</small></span><span class="lval"><b class="${vc}">${v}</b></span></button>`;
   let rows="", tip="";
-  if(det.length){
-    const n=det.length, hs=det.flatMap(r=>r.holes), ob=hs.reduce((a,h)=>a+(h.ob||0),0)/n, hz=hs.reduce((a,h)=>a+(h.hz||0),0)/n;
-    const t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, R=t.filter(h=>h.fw==="R").length, side=L>=R?"L":"R", k=Math.max(L,R);
-    const three=hs.filter(h=>h.putts>=3).length/n;
-    rows=row("pen","o","벌타",`OB ${ob.toFixed(1)} · 해저드 ${hz.toFixed(1)}`,`${(ob*2+hz).toFixed(1)}타`,ob*2+hz>0?"over":"")+
-      (t.length?row("tee","b",`티샷 ${side==="L"?"왼쪽":"오른쪽"} 미스`,`파4·5 티샷 ${t.length}번 중 ${k}번`,`${Math.round(k/t.length*100)}%`):"")+
-      row("putt","g","3퍼트",`3퍼트 이상 · 라운드당`,`${three.toFixed(1)}회`);
-    const LC=n>=3?lossCauses(det):null;
-    if(LC&&LC.top) tip=`<div class="rx"><b>가장 큰 손실: ${LC.top.label} · 라운드당 ${LC.top.v.toFixed(1)}타</b>${LOSS_RX[LC.top.k]}</div>`;
+  const L=lossCauses(det), cnt=L&&L.top?det.length:rs.length;
+  if(L&&L.top){
+    const n=L.n, hs=L.hs, t=hs.filter(h=>h.par>=4&&h.fw), Lm=t.filter(h=>h.fw==="L").length, Rm=t.filter(h=>h.fw==="R").length, p3=hs.filter(h=>h.par===3);
+    const v=k=>L.items.find(x=>x.k===k).v;
+    const sub={ob:`OB 라운드당 ${(v("ob")/2).toFixed(1)}개 · 1개에 2타`, hz:`해저드 라운드당 ${v("hz").toFixed(1)}개`,
+      three:`라운드당 ${(hs.filter(h=>h.putts>=3).length/n).toFixed(1)}번`,
+      tee:t.length?`페어웨이를 놓친 티샷 ${Math.round((Lm+Rm)/t.length*100)}% · ${Lm>=Rm?"왼쪽":"오른쪽"}이 많아요`:"파4·5 티샷 미스",
+      par3:p3.length?`파3 평균 ${sg1(p3.reduce((a,h)=>a+h.d,0)/p3.length)}타`:"파3"};
+    const look={ob:["pen","o"],hz:["pen","o"],tee:["tee","b"],three:["putt","g"],par3:["dbl","g"]};
+    rows=L.items.filter(x=>x.v>0.05).slice(0,3).map(x=>row(look[x.k][0],look[x.k][1],x.label,sub[x.k],`${x.v.toFixed(1)}타`,x===L.top?"over":"")).join("");
+    tip=`<div class="rx"><b>1위 ${L.top.label} · 라운드당 ${L.top.v.toFixed(1)}타</b><br>${LOSS_RX[L.top.k]}</div>`;
   } else {
     const n=rs.length, hs=rs.flatMap(r=>r.holes), d=h=>+h.d||0, per=f=>hs.reduce((a,h)=>a+f(h),0)/n;
     rows=row("dbl","o","보기",`보기 홀 · 라운드당`,`${per(h=>d(h)===1?1:0).toFixed(1)}타`)+row("dbl","o","더블",`더블 보기 홀 · 라운드당`,`${per(h=>d(h)===2?2:0).toFixed(1)}타`)+row("dbl","o","트리플 이상",`라운드당`,`${per(h=>d(h)>=3?d(h):0).toFixed(1)}타`);
   }
-  box.innerHTML=`<div class="ah"><h2>타수를 잃는 곳</h2><span>최근 ${det.length||rs.length}라운드 · 라운드당</span></div><div class="lrows">${rows}</div>${tip}`;
+  box.innerHTML=`<div class="ah"><h2>타수를 잃는 곳</h2><span>최근 ${cnt}라운드 · 라운드당 잃은 타</span></div><div class="lrows">${rows}</div>${tip}`;
   box.querySelectorAll("[data-go=Stats]").forEach(b=>b.onclick=()=>{renderStats();show("Stats")});
 }
 // 진행 중인 라운드는 하나만: 있으면 가운데 버튼이 '이어서 입력'이 되고, 새 라운드 대신 그 라운드를 연다
