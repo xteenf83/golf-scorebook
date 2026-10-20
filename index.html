@@ -749,10 +749,12 @@ svg.flow text.me{fill:var(--brand-text);font-weight:700;font-size:12.5px}
 .shh{display:flex;justify-content:space-between;align-items:baseline;padding-top:26px;padding-bottom:10px}
 .shh b{font-size:17px;font-weight:700} .shh small{font-size:13px;color:var(--t4)}
 .sbars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end}
-.sbars>div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:118px}
+.sbars>div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:134px}
 .sbars em{font-style:normal;font-size:14px;font-weight:700;color:var(--t3)} .sbars em.hit{color:var(--brand-text)} .sbars em.miss{color:var(--bogey-text)}
 .sbars i{display:block;width:100%;border-radius:7px;background:var(--line);min-height:3px} .sbars i.hit{background:var(--brand)} .sbars i.miss{background:#F2883C}
 .sbars span{font-size:11.5px;color:var(--t3);font-weight:500;white-space:nowrap;letter-spacing:-0.05em}
+.sbars small{font-size:10.5px;color:var(--t4);white-space:nowrap;letter-spacing:-0.04em;margin-top:-3px}
+.sbnote{margin:8px 0 0;font-size:12px;color:var(--t4)}
 .tipbox{margin-top:14px;background:var(--fill2);border-radius:14px;padding:13px 14px;font-size:14.5px;color:var(--t2);line-height:1.5}
 .ptiles{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;padding-top:6px}
 .ptiles>div{background:var(--fill2);border-radius:16px;padding:14px}
@@ -1078,13 +1080,11 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
     <div id="insBox"></div>
     <section class="panel"><h2>어디서 타를 잃나</h2><div id="lossBox"></div></section>
     <details class="more" id="statsMore">
-      <summary>자세히 <small>분포 · 구질 · 연도별</small></summary>
+      <summary>자세히 <small>분포 · 구질 추이 · 연도별</small></summary>
       <div class="screen">
         <div class="row"><button class="yearbtn" id="yearBtn" aria-expanded="false">연도별 집계</button></div>
         <section class="panel" id="yearPanel" hidden><div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">연도별 집계</h2><button class="ghost" id="yearClose" style="padding:6px 12px;font-size:13px">닫기</button></div><div id="yearBox"></div></section>
         <section class="panel"><h2>홀 결과 분포</h2><div id="dist"></div></section>
-        <section class="panel"><h2>티샷 · 페어웨이</h2><div id="fwBox"></div></section>
-        <section class="panel"><h2>티샷 구질 <small class="note">(좌타 기준)</small></h2><div id="shapeBox"></div></section>
         <section class="panel"><h2>구질 추이 <small class="note">(최근 10라운드)</small></h2><div id="shapeTrend"></div></section>
       </div>
     </details>
@@ -1286,7 +1286,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v73";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v74";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1764,10 +1764,6 @@ function renderStats(){
   $("yearChip").textContent=`${new Date().getFullYear()}년`;
   renderInsights(all,rs);
   const full=rs.filter(hasDetail);
-  const pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
-  const cs=full.map(roundCalc); const n=full.length;
-  const sum=k=>cs.reduce((a,c)=>a+c[k],0);
-  const fwN=sum("fwN");
   if(!$("yearPanel").hidden) renderYearly();
   renderLoss(full); renderShapeTrend();
   // distribution: 파 대비 점수(d)만 있으면 되므로 파를 모르는 과거 홀별 기록도 포함
@@ -1777,22 +1773,6 @@ function renderStats(){
   else { const cnt=bins.map(b=>dH.filter(h=>b[1](h.d)).length);
     $("dist").innerHTML=`<div class="stack">${bins.map((b,i)=>cnt[i]?`<i style="width:${cnt[i]/dH.length*100}%;background:${b[2]}" title="${b[0]} ${cnt[i]}"></i>`:"").join("")}</div>
     <div class="legend">${bins.map((b,i)=>`<span><i style="background:${b[2]};border:1px solid var(--line)"></i>${b[0]} ${Math.round(cnt[i]/dH.length*100)}%</span>`).join("")}</div>`; }
-  if(!n){
-    $("fwBox").innerHTML=`<p class="note" style="margin:0">파4·5 티샷의 페어웨이 적중률과 좌·우 미스 비율이 표시됩니다.</p>`;
-    $("shapeBox").innerHTML=`<p class="note" style="margin:0">구질별 비율과 구질별 페어웨이 적중률이 표시됩니다.</p>`;
-    return;
-  }
-  const allH=full.flatMap(r=>r.holes);
-  // fairway
-  const L=sum("fwL"),H=sum("fwH"),R=sum("fwR");
-  $("fwBox").innerHTML=`<div class="bars">${[["◀ 좌 미스",L],["● 적중",H],["우 미스 ▶",R]].map(x=>barRow(x[0],"",x[1],fwN,`${x[1]}/${fwN} · ${pct(x[1],fwN)}`)).join("")}</div>
-    <p class="note" style="margin:10px 0 0">파4·5 티샷 ${fwN}회 기준</p>`;
-  // shapes
-  const shots=allH; const tot=shots.length;
-  $("shapeBox").innerHTML=`<div class="bars">${SHAPES.map(s=>{
-      const hs=shots.filter(h=>h.shape===s[0]); const fwH=hs.filter(h=>h.par>=4&&h.fw==="H").length, fwT=hs.filter(h=>h.par>=4&&h.fw).length;
-      return barRow(s[1],s[2],hs.length,tot,`${pct(hs.length,tot)} · FW ${fwT?pct(fwH,fwT):"–"}`)}).join("")}</div>
-    <p class="note" style="margin:10px 0 0">막대 = 전체 티샷 중 비율 · FW = 그 구질일 때 페어웨이 적중률</p>`;
 }
 /* ---------- 분석 화면 카드 (HANDOFF 4-5, 5장): 모두 저장된 라운드로 계산 ---------- */
 function renderInsights(all,rs){
@@ -1840,7 +1820,8 @@ function renderInsights(all,rs){
   const det=rs.filter(hasDetail);
   if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
     const sent=!t.length?"파4·5 티샷 기록이 없어요":L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
-    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100)]), smax=Math.max(1,...sh.map(x=>x[2]));
+    const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(h=>h.fw==="H").length/a.length*100)+"%":"–"};
+    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]), smax=Math.max(1,...sh.map(x=>x[2]));
     const pdet=prev.filter(hasDetail), slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
     const s0=slp(pdet), s1=slp(det);
     cards.push(`<section class="panel ic"><small class="lab">티샷 방향 · 좌타 기준</small><div class="ttl">${sent}</div>
@@ -1853,7 +1834,8 @@ function renderInsights(all,rs){
         <text x="292" y="96" class="pl">${pc(R)}%</text><text x="292" y="118" class="ll">오른쪽 미스</text>
         <circle cx="175" cy="186" r="5" class="tee"/></svg>
       <b class="h15">구질 분포</b>
-      <div class="sbars">${sh.map(([k,nm,v])=>`<div><em class="${k==="straight"?"hit":k==="slice"?"miss":""}">${v}%</em><i class="${k==="straight"?"hit":k==="slice"?"miss":""}" style="height:${Math.round(v/smax*70)}px"></i><span>${nm}</span></div>`).join("")}</div>
+      <div class="sbars">${sh.map(([k,nm,v,fw])=>`<div><em class="${k==="straight"?"hit":k==="slice"?"miss":""}">${v}%</em><i class="${k==="straight"?"hit":k==="slice"?"miss":""}" style="height:${Math.round(v/smax*70)}px"></i><span>${nm}</span><small>FW ${fw}</small></div>`).join("")}</div>
+      <p class="sbnote">FW = 그 구질일 때 페어웨이 적중률</p>
       ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
   box.innerHTML=cards.join("");
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
@@ -1888,7 +1870,6 @@ function renderYearly(){
     <tbody>${rows.map(([k,fn],i)=>`<tr class="${i===3?"hl":""}"><th>${k}</th>${cols.map(c=>`<td>${fn(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
     <p class="note" style="margin:10px 0 0">18홀 라운드 기준 · 핸디 = 평균 (타수 − 파), 파를 모르면 72로 계산 · 퍼팅·적중률·3퍼트·OB는 홀별로 기록한 라운드만 · 9홀 라운드는 개수만 표시</p>`;
 }
-function barRow(k,sub,v,max,txt){return `<div class="bar"><div class="k">${k}${sub?`<small>${sub}</small>`:""}</div><div class="t"><i style="width:${max?v/max*100:0}%"></i></div><div class="v">${txt}</div></div>`}
 
 
 // 골프장 타일: 이름 앞 2–3글자 + 이름으로 고정 배정한 색
