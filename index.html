@@ -599,10 +599,6 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 #scrPlay .field[data-step]{scroll-margin:70px 0 110px}
 
 /* ===== 홈 (HANDOFF 4-2) ===== */
-header.top.home h1{font-size:15px;font-weight:600;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
-header.top.home h1 span{color:var(--t4);font-weight:500;overflow:hidden;text-overflow:ellipsis}
-header.top.home h1 .live{width:8px;height:8px;border-radius:50%;background:var(--brand);flex:none}
-header.top.home{margin:0 -4px 0 2px}
 #scrHome{gap:0}
 #scrHome>*+*{margin-top:12px}
 .panel.live{display:flex;align-items:center;gap:14px;padding:22px 22px 20px;position:relative;margin-top:4px}
@@ -615,11 +611,6 @@ header.top.home{margin:0 -4px 0 2px}
 #resumeActs{margin-top:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 #resumeActs .row{gap:8px}
 button.outline{height:40px;min-height:40px;padding:0 16px;border-radius:20px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2);font-size:15px;font-weight:700}
-.quick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:18px -6px 0!important;padding-bottom:4px}
-.quick button{background:transparent;padding:0;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--t2);border-radius:19px}
-.qi{position:relative;width:58px;height:58px;border-radius:19px;background:var(--card);display:grid;place-items:center}
-.qi svg{width:28px;height:28px}
-.qi em{position:absolute;top:-6px;right:-6px;height:20px;min-width:20px;padding:0 6px;border-radius:10px;background:var(--card);border:1.5px solid #F04452;color:#F04452;font-size:11px;font-weight:700;font-style:normal;display:flex;align-items:center;justify-content:center}
 #scrHome #homeMsg:empty{display:none}
 .avgcard{padding:22px 20px 16px;display:flex;flex-direction:column;margin-top:18px!important}
 .avgcard .ah{display:flex;justify-content:space-between;align-items:center}
@@ -789,7 +780,15 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .ovcard.sheet .big{margin-top:6px}
 
 /* ===== 분석 (HANDOFF 4-5) ===== */
-#scrStats{padding-top:6px}
+#scrStats,#scrHome,#scrCourses,#scrBadges{padding-top:6px}
+/* 홈 머리 사진: 위 칸(클라우드·메뉴)을 사진 오른쪽 위에 얹는다 */
+#homeHead::before{content:"";position:absolute;inset:0 0 auto;height:60px;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,0));z-index:1}
+#homeHead .tright{position:absolute;top:6px;right:6px;left:auto;bottom:auto;z-index:2;display:flex;align-items:center;gap:0}
+#homeHead .cloud,#homeHead .iconbtn{color:#fff} #homeHead .cloud.busy{color:rgba(255,255,255,.7)}
+#homeHead .cloud.off,#homeHead .cloud.err,#homeHead .cloud.show{background:rgba(0,0,0,.45);border-radius:22px;height:36px;min-height:36px}
+#homeHead .cloud.off{color:#FFC36B} #homeHead .cloud.err{color:#FF8A8A}
+#homeHead h1{font-size:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#homeHead p .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ADE80;margin-right:6px;vertical-align:1px}
 .phead{position:relative;height:120px;border-radius:24px;overflow:hidden;background:#1F3A22}
 .phead img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
 .phead::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.6) 100%)}
@@ -992,7 +991,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <h1 id="topTitle">나의 골프 스코어북</h1>
       <div class="tsub" id="topSub" hidden></div>
     </div>
-    <div class="tright">
+    <div class="tright" id="topRight">
       <button class="cloud busy" id="cloud" aria-label="연결 중…"><span class="ctx" id="cloudTxt">연결 중…</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.5h10.2a4.3 4.3 0 0 0 .4-8.6A6.2 6.2 0 0 0 5.8 9.4 4.6 4.6 0 0 0 7 18.5z"/><path class="mk" id="cloudMk" d="M12 16.2v-4.6M9.8 13.6 12 11.4l2.2 2.2"/></svg></button>
       <button class="iconbtn" id="menuBtn" hidden aria-label="메뉴 (더보기)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg></button>
     </div>
@@ -1015,8 +1014,8 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 
   <!-- HOME -->
   <section class="screen" id="scrHome" hidden>
+    <div class="phead" id="homeHead"><img src="images/home-header-aerial.jpg" alt="" onerror="this.remove()"><div><h1 id="homeTitle">나의 골프 스코어북</h1><p id="homeSub"></p></div></div>
     <div id="resumeBox"></div>
-    <nav class="quick" id="quick" aria-label="빠른 메뉴"><button data-q="new"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 8a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#0E9A5A"/><path d="M13 9h2v4h4v2h-4v4h-2v-4H9v-2h4z" fill="#7FD6A8"/></svg></span>새 라운드</button><button data-q="past"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v16a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z" fill="#3182F6"/><path d="M9 9h10v2H9zM9 13h10v2H9zM9 17h6v2H9z" fill="#A8CBFF"/></svg></span>지난 기록</button><button data-q="course"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M9 3h2v22H9z" fill="#F2683C"/><path d="M11 4l11 4.5L11 13z" fill="#FFC9A8"/></svg></span>코스</button><button data-q="badge"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2l10 6v12l-10 6-10-6V8z" fill="#FFB400"/><path d="M14 8l1.8 3.7 4 .5-3 2.8.8 4-3.6-2-3.6 2 .8-4-3-2.8 4-.5z" fill="#FFE08A"/></svg><em id="badgeCnt" hidden></em></span>배지</button><button data-q="backup"><span class="qi"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 19a5 5 0 0 1 1-9.9A7 7 0 0 1 20.5 10 4.5 4.5 0 0 1 20 19z" fill="#8B95A1"/><path d="M13 12h2v4h3l-4 4-4-4h3z" fill="#D1D6DB"/></svg></span>백업</button></nav>
     <p class="msg err" id="homeMsg" role="status"></p>
     <section class="panel avgcard" id="hero"></section>
     <button class="notice" id="missionNote" hidden></button>
@@ -1031,6 +1030,12 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <div class="avatar big" id="avatar2"></div>
       <div class="meta"><b id="whoName"></b><span class="note" id="whoText"></span></div>
       <button class="ghost" id="logoutBtn">로그아웃</button>
+    </section>
+    <section class="panel">
+      <h2>지난 기록 입력</h2>
+      <p class="note" style="margin:0 0 12px">예전에 친 라운드를 홀별 타수만 빠르게 넣습니다. 퍼팅·페어웨이·구질 통계에는 들어가지 않아요.</p>
+      <button id="pastBtn" class="big">지난 라운드 기록하기</button>
+      <p class="msg err" id="pastMsg" role="status"></p>
     </section>
     <section class="panel">
       <h2>재미 기능</h2>
@@ -1204,6 +1209,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 
   <!-- BADGES -->
   <section class="screen" id="scrBadges" hidden>
+    <div class="phead"><img src="images/badges-header-night.jpg" alt="" onerror="this.remove()"><div><h1>배지</h1></div></div>
     <div class="screen" id="badgeBox"></div>
   </section>
 
@@ -1234,6 +1240,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
   <!-- COURSES -->
   <section class="screen" id="scrCourses" hidden>
     <div class="screen" id="courseListView">
+    <div class="phead"><img src="images/courses-header-fairways.jpg" alt="" onerror="this.remove()"><div><h1>코스</h1></div></div>
     <section class="panel">
       <p class="note" style="margin-top:0">골프장을 누르면 코스별 홀 파를 확인하고 고칠 수 있습니다. 새 골프장은 Claude에게 이름만 알려주면 앱 업데이트로 자동 등록해 드립니다.</p>
       <span class="clr" style="margin-bottom:10px"><input id="clSearch" type="search" placeholder="골프장·코스 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
@@ -1286,7 +1293,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v74";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v75";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1548,8 +1555,9 @@ function show(name){
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
   $("topEyebrow").textContent=eb; $("topTitle").textContent=tt; $("topSub").hidden=true;
   if(name==="Play") playHead();
-  $("topBar").classList.toggle("home",name==="Home"); if(name==="Home") homeHead();
-  $("topBar").hidden = name==="Round"||name==="Stats"; document.body.classList.toggle("plain",name==="Round"); $("roundBar").hidden = name!=="Round";
+  if(name==="Home") homeHead();
+  $("topBar").hidden = ["Round","Home","Stats","Courses","Badges"].includes(name);
+  (name==="Home"?$("homeHead"):$("topBar")).appendChild($("topRight")); document.body.classList.toggle("plain",name==="Round"); $("roundBar").hidden = name!=="Round";
   scrollTop();
 }
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{show("Home");renderHome()});
@@ -1621,7 +1629,8 @@ $("rangeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;range=
 // 홈 머리글: 진행 중이면 "● 라운드 진행 중 · 골프장", 아니면 인사
 function homeHead(){
   const p=playingRound();
-  $("topTitle").innerHTML = p ? `<i class="live"></i>라운드 진행 중<span> · ${esc(p.club)}</span>` : esc(userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북");
+  $("homeTitle").textContent = userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북";
+  $("homeSub").innerHTML = p ? `<i class="live"></i>라운드 진행 중 · ${esc(p.club)}` : `좌타 · ${new Date().getFullYear()} 시즌`;
 }
 function renderHome(){
   const playing = playingRound(); updFab(); homeHead();
@@ -1647,8 +1656,6 @@ function renderHome(){
   } else $("resumeBox").innerHTML="";
   renderHero(); renderMissionNote();
   renderRoundList();
-  const bk=computeBadges(), k=Object.keys(bk.got).length+(bk.pbs.length?1:0);
-  $("badgeCnt").textContent=k; $("badgeCnt").hidden=!k;
 }
 /* 평균 카드: 고른 기간(5R·10R·3달·1년·전체)의 평균과 직전 같은 길이 구간 대비 변화량.
    꺾은선은 그 구간 + 비교한 직전 구간 (아래로 갈수록 큰 타수 = 위로 가면 좋아짐), 점선 = 구간 평균 */
@@ -1729,8 +1736,8 @@ function startNewRound(){
   openSetup("hole");
 }
 // 새 라운드 화면 열기. mode: hole(홀별 입력) · score(지난 기록: 홀별 타수만)
-function openSetup(mode){
-  if(!rcol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
+function openSetup(mode,msgEl=$("homeMsg")){
+  if(!rcol){msgEl.textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
   $("sDate").value=today(); fillClubList(); $("sTee").value=""; $("sTee").innerHTML=`<option>${DEFAULT_TEE}</option>`;
   const last=doneRounds()[0]; if(last && !$("sClub").value) $("sClub").value=last.club;
   syncClears(); $("sGhost").value="best"; $("sMission").value=""; $("sMTarget").value="";
@@ -1741,14 +1748,6 @@ function openSetup(mode){
 }
 // 라운드 기록 → 일기 탭에서 고른 '다음 라운드 미션'. 기기에만 기억해 두고 새 라운드 미션 칸을 미리 채운다 (저장 형식은 그대로)
 function nextMission(){ try{ const v=JSON.parse(localStorage.getItem("gsb.nextMission")||"null"); return v&&MISSIONS[v.type]?v:null }catch(e){ return null } }
-// 빠른 메뉴
-$("quick").onclick=e=>{const b=e.target.closest("[data-q]"); if(!b) return; const k=b.dataset.q;
-  if(k==="new") startNewRound();
-  else if(k==="past") openSetup("score");
-  else if(k==="course"){ $("tabBar").querySelector('[data-tab="Courses"]').click() }
-  else if(k==="badge"){ renderBadges(); show("Badges") }
-  else if(k==="backup") exportCsv($("homeMsg"));
-};
 $("tabBar").onclick=e=>{const t=e.target.closest("[data-tab]"); if(!t) return; const k=t.dataset.tab;
   if(k==="new") return startNewRound();
   if(k==="Stats") renderStats();
@@ -2647,6 +2646,7 @@ function exportCsv(out){
 /* ---------- 기본 코스 다시 맞추기 ---------- */
 $("seedCount").textContent=DEFAULT_COURSES.length;
 $("appVer").textContent=APP_VERSION;
+$("pastBtn").onclick=()=>openSetup("score",$("pastMsg"));
 $("reseedBtn").onclick=async()=>{
   const msg=t=>$("reseedMsg").textContent=t;
   if(!curUid||!ccol){msg("로그인한 뒤에 할 수 있습니다.");return}

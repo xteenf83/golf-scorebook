@@ -34,7 +34,7 @@ const SHOTS = [
   ["info", "done", async p => { await click(p, "#roundList [data-id]"); await click(p, "#roundMore"); await click(p, "#mInfo") }],
   ["course-detail", "done", async p => { await click(p, "[data-tab=Courses]"); await click(p, "#courseList [data-club]") }],
   ["badge-detail", "done", async p => { await click(p, "[data-tab=Badges]"); await click(p, ".bm"); await wait(1600) }],
-  ["setup-score", "done", async p => { await click(p, '#quick [data-q="past"]') }],
+  ["setup-score", "done", async p => { await click(p, "#menuBtn"); await click(p, "#pastBtn") }],
   ["stats", "done", async p => { await click(p, "[data-tab=Stats]") }],
   ["courses", "done", async p => { await click(p, "[data-tab=Courses]") }],
   ["badges", "done", async p => { await p.evaluate(() => document.querySelector("[data-tab=Badges],#badgeBtn").click()); await wait(400) }],

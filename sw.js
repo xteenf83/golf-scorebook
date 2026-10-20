@@ -1,9 +1,10 @@
 // 오프라인 캐시: 앱 화면 파일·사진은 "인터넷 먼저, 안 되면 저장본", 라이브러리·글꼴(Pretendard)은 "저장본 먼저".
 // 데이터(Firestore)와 로그인 요청은 건드리지 않습니다 — Firestore가 자체적으로 오프라인 저장을 합니다.
-const CACHE = "golf-scorebook-v74";
+const CACHE = "golf-scorebook-v75";
 const SHELL = ["./", "./index.html", "./firebase-config.js", "./manifest.webmanifest",
   "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png",
-  "./images/splash-aerial-bunkers.jpg", "./images/home-live-aerial.jpg", "./images/insights-header-bunker.jpg", "./images/share-card-lush.jpg"];
+  "./images/splash-aerial-bunkers.jpg", "./images/home-live-aerial.jpg", "./images/insights-header-bunker.jpg", "./images/share-card-lush.jpg",
+  "./images/home-header-aerial.jpg", "./images/courses-header-fairways.jpg", "./images/badges-header-night.jpg"];
 // 글꼴 CSS도 설치 때 받아 둔다 (글자 조각 woff2는 처음 쓰일 때 저장)
 const FONT_CSS = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
 const CDN_HOSTS = ["www.gstatic.com", "cdn.jsdelivr.net"];
