@@ -930,7 +930,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .tleg{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13.5px;color:var(--t3);font-weight:500}
 .tleg i{width:18px;border-top:2px dashed var(--t2)}
 .sstack{display:flex;flex-direction:column;gap:8px}
-.sscroll{display:grid;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
+.sscroll{display:grid;align-items:start;transition:height .25s;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
 .sscroll::-webkit-scrollbar{display:none}
 .sslide{scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;gap:14px;min-height:150px}
 .sslide .sh{display:flex;justify-content:space-between;align-items:baseline}
@@ -1843,14 +1843,13 @@ function renderInsights(all,rs){
     let bb=0,bn=0; rs.filter(r=>!isTotal(r)&&Array.isArray(r.holes)).forEach(r=>r.holes.forEach((h,i)=>{ if(i<r.holes.length-1&&h.d>=1){bn++; if(r.holes[i+1].d<=0) bb++} }));
     const tots=rs.map(sc), sd=tots.length>=2?Math.sqrt(tots.reduce((s,v)=>s+(v-a)**2,0)/(tots.length-1)):null;
     const cell=(v,k,cls="")=>`<div><b class="${cls}">${v}</b><span>${k}</span></div>`;
-    const n9=doneRounds().length-all.length;
     const stats=`<div class="sh"><b>숫자 요약</b><small>${rgLab}</small></div>
       <div class="sgrid2">${[cell(a.toFixed(1),"평균 스코어"),cell(Math.min(...tots),"베스트","gold"),
         cell(per("putts"),"평균 퍼팅"),cell(per("three"),"3퍼트 / 라운드"),
         cell(pct(sum("fwH"),sum("fwN")),"페어웨이 적중"),cell(pct(sum("gir"),sum("n")),"그린 적중"),
         cell(per("ob"),"OB / 라운드"),cell(per("hz"),"해저드 / 라운드")].join("")}</div>
       <div class="sgrid3">${[cell(back==null?"—":sg1(back)+"타","후반 체력",back==null?"":back>0.05?"bogeyt":back<-0.05?"under":""),cell(bn?Math.round(bb/bn*100)+"%":"—","바운스백"),cell(sd==null?"—":"±"+sd.toFixed(1),"기복")].join("")}</div>
-      <p class="note sbasis">후반 체력 = 후반−전반 · 바운스백 = 보기 뒤 바로 파 · 기복 = 라운드 간 편차<br>${n?`퍼팅·적중·벌타: 홀별 기록 ${n}라운드 기준`:"퍼팅·적중·벌타는 홀별로 기록한 라운드가 있으면 보여요"}${n9?` · 9홀 라운드 ${n9}개는 제외`:""}</p>`;
+      <p class="note sbasis">후반 체력 = 후반−전반 · 바운스백 = 보기 뒤 바로 파 · 기복 = 라운드 간 편차</p>`;
     cards.push(`<section class="sstack" aria-label="평균 스코어와 숫자 요약 (옆으로 넘기기)"><div class="sscroll" id="sscroll">
       <div class="panel ic sslide" aria-label="1/2 평균 스코어">${graph}</div><div class="panel sslide sstats" aria-label="2/2 숫자 요약">${stats}</div></div>
       <div class="sdots" id="sdots"><i class="on"></i><i></i></div></section>`) }
@@ -1882,10 +1881,14 @@ function renderInsights(all,rs){
   box.innerHTML=cards.join("");
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
   const sc2=$("sscroll"); if(sc2){ const dots=[...$("sdots").children];
-    const upd=()=>{const i=Math.round(sc2.scrollLeft/Math.max(1,sc2.clientWidth)); dots.forEach((d,k)=>d.classList.toggle("on",k===i)); statSlide=i};
-    sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd(); }
+    // 보고 있는 카드 높이에 맞춤 — 짧은 그래프 카드 아래에 빈 공간이 남지 않게
+    const fit=()=>{const h=sc2.children[statSlide]?.offsetHeight; sc2.style.height=h?h+"px":""};
+    const upd=()=>{const i=Math.round(sc2.scrollLeft/Math.max(1,sc2.clientWidth)); dots.forEach((d,k)=>d.classList.toggle("on",k===i)); statSlide=i; fit()};
+    sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd();
+    // 화면이 숨겨진 채 그려지면 높이가 0이라, 보이게 될 때(크기 변화) 다시 맞춤
+    statRO?.disconnect(); statRO=new ResizeObserver(()=>{ if(!sc2.style.height) sc2.scrollLeft=statSlide*sc2.clientWidth; fit() }); [...sc2.children].forEach(c=>statRO.observe(c)); }
 }
-let statSlide=0;
+let statSlide=0, statRO=null;
 /* 연도별 집계: 위 '최근 5/10/전체' 선택과 상관없이 모든 연도. 9홀 라운드는 제외(따로 개수만 표시). */
 function renderYearly(){
   const box=$("yearBox"), all=doneRounds();
