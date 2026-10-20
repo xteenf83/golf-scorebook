@@ -1273,7 +1273,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v69";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v70";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -3261,9 +3261,16 @@ if("serviceWorker" in navigator){
 
 /* ---------- 시작 화면: 첫 데이터(또는 로그인 화면)가 준비되면 최소 0.8초 뒤 0.3초 동안 사라짐 ---------- */
 const splashT0=performance.now();
+/* iOS 26 홈 화면 앱은 상태 표시줄 칸을 맨 위 고정 요소의 배경색으로 칠하고, 그 요소가 사라져도 바로 다시 보지 않는다
+   → 시작 화면을 걷어낸 뒤 위쪽 띠(.statusbar)를 다시 붙이고 theme-color도 다시 넣어 지금 화면 색을 다시 읽게 한다 */
+function refreshStatusBar(){
+  const sb=document.querySelector(".statusbar");
+  if(sb){ const at=sb.nextSibling, host=sb.parentNode; sb.remove(); requestAnimationFrame(()=>host.insertBefore(sb,at)) }
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{ const c=m.cloneNode(); m.replaceWith(c) });
+}
 function splashDone(){
   const el=$("splash"); if(!el||el.dataset.bye) return; el.dataset.bye="1";
-  setTimeout(()=>{ el.classList.add("bye"); setTimeout(()=>el.remove(),reduceMotion()?0:320) }, Math.max(0,800-(performance.now()-splashT0)));
+  setTimeout(()=>{ el.classList.add("bye"); setTimeout(()=>{ el.remove(); refreshStatusBar() },reduceMotion()?0:320) }, Math.max(0,800-(performance.now()-splashT0)));
 }
 setTimeout(splashDone,6000);   // 느린 연결에서도 시작 화면에 갇히지 않게
 
