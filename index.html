@@ -630,12 +630,11 @@ button.outline{height:40px;min-height:40px;padding:0 16px;border-radius:20px;bac
 .welcome .note{margin:0 0 12px}
 .sechead{display:flex;justify-content:space-between;align-items:center;margin:34px 4px 6px!important}
 .sechead h2{margin:0}
-.sechead .seg button{min-height:32px;padding:5px 12px;font-size:13.5px}
+.sechead .linkbtn{min-height:32px;padding:5px 2px;font-size:14px;font-weight:700}
 #scrHome .lrows,#scrRounds .lrows{margin:0 -10px}
 #scrHome .lrows{margin-top:0!important}
 .lmain .tg{font-style:normal;font-size:11.5px;font-weight:700;color:var(--t3);background:var(--fill);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:2px}
 .lmain .tg.ok{color:var(--brand-text);background:var(--brand-soft)} .lmain .tg.no{color:var(--t3)}
-.allbtn{align-self:center;margin-top:2px!important}
 .ltile.sm svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ltile.sm{width:44px;height:44px;border-radius:15px}
 .ltile.t-o{background:#FFF0EA;color:var(--over)} .ltile.t-b{background:#E8F1FE;color:var(--under)} .ltile.t-g{background:var(--brand-soft);color:var(--brand)}
@@ -1019,9 +1018,8 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
     <p class="msg err" id="homeMsg" role="status"></p>
     <section class="panel avgcard" id="hero"></section>
     <button class="notice" id="missionNote" hidden></button>
-    <div class="sechead"><h2>최근 라운드</h2><div class="seg" id="rlSeg"><button data-k="all" class="on">전체</button><button data-k="18">18홀</button><button data-k="9">9홀</button></div></div>
+    <div class="sechead"><h2>최근 라운드</h2><button class="linkbtn acc" id="allToggle" hidden>전체 보기 ›</button></div>
     <div class="lrows" id="roundList"><div class="empty"><b>불러오는 중…</b></div></div>
-    <button class="linkbtn acc allbtn" id="allToggle" hidden>전체 보기 ›</button>
   </section>
 
   <!-- MORE -->
@@ -1293,7 +1291,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v75";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v76";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1885,14 +1883,11 @@ function rcHtml(r,best){const c=scoreOf(r); const [,m,d]=r.date.split("-"), st=m
       <span class="lval"><b class="${relCls(c.rel)}">${relTxt(c.rel)}</b><small>${c.tot??"–"}타</small></span>
       <span class="lend ${pb?"gold":""}" aria-label="${pb?"개인 최고 기록":"일반 라운드"}">${STAR}</span></button>`}
 const bestScore=()=>{const t=scoreRounds().map(r=>scoreOf(r).tot); return t.length?Math.min(...t):null};
-let rlKind="all";
-$("rlSeg").onclick=e=>{const b=e.target.closest("[data-k]"); if(!b) return; rlKind=b.dataset.k;
-  [...$("rlSeg").children].forEach(x=>x.classList.toggle("on",x===b)); renderRoundList()};
 function renderRoundList(){
-  const all=doneRounds(), rs=all.filter(r=>rlKind==="all"||(rlKind==="9")===is9(r)), best=bestScore();
-  $("allToggle").hidden=all.length<=4; $("allToggle").textContent=`전체 ${all.length}라운드 보기 ›`;
+  const all=doneRounds(), best=bestScore();
+  $("allToggle").hidden=all.length<=4; $("allToggle").textContent=`전체 ${all.length}라운드 ›`;
   if(!all.length){$("roundList").innerHTML=`<div class="empty"><b>아직 기록한 라운드가 없습니다</b>아래 ＋ 버튼으로 시작하세요.</div>`;return}
-  $("roundList").innerHTML=rs.length?rs.slice(0,4).map(r=>rcHtml(r,best)).join(""):`<div class="empty">${rlKind}홀 라운드가 없어요.</div>`;
+  $("roundList").innerHTML=all.slice(0,4).map(r=>rcHtml(r,best)).join("");
 }
 /* 전체 라운드 화면: 연도 선택 + 골프장·코스 검색 */
 let roundFrom="Home";
