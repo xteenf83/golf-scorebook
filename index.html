@@ -1006,7 +1006,6 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
     <div class="sechead"><h2>최근 라운드</h2><div class="seg" id="rlSeg"><button data-k="all" class="on">전체</button><button data-k="18">18홀</button><button data-k="9">9홀</button></div></div>
     <div class="lrows" id="roundList"><div class="empty"><b>불러오는 중…</b></div></div>
     <button class="linkbtn acc allbtn" id="allToggle" hidden>전체 보기 ›</button>
-    <section class="panel losscard" id="lossCard" hidden></section>
   </section>
 
   <!-- MORE -->
@@ -1062,17 +1061,16 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <button data-r="5" class="on">최근 5라운드</button><button data-r="10">10라운드</button><button data-r="y" id="yearChip">올해</button><button data-r="0">전체</button>
     </div>
     <div id="insBox"></div>
+    <section class="panel"><h2>어디서 타를 잃나</h2><div id="lossBox"></div></section>
     <details class="more" id="statsMore">
-      <summary>자세히 <small>타 잃는 곳 · 분포 · 구질 · 연도별</small></summary>
+      <summary>자세히 <small>분포 · 구질 · 연도별</small></summary>
       <div class="screen">
         <div class="row"><button class="yearbtn" id="yearBtn" aria-expanded="false">연도별 집계</button></div>
         <section class="panel" id="yearPanel" hidden><div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">연도별 집계</h2><button class="ghost" id="yearClose" style="padding:6px 12px;font-size:13px">닫기</button></div><div id="yearBox"></div></section>
-        <section class="panel"><h2>어디서 타를 잃나</h2><div id="lossBox"></div></section>
         <section class="panel"><h2>홀 결과 분포</h2><div id="dist"></div></section>
         <section class="panel"><h2>티샷 · 페어웨이</h2><div id="fwBox"></div></section>
         <section class="panel"><h2>티샷 구질 <small class="note">(좌타 기준)</small></h2><div id="shapeBox"></div></section>
         <section class="panel"><h2>구질 추이 <small class="note">(최근 10라운드)</small></h2><div id="shapeTrend"></div></section>
-        <section class="panel"><h2>라운드 미션 달성률</h2><div id="missionBox"></div></section>
       </div>
     </details>
   </section>
@@ -1633,7 +1631,7 @@ function renderHome(){
     acts(false);
   } else $("resumeBox").innerHTML="";
   renderHero(); renderMissionNote();
-  renderRoundList(); renderLossCard();
+  renderRoundList();
   const bk=computeBadges(), k=Object.keys(bk.got).length+(bk.pbs.length?1:0);
   $("badgeCnt").textContent=k; $("badgeCnt").hidden=!k;
 }
@@ -1704,32 +1702,6 @@ function renderMissionNote(){
     <span>${m?`이번 미션은 ${esc(missionName(m))}예요`:`다음 라운드 미션은 ${esc(missionName(nm))}예요`}</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`;
   el.onclick=()=>m?openPlay(p.id):startNewRound();
 }
-/* 타수를 잃는 곳: 분석 '어디서 타를 잃나'(lossCauses)의 요약 — 최근 10라운드(18홀) 홀별 기록으로 잃은 타 상위 3개.
-   퍼팅까지 기록한 라운드가 없으면 파 대비 점수만으로 보기·더블·트리플+ */
-function renderLossCard(){
-  const box=$("lossCard"), rs=statRounds().slice(0,10).filter(r=>!isTotal(r)&&Array.isArray(r.holes));
-  if(!rs.length){ box.hidden=true; return } box.hidden=false;
-  const det=rs.filter(hasDetail), ic={pen:"M12 3v18M12 4h7l-2 3.5 2 3.5h-7",tee:"M14 5c-5 2-8 7-8 14M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",putt:"M4 18h16M7 18a5 5 0 0 1 10 0M12 4v9",dbl:"M5 19V9M12 19V5M19 19v-7"};
-  const row=(k,tone,name,sub,v,vc="")=>`<button class="lrow" data-go="Stats"><span class="ltile sm t-${tone}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ic[k]}"/></svg></span><span class="lmain"><b>${name}</b><small>${sub}</small></span><span class="lval"><b class="${vc}">${v}</b></span></button>`;
-  let rows="", tip="";
-  const L=lossCauses(det), cnt=L&&L.top?det.length:rs.length;
-  if(L&&L.top){
-    const n=L.n, hs=L.hs, t=hs.filter(h=>h.par>=4&&h.fw), Lm=t.filter(h=>h.fw==="L").length, Rm=t.filter(h=>h.fw==="R").length, p3=hs.filter(h=>h.par===3);
-    const v=k=>L.items.find(x=>x.k===k).v;
-    const sub={ob:`OB 라운드당 ${(v("ob")/2).toFixed(1)}개 · 1개에 2타`, hz:`해저드 라운드당 ${v("hz").toFixed(1)}개`,
-      three:`라운드당 ${(hs.filter(h=>h.putts>=3).length/n).toFixed(1)}번`,
-      tee:t.length?`페어웨이를 놓친 티샷 ${Math.round((Lm+Rm)/t.length*100)}% · ${Lm>=Rm?"왼쪽":"오른쪽"}이 많아요`:"파4·5 티샷 미스",
-      par3:p3.length?`파3 평균 ${sg1(p3.reduce((a,h)=>a+h.d,0)/p3.length)}타`:"파3"};
-    const look={ob:["pen","o"],hz:["pen","o"],tee:["tee","b"],three:["putt","g"],par3:["dbl","g"]};
-    rows=L.items.filter(x=>x.v>0.05).slice(0,3).map(x=>row(look[x.k][0],look[x.k][1],x.label,sub[x.k],`${x.v.toFixed(1)}타`,x===L.top?"over":"")).join("");
-    tip=`<div class="rx"><b>1위 ${L.top.label} · 라운드당 ${L.top.v.toFixed(1)}타</b><br>${LOSS_RX[L.top.k]}</div>`;
-  } else {
-    const n=rs.length, hs=rs.flatMap(r=>r.holes), d=h=>+h.d||0, per=f=>hs.reduce((a,h)=>a+f(h),0)/n;
-    rows=row("dbl","o","보기",`보기 홀 · 라운드당`,`${per(h=>d(h)===1?1:0).toFixed(1)}타`)+row("dbl","o","더블",`더블 보기 홀 · 라운드당`,`${per(h=>d(h)===2?2:0).toFixed(1)}타`)+row("dbl","o","트리플 이상",`라운드당`,`${per(h=>d(h)>=3?d(h):0).toFixed(1)}타`);
-  }
-  box.innerHTML=`<div class="ah"><h2>타수를 잃는 곳</h2><span>최근 ${cnt}라운드 · 라운드당 잃은 타</span></div><div class="lrows">${rows}</div>${tip}`;
-  box.querySelectorAll("[data-go=Stats]").forEach(b=>b.onclick=()=>{renderStats();show("Stats")});
-}
 // 진행 중인 라운드는 하나만: 있으면 가운데 버튼이 '이어서 입력'이 되고, 새 라운드 대신 그 라운드를 연다
 const playingRound=()=>rounds.filter(r=>r.status==="playing").sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
 function updFab(){
@@ -1782,7 +1754,7 @@ function renderStats(){
   const sum=k=>cs.reduce((a,c)=>a+c[k],0);
   const fwN=sum("fwN");
   if(!$("yearPanel").hidden) renderYearly();
-  renderLoss(full); renderShapeTrend(); renderMissionStats();
+  renderLoss(full); renderShapeTrend();
   // distribution: 파 대비 점수(d)만 있으면 되므로 파를 모르는 과거 홀별 기록도 포함
   const bins=[["버디 이하",d=>d<=-1,"var(--under)"],["파",d=>d===0,"var(--accent-soft)"],["보기",d=>d===1,"var(--even)"],["더블",d=>d===2,"var(--over)"],["트리플+",d=>d>=3,"var(--danger)"]];
   const dH=rs.filter(r=>!isTotal(r)).flatMap(r=>r.holes).filter(h=>typeof h.d==="number");
@@ -1870,12 +1842,6 @@ function renderInsights(all,rs){
       <b class="h15">구질 분포</b>
       <div class="sbars">${sh.map(([k,nm,v])=>`<div><em class="${k==="straight"?"hit":k==="slice"?"miss":""}">${v}%</em><i class="${k==="straight"?"hit":k==="slice"?"miss":""}" style="height:${Math.round(v/smax*70)}px"></i><span>${nm}</span></div>`).join("")}</div>
       ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
-  // 6) 미션 달성 링 (가장 많이 한 미션 3개, 모든 기간)
-  { const g={}; doneRounds().filter(r=>r.mission&&MISSIONS[r.mission.type]).forEach(r=>{const st=missionState(r); if(!st) return; const k=r.mission.type==="score"?"score":r.mission.type, o=g[k]||(g[k]={n:0,ok:0,m:r.mission}); o.n++; if(st.ok) o.ok++});
-    const top=Object.entries(g).sort((a,b)=>b[1].n-a[1].n).slice(0,3), C=2*Math.PI*31, cols=["var(--brand)","var(--under-fill)","#F2883C"];
-    if(top.length) cards.push(`<section class="panel ic"><b class="h19">미션 달성</b><div class="rings">${top.map(([k,o],i)=>`<div><svg viewBox="0 0 76 76" role="img" aria-label="${k==="score"?"목표 타수":MISSIONS[k][0]} ${o.n}번 중 ${o.ok}번 성공">
-        <circle cx="38" cy="38" r="31" class="trk"/><circle cx="38" cy="38" r="31" fill="none" stroke="${cols[i]}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C*o.ok/o.n).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 38 38)"/>
-        <text x="38" y="44">${o.ok}/${o.n}</text></svg><span>${k==="score"?"목표 타수":MISSIONS[k][0]}</span></div>`).join("")}</div></section>`) }
   box.innerHTML=cards.join("");
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
   const sc2=$("sscroll"); if(sc2){ const dots=[...$("sdots").children];
@@ -2895,7 +2861,10 @@ const BADGES=[
   ["라운드",[["clean","🧼","클린 라운드","OB·해저드 0개"],["no3","🎳","노 3퍼트","3퍼트 0개"],["p30","⛳","퍼팅 30","총 퍼팅 30개 이하"],["fw50","🛡️","페어웨이 수호자","페어웨이 적중 50% 이상"],["nodbl","🙌","더블 없는 날","더블보기 이상 0개"]]],
   ["스윙 교정",[["sl0","🧭","슬라이스 제로","슬라이스 0개 (구질 기록)"],["str","📏","스트레이트 머신","스트레이트+드로우가 티샷의 50% 이상"]]],
   ["누적",[["r1","⛳","첫 라운드","스코어북에 첫 라운드 기록 (9홀·총타만 포함)"],["n10","🔟","10 라운드","18홀 10라운드 완료"],["n25","🏌️","25 라운드","18홀 25라운드 완료"],["n50","🏅","50 라운드","18홀 50라운드 완료"],
-    ["bd10","🐤","버디 10","누적 버디 10개"],["bd30","🦜","버디 30","누적 버디 30개"],["c5","🗺️","골프장 5곳","다른 골프장 5곳"],["c10","🧳","골프장 10곳","다른 골프장 10곳"]]]
+    ["bd10","🐤","버디 10","누적 버디 10개"],["bd30","🦜","버디 30","누적 버디 30개"],["c5","🗺️","골프장 5곳","다른 골프장 5곳"],["c10","🧳","골프장 10곳","다른 골프장 10곳"]]],
+  // 미션: 라운드 미션을 처음 성공하면 메달 (성공 횟수는 메달 아래에)
+  ["미션",[["m_ob","🎯","OB 미션","미션 ‘OB 2개 이하’ 성공"],["m_slice","🎯","슬라이스 미션","미션 ‘슬라이스 3개 이하’ 성공"],["m_hook","🎯","훅 미션","미션 ‘훅 3개 이하’ 성공"],
+    ["m_three","🎯","3퍼트 미션","미션 ‘3퍼트 2개 이하’ 성공"],["m_fw","🎯","페어웨이 미션","미션 ‘페어웨이 50% 이상’ 성공"],["m_dbl","🎯","더블 미션","미션 ‘더블 이상 4개 이하’ 성공"],["m_score","🎯","목표 타수 미션","미션 ‘목표 타수 이하’ 성공"]]]
 ];
 const BADGE_LIST=BADGES.flatMap(([cat,bs])=>bs.map(([id,icon,name,desc])=>({id,icon,name,desc,cat})));
 const BADGE_BY=Object.fromEntries(BADGE_LIST.map(b=>[b.id,b]));
@@ -2927,7 +2896,10 @@ function computeBadges(list=rounds){
     if(touchedShape(r)){ if(!hs.some(h=>h.shape==="slice")) hit("sl0",r);
       if(hs.filter(h=>h.shape==="straight"||h.shape==="draw").length/hs.length>=.5) hit("str",r); }
   });
-  return {got,pbs,best:isFinite(best)?best:null,stats:{n,birdies,clubs:clubSet.size}};
+  const missions={};
+  list.filter(r=>r.status==="done"&&r.mission&&MISSIONS[r.mission.type]).sort(byDate).forEach(r=>{ const st=missionState(r);
+    if(st&&st.ok){ const id="m_"+r.mission.type; hit(id,r); missions[id]=(missions[id]||0)+1 } });
+  return {got,pbs,best:isFinite(best)?best:null,stats:{n,birdies,clubs:clubSet.size,missions}};
 }
 // 이 라운드가 처음 달성한 배지(날짜순 기준) + 개인 베스트였는지
 function roundBadges(r){
@@ -2945,12 +2917,13 @@ function newBadgesFor(r){
   return {ids,pb:tot!=null&&prev.length>0&&tot<Math.min(...prev),tot};
 }
 /* 메달: 아이폰 피트니스 배지처럼 은색 테두리 + 색 에나멜 + 아래 띠의 각인. 받지 못한 배지는 어두운 그래파이트 */
-const CAT_KEY={"스코어":"sc","홀":"ho","라운드":"ro","스윙 교정":"sw","누적":"cu"};
+const CAT_KEY={"스코어":"sc","홀":"ho","라운드":"ro","스윙 교정":"sw","누적":"cu","미션":"mi"};
 const BADGE_MARK={s100:["99","BREAK 100"],s90:["89","BREAK 90"],s80:["79","BREAK 80"],w40:["40","HALF 40"],pb:["PB","BEST"],
   bd1:["-1","BIRDIE"],eg1:["-2","EAGLE"],par3:["3","PAR RUN"],par5:["5","PAR RUN"],chip:["0","CHIP-IN"],
   clean:["OB","CLEAN"],no3:["3P","NO 3PUTT"],p30:["30","PUTTS"],fw50:["50","FAIRWAY"],nodbl:["+1","NO DOUBLE"],
   sl0:["0","NO SLICE"],str:["S","STRAIGHT"],r1:["1","1ST ROUND"],n10:["10","ROUNDS"],n25:["25","ROUNDS"],n50:["50","ROUNDS"],
-  bd10:["10","BIRDIES"],bd30:["30","BIRDIES"],c5:["5","CLUBS"],c10:["10","CLUBS"]};
+  bd10:["10","BIRDIES"],bd30:["30","BIRDIES"],c5:["5","CLUBS"],c10:["10","CLUBS"],
+  m_ob:["OB","MISSION"],m_slice:["SL","MISSION"],m_hook:["HK","MISSION"],m_three:["3P","MISSION"],m_fw:["FW","MISSION"],m_dbl:["+2","MISSION"],m_score:["GO","MISSION"]};
 // 누적 배지 진행도: [통계 키, 목표]
 const BADGE_GOAL={n10:["n",10],n25:["n",25],n50:["n",50],bd10:["birdies",10],bd30:["birdies",30],c5:["clubs",5],c10:["clubs",10]};
 const hexPts=r=>[...Array(6)].map((_,i)=>{const a=Math.PI/180*(60*i-90);return `${(60+r*Math.cos(a)).toFixed(1)},${(66+r*Math.sin(a)).toFixed(1)}`}).join(" ");
@@ -2958,7 +2931,7 @@ const hexPts=r=>[...Array(6)].map((_,i)=>{const a=Math.PI/180*(60*i-90);return `
 document.body.insertAdjacentHTML("beforeend",`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <linearGradient id="mRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".3" stop-color="#a7adb5"/><stop offset=".52" stop-color="#f5f7f9"/><stop offset=".78" stop-color="#868d96"/><stop offset="1" stop-color="#e6e9ec"/></linearGradient>
   <linearGradient id="mRimD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b5f66"/><stop offset=".4" stop-color="#2b2d31"/><stop offset=".6" stop-color="#4b4f55"/><stop offset="1" stop-color="#1d1f22"/></linearGradient>
-  ${[["sc","#fff07c","#f5a01a"],["ho","#94f2ff","#2a7de6"],["ro","#cdf56b","#25b86c"],["sw","#ffa3e2","#9558f5"],["cu","#ffc670","#ff5548"],["lk","#25272b","#131416"]]
+  ${[["sc","#fff07c","#f5a01a"],["ho","#94f2ff","#2a7de6"],["ro","#cdf56b","#25b86c"],["sw","#ffa3e2","#9558f5"],["cu","#ffc670","#ff5548"],["mi","#8ff0d0","#0f9a86"],["lk","#25272b","#131416"]]
     .map(([k,a,b])=>`<linearGradient id="mF_${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`).join("")}
   <linearGradient id="mBand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4d8dd"/><stop offset="1" stop-color="#868c94"/></linearGradient>
   <linearGradient id="mBandD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2c30"/><stop offset="1" stop-color="#18191c"/></linearGradient>
@@ -3000,11 +2973,11 @@ function renderBadges(){
   const cell=(id,b,on,foot,prog)=>`<button class="bm" data-b="${id}">${medalSvg(id,on)}<b>${b.name}</b><small>${foot}</small>${prog!=null?`<i class="bprog"><i style="width:${Math.round(prog*100)}%"></i></i>`:""}</button>`;
   const lastPb=pbs[pbs.length-1];
   $("badgeBox").innerHTML=`<div class="bhead"><b>${k}</b><span>/ ${BADGE_LIST.length+1} 획득</span>
-      <p class="note">스코어·버디·스윙 교정 목표를 달성하면 메달이 모입니다. 메달을 누르면 자세히 볼 수 있어요.</p></div>`+
+      <p class="note">스코어·버디·스윙 교정 목표나 라운드 미션을 달성하면 메달이 모입니다. 메달을 누르면 자세히 볼 수 있어요.</p></div>`+
     BADGES.map(([cat])=>`<section><h2 class="bcat">${cat}</h2><div class="bmgrid">${
       (cat==="스코어"?cell("pb",PB_BADGE,pbs.length>0,lastPb?`${pbs.length}회 · ${best}타`:"미획득",null):"")+
       BADGE_LIST.filter(b=>b.cat===cat).map(b=>{ const g=got[b.id], goal=BADGE_GOAL[b.id];
-        if(g) return cell(b.id,b,true,dotDate(g.date),null);
+        if(g) return cell(b.id,b,true,b.cat==="미션"?`${stats.missions[b.id]}회 성공`:dotDate(g.date),null);
         if(goal) return cell(b.id,b,false,`${Math.min(stats[goal[0]],goal[1])}/${goal[1]}`,Math.min(1,stats[goal[0]]/goal[1]));
         return cell(b.id,b,false,"미획득",null); }).join("")}</div></section>`).join("")+
     `<p class="note" style="margin:0">퍼팅·페어웨이·구질 배지는 기본값(2퍼트·적중·스트레이트)을 바꿔 기록한 라운드만 셉니다. 기록을 고치거나 지우면 자동으로 다시 계산됩니다.</p>`;
@@ -3019,7 +2992,7 @@ function openBadge(id,B){
   let body="";
   if(isPb&&on) body=`<p class="bdesc">개인 베스트를 ${pbs.length}번 갱신했습니다. 현재 베스트는 ${best}타입니다.</p>
       <div class="bhist">${pbs.slice().reverse().slice(0,8).map(p=>`<div><span>${dotDate(p.date)}</span><b>${p.tot}타</b></div>`).join("")}</div>`;
-  else if(on) body=`<p class="bdesc">${dateK(g.date)}에 이 배지를 획득했습니다.</p><p class="bdesc">조건: ${esc(b.desc)}</p>`;
+  else if(on) body=`<p class="bdesc">${dateK(g.date)}에 이 배지를 획득했습니다.</p><p class="bdesc">조건: ${esc(b.desc)}</p>${b.cat==="미션"?`<p class="bdesc">지금까지 ${stats.missions[id]}번 성공했어요.</p>`:""}`;
   else body=`<p class="bdesc">아직 받지 못한 배지예요.</p><p class="bdesc">조건: ${esc(b.desc)}${isPb?" (두 번째 라운드부터)":""}</p>`+
     (goal?`<div class="bdprog"><i style="width:${Math.round(Math.min(1,stats[goal[0]]/goal[1])*100)}%"></i></div><p class="bdesc" style="margin-top:6px">${Math.min(stats[goal[0]],goal[1])} / ${goal[1]}</p>`:"");
   const ov=$("bdv");
@@ -3162,12 +3135,6 @@ function renderLoss(full){
     ${L.top?`<div class="rx"><b>1위 ${L.top.label} · 라운드당 ${L.top.v.toFixed(1)}타</b><br>${LOSS_RX[L.top.k]}</div>`:""}
     <div class="kv" style="margin-top:14px">${[3,4,5].map(p=>`<div><b>${sg1(avgD(p))}</b><span>파${p} 평균 (파 대비)</span></div>`).join("")}</div>
     <p class="note" style="margin:10px 0 0">라운드당 평균 ${sg1(L.over)}타 중 · 홀별 기록 ${L.n}라운드 기준 · 근사치입니다. 항목끼리 일부 겹칠 수 있어요 (기타 = 어프로치·숏게임 등 나머지)</p>`;
-}
-function renderMissionStats(){
-  const rs=doneRounds().filter(r=>r.mission&&MISSIONS[r.mission.type]); const box=$("missionBox");
-  if(!rs.length){ box.innerHTML=`<p class="note" style="margin:0">새 라운드에서 미션을 고르면 미션별 달성률이 표시됩니다.</p>`; return }
-  const g={}; rs.forEach(r=>{ const st=missionState(r); if(!st) return; const k=r.mission.type, o=g[k]||(g[k]={n:0,ok:0}); o.n++; if(st.ok) o.ok++ });
-  box.innerHTML=`<div class="bars">${Object.keys(MISSIONS).filter(k=>g[k]).map(k=>barRow(k==="score"?"목표 타수":MISSIONS[k][0],"",g[k].ok,g[k].n,`${g[k].ok}/${g[k].n} · ${Math.round(g[k].ok/g[k].n*100)}%`)).join("")}</div>`;
 }
 // 구질 추이: 구질을 기록한 최근 10라운드의 슬라이스·훅·스트레이트+드로우 비율 (스윙 교정 효과 확인용)
 function renderShapeTrend(){
