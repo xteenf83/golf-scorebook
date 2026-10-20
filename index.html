@@ -776,10 +776,10 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 
 /* ===== 분석 (HANDOFF 4-5) ===== */
 #scrStats{padding-top:6px}
-.phead{position:relative;height:210px;border-radius:24px;overflow:hidden;background:#1F3A22}
+.phead{position:relative;height:120px;border-radius:24px;overflow:hidden;background:#1F3A22}
 .phead img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
 .phead::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.6) 100%)}
-.phead>div{position:absolute;left:20px;right:20px;bottom:18px;color:#fff;z-index:1}
+.phead>div{position:absolute;left:20px;right:20px;bottom:14px;color:#fff;z-index:1}
 .phead h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-0.045em;line-height:1.2}
 .phead p{margin:2px 0 0;font-size:14.5px;font-weight:500;opacity:.9}
 .rchips{display:flex;gap:8px;padding:0 2px 6px;overflow-x:auto;scrollbar-width:none}
@@ -1056,7 +1056,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 
   <!-- STATS (분석) -->
   <section class="screen" id="scrStats" hidden>
-    <div class="phead"><img src="images/insights-header-bunker.jpg" alt="" onerror="this.remove()"><div><h1>분석</h1><p id="insSub"></p></div></div>
+    <div class="phead"><img src="images/insights-header-bunker.jpg" alt="" onerror="this.remove()"><div><h1>분석</h1></div></div>
     <div class="rchips" id="rangeSeg" role="group" aria-label="기간">
       <button data-r="5" class="on">최근 5라운드</button><button data-r="10">10라운드</button><button data-r="y" id="yearChip">올해</button><button data-r="0">전체</button>
     </div>
@@ -1271,7 +1271,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v67";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v68";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1782,12 +1782,10 @@ function renderStats(){
 /* ---------- 분석 화면 카드 (HANDOFF 4-5, 5장): 모두 저장된 라운드로 계산 ---------- */
 function renderInsights(all,rs){
   const box=$("insBox"), sc=r=>scoreOf(r).tot, rgLab=range==="y"?`${new Date().getFullYear()}년`:range?`최근 ${rs.length}라운드`:`전체 ${rs.length}라운드`;
-  if(!rs.length){ $("insSub").textContent=all.length?`${rgLab} · 기록 없음`:"18홀 라운드를 기록하면 분석이 시작돼요";
-    box.innerHTML=`<section class="panel"><p class="note" style="margin:0">${all.length?"이 기간에 기록한 18홀 라운드가 없어요. 다른 기간을 골라 보세요.":"18홀 라운드를 기록하면 평균 스코어와 추세, 숫자 요약, 티샷 방향, 미션 달성이 여기에 정리됩니다. 9홀 라운드는 통계에 들어가지 않아요."}</p></section>`; return }
+  if(!rs.length){ box.innerHTML=`<section class="panel"><p class="note" style="margin:0">${all.length?"이 기간에 기록한 18홀 라운드가 없어요. 다른 기간을 골라 보세요.":"18홀 라운드를 기록하면 평균 스코어와 추세, 숫자 요약, 티샷 방향, 타를 잃는 곳이 여기에 정리됩니다. 9홀 라운드는 통계에 들어가지 않아요."}</p></section>`; return }
   // 직전 같은 길이 구간 (올해는 작년 같은 기간 대신 바로 앞 같은 개수)
   const idx=all.indexOf(rs[rs.length-1]), prev=range===0?[]:all.slice(idx+1,idx+1+rs.length);
   const a=avgOf(rs.map(sc)), pa=prev.length?avgOf(prev.map(sc)):null, d=pa==null?null:a-pa;
-  $("insSub").textContent=[rgLab,`평균 ${a.toFixed(1)}타`,d!=null&&Math.abs(d)>=0.05?`${Math.abs(d).toFixed(1)}타 ${d<0?"개선":"늘어남"}`:""].filter(Boolean).join(" · ");
   const cards=[];
   let graph="";
   // 1) 평균 스코어 + 추이: 막대(고른 구간 초록, 비교 구간 회색, 개인 최고 금색) + 고른 구간의 추세 점선
