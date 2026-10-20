@@ -1,0 +1,66 @@
+// 오프라인 캐시: 앱 화면 파일·사진은 "인터넷 먼저, 안 되면 저장본", 라이브러리·글꼴(Pretendard)은 "저장본 먼저".
+// 데이터(Firestore)와 로그인 요청은 건드리지 않습니다 — Firestore가 자체적으로 오프라인 저장을 합니다.
+const CACHE = "golf-scorebook-v72";
+const SHELL = ["./", "./index.html", "./firebase-config.js", "./manifest.webmanifest",
+  "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png",
+  "./images/splash-aerial-bunkers.jpg", "./images/home-live-aerial.jpg", "./images/insights-header-bunker.jpg", "./images/share-card-lush.jpg"];
+// 글꼴 CSS도 설치 때 받아 둔다 (글자 조각 woff2는 처음 쓰일 때 저장)
+const FONT_CSS = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
+const CDN_HOSTS = ["www.gstatic.com", "cdn.jsdelivr.net"];
+
+self.addEventListener("install", e => {
+  // cache:"reload" = 새 버전 설치 때 보관된 옛 사본이 아니라 서버의 최신 파일을 받음
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all([
+    c.addAll(SHELL.map(u => new Request(u, { cache: "reload" }))),
+    c.add(new Request(FONT_CSS, { mode: "cors" })).catch(() => {})   // 글꼴을 못 받아도 설치는 계속 (기본 글꼴로 표시)
+  ])).then(() => self.skipWaiting()));
+});
+self.addEventListener("activate", e => {
+  e.waitUntil(caches.keys()
+    .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    .then(() => self.clients.claim()));
+});
+
+function timeout(ms) { return new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms)); }
+
+// 저장본이 있으면 1.2초만 기다리고 저장본으로 연다 (느린 LTE에서 흰 화면이 길어지지 않게). 늦게 온 새 버전은 저장해 두었다가 다음에 열 때 쓴다
+async function networkFirst(req, e) {
+  const cache = await caches.open(CACHE);
+  // cache:"no-cache" = 브라우저에 보관된 사본(GitHub Pages는 10분 보관)을 쓰기 전에 항상 서버에 새 버전이 있는지 확인
+  const net = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(res => { if (res.ok) cache.put(req, res.clone()); return res; });
+  e.waitUntil(net.catch(() => {}));
+  const hit = await cache.match(req, { ignoreSearch: true }) || (req.mode === "navigate" ? await cache.match("./index.html") : null);
+  if (!hit) return net;
+  try { return await Promise.race([net, timeout(1200)]); } catch (_) { return hit; }
+}
+async function cacheFirst(req) {
+  const cache = await caches.open(CACHE);
+  const hit = await cache.match(req);
+  if (hit) return hit;
+  const res = await fetch(req);
+  if (res.ok) cache.put(req, res.clone());
+  return res;
+}
+
+self.addEventListener("fetch", e => {
+  const req = e.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  if (url.origin === location.origin) {
+    if (url.pathname.includes("/__/")) return;
+    // 사진·아이콘은 바뀌지 않으므로 저장본 먼저 (시작 화면 사진이 바로 뜨게)
+    e.respondWith(/\.(jpg|png)$/.test(url.pathname) ? cacheFirst(req) : networkFirst(req, e));
+  } else if (CDN_HOSTS.includes(url.hostname) &&
+             (url.hostname === "www.gstatic.com" ? url.pathname.startsWith("/firebasejs/") : url.pathname.startsWith("/gh/orioncactus/pretendard@"))) {
+    e.respondWith(cacheFirst(req));
+  }
+});
+
+// 라운드 진행 중 알림을 누르면: 열려 있는 앱 창이 있으면 그 창으로, 없으면 앱을 새로 연다
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    for (const c of list) if ("focus" in c) return c.focus();
+    return self.clients.openWindow("./");
+  }));
+});
