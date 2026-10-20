@@ -946,6 +946,15 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .sdots i{width:6px;height:6px;border-radius:3px;background:var(--line2);transition:width .2s}
 .sdots i.on{width:16px;background:var(--t1)}
 .sbasis{text-align:center;margin:0;font-size:12.5px}
+
+/* 그래프 카드 ↔ 숫자 요약 카드 */
+.sstats{gap:0!important}
+.sstats .sh{margin-bottom:6px}
+.sstats .sgrid2{row-gap:0}
+.sstats .sgrid2>div,.sstats .sgrid3>div{padding:9px 0;border-top:1px solid var(--fill)}
+.sstats .sgrid2 b{font-size:24px} .sstats .sgrid3 b{font-size:21px}
+.sstats .sbasis{font-size:12px;line-height:1.5}
+.sstats .sbasis{text-align:left;margin-top:auto;padding-top:10px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -1267,7 +1276,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v66";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v67";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1809,6 +1818,7 @@ function renderInsights(all,rs){
   const a=avgOf(rs.map(sc)), pa=prev.length?avgOf(prev.map(sc)):null, d=pa==null?null:a-pa;
   $("insSub").textContent=[rgLab,`평균 ${a.toFixed(1)}타`,d!=null&&Math.abs(d)>=0.05?`${Math.abs(d).toFixed(1)}타 ${d<0?"개선":"늘어남"}`:""].filter(Boolean).join(" · ");
   const cards=[];
+  let graph="";
   // 1) 평균 스코어 + 추이: 막대(고른 구간 초록, 비교 구간 회색, 개인 최고 금색) + 고른 구간의 추세 점선
   { const bars=[...rs,...prev].slice(0,20).reverse(), best=bestScore(), n=bars.length, vals=bars.map(sc), many=n>12;
     const W=350, lo=Math.min(...vals)-8, hi=Math.max(...vals)+1, top=20, bot=170, step=W/Math.max(n,1), bw=Math.min(22,step-(many?4:8)), Y=v=>bot-(v-lo)/(hi-lo)*(bot-top), X=i=>i*step+step/2;
@@ -1820,29 +1830,30 @@ function renderInsights(all,rs){
       const x0=ri[0], x1=ri[ri.length-1];
       trend=`<line x1="${X(x0).toFixed(1)}" y1="${Y(at(x0)).toFixed(1)}" x2="${X(x1).toFixed(1)}" y2="${Y(at(x1)).toFixed(1)}" class="trend"/>`;
       ttxt=Math.abs(k)<0.05?"추세: 거의 변화 없음":`추세: 한 라운드마다 약 ${Math.abs(k).toFixed(1)}타씩 ${k<0?"줄어드는 중":"늘어나는 중"}`; }
-    cards.push(`<section class="panel ic"><small class="lab">평균 스코어</small><b class="bign">${a.toFixed(1)}타</b>
+    graph=(`<small class="lab">평균 스코어</small><b class="bign">${a.toFixed(1)}타</b>
       <div class="sent ${d==null?"":d<0?"under":"over"}">${d==null?`${rgLab} 기준`:Math.abs(d)<0.05?`이전 ${prev.length}라운드와 같아요`:`이전 ${prev.length}라운드보다 ${Math.abs(d).toFixed(1)}타 ${d<0?"줄었어요":"늘었어요"}`}</div>
       <svg class="ibars" viewBox="0 0 ${W} 176" role="img" aria-label="라운드별 스코어 막대 ${n}개${ttxt?", "+ttxt:""}">${bars.map((r,i)=>{const v=vals[i], x=X(i)-bw/2, y=Y(v), isB=v===best, rec=rs.includes(r), lab=!many||isB||i===n-1;
         return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${(bot-y).toFixed(1)}" rx="${many?4:6}" class="${isB?"best":rec?"rec":""}"><title>${r.date} ${esc(r.club)} ${v}타</title></rect>${lab?`<text x="${X(i).toFixed(1)}" y="${(y-7).toFixed(1)}" class="${isB?"best":rec?"rec":""}">${v}</text>`:""}`}).join("")}${trend}</svg>
       <div class="mlab">${(months.length>3?[months[0],months[Math.floor(months.length/2)],months[months.length-1]]:months).map(m=>`<span>${m}월</span>`).join("")}</div>
-      ${ttxt?`<p class="tleg"><i></i>${ttxt}</p>`:""}</section>`) }
-  // 2) 숫자 요약: 옆으로 넘기는 카드 묶음 (스마트스택처럼)
+      ${ttxt?`<p class="tleg"><i></i>${ttxt}</p>`:""}`) }
+  // 1-2) 그래프 카드를 옆으로 한 번 넘기면 숫자 통계가 한눈에 (카드 2장 묶음)
   { const det=rs.filter(hasDetail), cs=det.map(roundCalc), n=cs.length, sum=k=>cs.reduce((x,c)=>x+c[k],0), per=k=>n?(sum(k)/n).toFixed(1):"—", pct=(x,y)=>y?Math.round(x/y*100)+"%":"—";
     const h18=rs.filter(r=>!isTotal(r)&&parKnown(r)&&r.holes.length===18), fb=rs.map(r=>isTotal(r)?(r.out&&r.in?[r.out,r.in]:null):h18.includes(r)?[0,9].map(k=>r.holes.slice(k,k+9).reduce((s,h)=>s+h.par+h.d,0)):null).filter(Boolean);
     const back=fb.length?avgOf(fb.map(x=>x[1]-x[0])):null;
     let bb=0,bn=0; rs.filter(r=>!isTotal(r)&&Array.isArray(r.holes)).forEach(r=>r.holes.forEach((h,i)=>{ if(i<r.holes.length-1&&h.d>=1){bn++; if(r.holes[i+1].d<=0) bb++} }));
     const tots=rs.map(sc), sd=tots.length>=2?Math.sqrt(tots.reduce((s,v)=>s+(v-a)**2,0)/(tots.length-1)):null;
     const cell=(v,k,cls="")=>`<div><b class="${cls}">${v}</b><span>${k}</span></div>`;
-    const slides=[
-      ["스코어",`${rs.length}라운드`,[cell(a.toFixed(1),"평균 스코어"),cell(Math.min(...tots),"베스트","gold")]],
-      ["퍼팅",n?`홀별 기록 ${n}라운드`:"홀별 기록 없음",[cell(per("putts"),"평균 퍼팅"),cell(per("three"),"3퍼트 / 라운드")]],
-      ["티샷 · 그린",n?`홀별 기록 ${n}라운드`:"홀별 기록 없음",[cell(pct(sum("fwH"),sum("fwN")),"페어웨이 적중"),cell(pct(sum("gir"),sum("n")),"그린 적중")]],
-      ["벌타",n?`홀별 기록 ${n}라운드`:"홀별 기록 없음",[cell(per("ob"),"OB / 라운드"),cell(per("hz"),"해저드 / 라운드")]],
-      ["흐름",`후반−전반 · 보기 뒤 파 · 편차`,[cell(back==null?"—":sg1(back)+"타","후반 체력",back==null?"":back>0.05?"bogeyt":back<-0.05?"under":""),cell(bn?Math.round(bb/bn*100)+"%":"—","바운스백"),cell(sd==null?"—":"±"+sd.toFixed(1),"기복 (±타)")]]];
     const n9=doneRounds().length-all.length;
-    cards.push(`<section class="sstack" aria-label="숫자 요약 (옆으로 넘기기)"><div class="sscroll" id="sscroll">${slides.map(([t,sub,cs],i)=>`<div class="panel sslide" aria-label="${i+1}/${slides.length} ${t}"><div class="sh"><b>${t}</b><small>${sub}</small></div><div class="sgrid${cs.length}">${cs.join("")}</div></div>`).join("")}</div>
-      <div class="sdots" id="sdots">${slides.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
-      ${n9?`<p class="note sbasis">9홀 라운드 ${n9}개는 통계에서 제외</p>`:""}</section>`) }
+    const stats=`<div class="sh"><b>숫자 요약</b><small>${rgLab}</small></div>
+      <div class="sgrid2">${[cell(a.toFixed(1),"평균 스코어"),cell(Math.min(...tots),"베스트","gold"),
+        cell(per("putts"),"평균 퍼팅"),cell(per("three"),"3퍼트 / 라운드"),
+        cell(pct(sum("fwH"),sum("fwN")),"페어웨이 적중"),cell(pct(sum("gir"),sum("n")),"그린 적중"),
+        cell(per("ob"),"OB / 라운드"),cell(per("hz"),"해저드 / 라운드")].join("")}</div>
+      <div class="sgrid3">${[cell(back==null?"—":sg1(back)+"타","후반 체력",back==null?"":back>0.05?"bogeyt":back<-0.05?"under":""),cell(bn?Math.round(bb/bn*100)+"%":"—","바운스백"),cell(sd==null?"—":"±"+sd.toFixed(1),"기복")].join("")}</div>
+      <p class="note sbasis">후반 체력 = 후반−전반 · 바운스백 = 보기 뒤 바로 파 · 기복 = 라운드 간 편차<br>${n?`퍼팅·적중·벌타: 홀별 기록 ${n}라운드 기준`:"퍼팅·적중·벌타는 홀별로 기록한 라운드가 있으면 보여요"}${n9?` · 9홀 라운드 ${n9}개는 제외`:""}</p>`;
+    cards.push(`<section class="sstack" aria-label="평균 스코어와 숫자 요약 (옆으로 넘기기)"><div class="sscroll" id="sscroll">
+      <div class="panel ic sslide" aria-label="1/2 평균 스코어">${graph}</div><div class="panel sslide sstats" aria-label="2/2 숫자 요약">${stats}</div></div>
+      <div class="sdots" id="sdots"><i class="on"></i><i></i></div></section>`) }
   // 3) 티샷 방향 + 구질 분포 + 변화 한 줄
   const det=rs.filter(hasDetail);
   if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
