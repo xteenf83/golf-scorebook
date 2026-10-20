@@ -12,6 +12,18 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="스코어북">
 <link rel="apple-touch-icon" href="icons/icon-180.png?v=2">
+<!-- 실행 이미지: HTML이 뜨기 전 흰 화면 대신 시작 화면 사진 (tools/startup-images.mjs로 다시 만들기) -->
+<link rel="apple-touch-startup-image" href="images/startup/launch-1320x2868.jpg" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1290x2796.jpg" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1260x2736.jpg" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1206x2622.jpg" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1179x2556.jpg" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1284x2778.jpg" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1170x2532.jpg" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1242x2688.jpg" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-828x1792.jpg" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-1125x2436.jpg" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="images/startup/launch-750x1334.jpg" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 <link rel="icon" href="icons/icon-192.png?v=2">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -828,11 +840,12 @@ details.more>.screen{margin-top:12px}
 .ytable tbody th,.ytable thead th:first-child{background:var(--card)}
 
 /* ===== 시작 화면 (HANDOFF 4-1) ===== */
-/* fixed가 아닌 absolute: iOS 26은 앱을 켤 때 맨 위 "고정" 요소의 배경색으로 상태 표시줄 칸을 칠하고 그 뒤로 거의 다시 보지 않는다.
-   시작 화면이 그 요소가 되면 홈에서도 초록 띠가 남으므로, 처음부터 #scroller(앱 배경색)가 읽히게 한다 */
-.splash{position:absolute;inset:0;z-index:100;background:#1F3A22;color:#fff;overflow:hidden;transition:opacity .3s ease}
+/* 시작 화면은 fixed: iOS 26은 맨 위 고정 요소의 배경색(#1F3A22)으로 상태 표시줄 칸을 칠한다.
+   시작 화면이 사라지면 그다음 고정 요소인 #scroller(앱 배경색)를 다시 읽는다 — #scroller에 배경색이 없으면 초록이 남으니 지우지 말 것 */
+.splash{position:fixed;inset:0;z-index:100;background:#1F3A22;color:#fff;overflow:hidden;transition:opacity .3s ease}
 .splash.bye{opacity:0;pointer-events:none}
 .splash img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.splash::before{content:"";position:absolute;left:0;right:0;top:0;height:140px;background:linear-gradient(180deg,#1F3A22 0%,rgba(31,58,34,.6) 35%,rgba(31,58,34,0) 100%);z-index:1;pointer-events:none}
 .splash::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,0) 45%,rgba(4,20,10,.82) 100%)}
 .sp-main,.sp-load{position:absolute;left:28px;right:28px;z-index:1}
 .sp-main{bottom:calc(118px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
@@ -1273,7 +1286,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v72";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v73";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
