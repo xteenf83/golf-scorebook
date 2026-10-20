@@ -930,7 +930,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .tleg{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13.5px;color:var(--t3);font-weight:500}
 .tleg i{width:18px;border-top:2px dashed var(--t2)}
 .sstack{display:flex;flex-direction:column;gap:8px}
-.sscroll{display:grid;align-items:start;transition:height .25s;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
+.sscroll{display:grid;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
 .sscroll::-webkit-scrollbar{display:none}
 .sslide{scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;gap:14px;min-height:150px}
 .sslide .sh{display:flex;justify-content:space-between;align-items:baseline}
@@ -945,7 +945,6 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .sdots{display:flex;justify-content:center;gap:6px}
 .sdots i{width:6px;height:6px;border-radius:3px;background:var(--line2);transition:width .2s}
 .sdots i.on{width:16px;background:var(--t1)}
-.sbasis{text-align:center;margin:0;font-size:12.5px}
 
 /* 그래프 카드 ↔ 숫자 요약 카드 */
 .sstats{gap:0!important}
@@ -953,8 +952,6 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .sstats .sgrid2{row-gap:0}
 .sstats .sgrid2>div,.sstats .sgrid3>div{padding:9px 0;border-top:1px solid var(--fill)}
 .sstats .sgrid2 b{font-size:24px} .sstats .sgrid3 b{font-size:21px}
-.sstats .sbasis{font-size:12px;line-height:1.5}
-.sstats .sbasis{text-align:left;margin-top:auto;padding-top:10px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -1848,8 +1845,7 @@ function renderInsights(all,rs){
         cell(per("putts"),"평균 퍼팅"),cell(per("three"),"3퍼트 / 라운드"),
         cell(pct(sum("fwH"),sum("fwN")),"페어웨이 적중"),cell(pct(sum("gir"),sum("n")),"그린 적중"),
         cell(per("ob"),"OB / 라운드"),cell(per("hz"),"해저드 / 라운드")].join("")}</div>
-      <div class="sgrid3">${[cell(back==null?"—":sg1(back)+"타","후반 체력",back==null?"":back>0.05?"bogeyt":back<-0.05?"under":""),cell(bn?Math.round(bb/bn*100)+"%":"—","바운스백"),cell(sd==null?"—":"±"+sd.toFixed(1),"기복")].join("")}</div>
-      <p class="note sbasis">후반 체력 = 후반−전반 · 바운스백 = 보기 뒤 바로 파 · 기복 = 라운드 간 편차</p>`;
+      <div class="sgrid3">${[cell(back==null?"—":sg1(back)+"타","후반 체력",back==null?"":back>0.05?"bogeyt":back<-0.05?"under":""),cell(bn?Math.round(bb/bn*100)+"%":"—","바운스백"),cell(sd==null?"—":"±"+sd.toFixed(1),"기복")].join("")}</div>`;
     cards.push(`<section class="sstack" aria-label="평균 스코어와 숫자 요약 (옆으로 넘기기)"><div class="sscroll" id="sscroll">
       <div class="panel ic sslide" aria-label="1/2 평균 스코어">${graph}</div><div class="panel sslide sstats" aria-label="2/2 숫자 요약">${stats}</div></div>
       <div class="sdots" id="sdots"><i class="on"></i><i></i></div></section>`) }
@@ -1882,13 +1878,10 @@ function renderInsights(all,rs){
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
   const sc2=$("sscroll"); if(sc2){ const dots=[...$("sdots").children];
     // 보고 있는 카드 높이에 맞춤 — 짧은 그래프 카드 아래에 빈 공간이 남지 않게
-    const fit=()=>{const h=sc2.children[statSlide]?.offsetHeight; sc2.style.height=h?h+"px":""};
-    const upd=()=>{const i=Math.round(sc2.scrollLeft/Math.max(1,sc2.clientWidth)); dots.forEach((d,k)=>d.classList.toggle("on",k===i)); statSlide=i; fit()};
-    sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd();
-    // 화면이 숨겨진 채 그려지면 높이가 0이라, 보이게 될 때(크기 변화) 다시 맞춤
-    statRO?.disconnect(); statRO=new ResizeObserver(()=>{ if(!sc2.style.height) sc2.scrollLeft=statSlide*sc2.clientWidth; fit() }); [...sc2.children].forEach(c=>statRO.observe(c)); }
+    const upd=()=>{const i=Math.round(sc2.scrollLeft/Math.max(1,sc2.clientWidth)); dots.forEach((d,k)=>d.classList.toggle("on",k===i)); statSlide=i};
+    sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd(); }
 }
-let statSlide=0, statRO=null;
+let statSlide=0;
 /* 연도별 집계: 위 '최근 5/10/전체' 선택과 상관없이 모든 연도. 9홀 라운드는 제외(따로 개수만 표시). */
 function renderYearly(){
   const box=$("yearBox"), all=doneRounds();
