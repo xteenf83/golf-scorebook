@@ -184,7 +184,7 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 /* 문서 전체가 아니라 #scroller 안에서만 스크롤: iOS 홈 화면 앱에서 하단 고정 바가 바닥에서 뜨는 문제 방지 */
 html,body{height:100%;overflow:hidden}
 body{margin:0}
-#scroller{position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-top:env(safe-area-inset-top,0px)}
+#scroller{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-top:env(safe-area-inset-top,0px)}
 /* 맨 위에 고정된 단색 띠: iOS 26+ 홈 화면 앱이 화면 위쪽 가장자리를 흐리게 처리하는 것을 막음 */
 .statusbar{position:fixed;top:0;left:0;right:0;height:calc(env(safe-area-inset-top,0px) + 6px);background:var(--bg);z-index:20}
 .who{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -828,11 +828,11 @@ details.more>.screen{margin-top:12px}
 .ytable tbody th,.ytable thead th:first-child{background:var(--card)}
 
 /* ===== 시작 화면 (HANDOFF 4-1) ===== */
-.splash{position:fixed;inset:0;z-index:100;background:#1F3A22;color:#fff;overflow:hidden;transition:opacity .3s ease}
+/* fixed가 아닌 absolute: iOS 26은 앱을 켤 때 맨 위 "고정" 요소의 배경색으로 상태 표시줄 칸을 칠하고 그 뒤로 거의 다시 보지 않는다.
+   시작 화면이 그 요소가 되면 홈에서도 초록 띠가 남으므로, 처음부터 #scroller(앱 배경색)가 읽히게 한다 */
+.splash{position:absolute;inset:0;z-index:100;background:#1F3A22;color:#fff;overflow:hidden;transition:opacity .3s ease}
 .splash.bye{opacity:0;pointer-events:none}
 .splash img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* iOS는 상태 표시줄 칸을 사진 대신 이 화면 배경색(#1F3A22) 띠로 칠한다 → 사진 위쪽을 같은 색으로 흐리게 이어 띠가 경계 없이 보이게 */
-.splash::before{content:"";position:absolute;left:0;right:0;top:0;height:140px;background:linear-gradient(180deg,#1F3A22 0%,rgba(31,58,34,.6) 35%,rgba(31,58,34,0) 100%);z-index:1;pointer-events:none}
 .splash::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,0) 45%,rgba(4,20,10,.82) 100%)}
 .sp-main,.sp-load{position:absolute;left:28px;right:28px;z-index:1}
 .sp-main{bottom:calc(118px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
@@ -1273,7 +1273,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v70";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v71";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -3261,16 +3261,9 @@ if("serviceWorker" in navigator){
 
 /* ---------- 시작 화면: 첫 데이터(또는 로그인 화면)가 준비되면 최소 0.8초 뒤 0.3초 동안 사라짐 ---------- */
 const splashT0=performance.now();
-/* iOS 26 홈 화면 앱은 상태 표시줄 칸을 맨 위 고정 요소의 배경색으로 칠하고, 그 요소가 사라져도 바로 다시 보지 않는다
-   → 시작 화면을 걷어낸 뒤 위쪽 띠(.statusbar)를 다시 붙이고 theme-color도 다시 넣어 지금 화면 색을 다시 읽게 한다 */
-function refreshStatusBar(){
-  const sb=document.querySelector(".statusbar");
-  if(sb){ const at=sb.nextSibling, host=sb.parentNode; sb.remove(); requestAnimationFrame(()=>host.insertBefore(sb,at)) }
-  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{ const c=m.cloneNode(); m.replaceWith(c) });
-}
 function splashDone(){
   const el=$("splash"); if(!el||el.dataset.bye) return; el.dataset.bye="1";
-  setTimeout(()=>{ el.classList.add("bye"); setTimeout(()=>{ el.remove(); refreshStatusBar() },reduceMotion()?0:320) }, Math.max(0,800-(performance.now()-splashT0)));
+  setTimeout(()=>{ el.classList.add("bye"); setTimeout(()=>el.remove(),reduceMotion()?0:320) }, Math.max(0,800-(performance.now()-splashT0)));
 }
 setTimeout(splashDone,6000);   // 느린 연결에서도 시작 화면에 갇히지 않게
 
