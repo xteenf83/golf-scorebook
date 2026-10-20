@@ -55,7 +55,7 @@ async function shootApp(browser, [name, scenario, act], scheme) {
   }
   // 가로 넘침 점검: 화면 밖으로 삐져나간 요소 (가로 스크롤 영역 안쪽은 제외)
   const over = await p.evaluate(() => { const W = innerWidth, out = [];
-    document.querySelectorAll("body *").forEach(el => { if (!el.offsetParent || el.closest(".strip,.rchips,.scroll,.dtable,svg,#ov,.splash")) return; const r = el.getBoundingClientRect(); if (r.width && (r.right > W + 1 || r.left < -1)) out.push((el.id ? "#" + el.id : el.className && el.className.baseVal === undefined ? "." + String(el.className).split(" ")[0] : el.tagName) + ` ${Math.round(r.left)}~${Math.round(r.right)}`) });
+    document.querySelectorAll("body *").forEach(el => { if (!el.offsetParent || el.closest(".strip,.rchips,.scroll,.dtable,.sscroll,svg,#ov,.splash")) return; const r = el.getBoundingClientRect(); if (r.width && (r.right > W + 1 || r.left < -1)) out.push((el.id ? "#" + el.id : el.className && el.className.baseVal === undefined ? "." + String(el.className).split(" ")[0] : el.tagName) + ` ${Math.round(r.left)}~${Math.round(r.right)}`) });
     return [...new Set(out)].slice(0, 6) });
   if (over.length) errs.push("넘침: " + over.join(", "));
   await p.screenshot({ path: path.join(OUT, `${tag}.png`) });

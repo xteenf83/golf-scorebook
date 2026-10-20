@@ -795,14 +795,6 @@ svg.ibars{width:100%;height:auto;margin-top:18px;display:block}
 svg.ibars rect{fill:var(--line)} svg.ibars rect.rec{fill:var(--brand)} svg.ibars rect.best{fill:var(--gold-num)}
 svg.ibars text{font-size:12px;font-weight:700;fill:var(--t5);text-anchor:middle;font-family:var(--font)} svg.ibars text.rec{fill:var(--t1)} svg.ibars text.best{fill:#9A6B00}
 .mlab{display:flex;justify-content:space-between;font-size:12px;color:var(--t4);font-weight:500;padding:0 6px}
-.pbar{display:flex;height:40px;border-radius:12px;overflow:hidden;gap:3px}
-.pbar>div{display:flex;align-items:center;min-width:6px;overflow:hidden}
-.pbar span{color:#fff;font-size:14px;font-weight:700;padding-left:12px;white-space:nowrap}
-.prows{display:flex;flex-direction:column;margin-top:12px}
-.prows>div{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--fill)}
-.prows i{width:10px;height:10px;border-radius:3px}
-.prows b{flex:1;font-size:15.5px;font-weight:600} .prows b small{font-size:13.5px;color:var(--t4);font-weight:500;margin-left:4px}
-.prows span{font-size:13.5px;color:var(--t3);margin-right:10px} .prows em{font-style:normal;font-size:16px;font-weight:700;width:56px;text-align:right}
 svg.fwsvg{width:100%;height:auto;display:block}
 .fwsvg .rough{fill:#EAF6EF} .fwsvg .fair{fill:#BFE6CF} .fwsvg .mow rect{fill:#B1DFC4}
 .fwsvg text{text-anchor:middle;font-family:var(--font)} .fwsvg .pl{font-size:30px;font-weight:800;fill:#4E5968;letter-spacing:-1px} .fwsvg .pl.miss{fill:#C2540F}
@@ -815,21 +807,6 @@ svg.fwsvg{width:100%;height:auto;display:block}
 .ic .tipbox.ico{display:flex;gap:12px;align-items:center;margin-top:16px;padding:14px;border-radius:16px}
 .tic{width:36px;height:36px;border-radius:12px;background:var(--brand-soft);color:var(--brand-text);display:grid;place-items:center;flex:none}
 .tic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-#heatCard .hh{display:flex;justify-content:space-between;align-items:center;gap:8px}
-#heatCard select{width:auto;min-height:36px;padding:6px 10px;font-size:14px;max-width:46%}
-.hrow9{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-.hrow9 small{font-size:13px;color:var(--t3);font-weight:600}
-.hrow9>div{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px}
-.hrow9 span{height:50px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.hrow9 i{font-style:normal;font-size:10.5px;font-weight:600;color:var(--t4)} .hrow9 b{font-size:13px;font-weight:700;letter-spacing:-0.05em}
-.h0{background:var(--fill)} .h1{background:#FFE8D9;color:#191F28} .h2{background:#FFC9A3;color:#191F28} .h3{background:#F2683C;color:#fff}
-.hrow9 .h1 i,.hrow9 .h2 i{color:#8B95A1} .hrow9 .h3 i{color:rgba(255,255,255,.85)}
-.hrow9 span.ring{box-shadow:0 0 0 2px var(--card),0 0 0 3.5px var(--triple)}
-.hleg{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:12px 0 0;font-size:12px}
-.hleg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:4px}
-.tiles3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.tiles3 .panel{border-radius:20px;padding:16px 14px;display:flex;flex-direction:column;gap:4px}
-.tiles3 small{font-size:13px;color:var(--t3);font-weight:600} .tiles3 b{font-size:22px;font-weight:800} .tiles3 b.bogeyt{color:var(--bogey-text)} .tiles3 span{font-size:12px;color:var(--t4);line-height:1.4}
 .ic b.h19{font-size:19px;font-weight:700;letter-spacing:-0.03em;margin-bottom:14px}
 .rings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .rings>div{display:flex;flex-direction:column;align-items:center;gap:10px}
@@ -843,8 +820,6 @@ details.more>summary small{font-size:13px;color:var(--t4);font-weight:500;flex:1
 details.more>summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--t4);border-bottom:2px solid var(--t4);transform:rotate(45deg);margin:-4px 4px 0}
 details.more[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
 details.more>.screen{margin-top:12px}
-.tiles{background:var(--card);border:0;border-radius:24px}
-.tile{border-color:var(--line)} .tile b{font-size:22px;font-weight:700} .tile span{font-size:12.5px;color:var(--t3)}
 .yearbtn{background:var(--card)} .yearbtn.on{background:var(--t1);color:var(--card)}
 .bar .t{background:var(--fill);border:0} .bar .t i{background:var(--brand)} .stack{border:0;gap:2px}
 .chart text{font-family:var(--font);fill:var(--t4)}
@@ -949,6 +924,28 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 .memobtn.has::after{content:"";position:absolute;top:12px;right:13px;width:8px;height:8px;border-radius:50%;background:var(--notice-icon)}
 .bottomnav .pill.gray{flex:0 0 84px}
 .bottomnav .in.edit .pill.gray{flex:1}
+
+/* 분석: 추세 점선 + 옆으로 넘기는 숫자 카드 묶음 */
+svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-linecap:round}
+.tleg{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13.5px;color:var(--t3);font-weight:500}
+.tleg i{width:18px;border-top:2px dashed var(--t2)}
+.sstack{display:flex;flex-direction:column;gap:8px}
+.sscroll{display:grid;grid-auto-flow:column;grid-auto-columns:100%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;border-radius:24px}
+.sscroll::-webkit-scrollbar{display:none}
+.sslide{scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;gap:14px;min-height:150px}
+.sslide .sh{display:flex;justify-content:space-between;align-items:baseline}
+.sslide .sh b{font-size:17px;font-weight:700} .sslide .sh small{font-size:13px;color:var(--t4)}
+.sgrid2,.sgrid3{display:grid;gap:8px}
+.sgrid2{grid-template-columns:repeat(2,minmax(0,1fr))} .sgrid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.sgrid2>div,.sgrid3>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sgrid2 b{font-size:34px;font-weight:800;letter-spacing:-0.045em} .sgrid3 b{font-size:24px;font-weight:800;letter-spacing:-0.04em}
+.sslide b.gold{color:var(--gold-text)} .sslide b.bogeyt{color:var(--bogey-text)}
+.sgrid2 span,.sgrid3 span{font-size:13.5px;color:var(--t3);font-weight:500}
+.sgrid3 span{font-size:12.5px;line-height:1.35}
+.sdots{display:flex;justify-content:center;gap:6px}
+.sdots i{width:6px;height:6px;border-radius:3px;background:var(--line2);transition:width .2s}
+.sdots i.on{width:16px;background:var(--t1)}
+.sbasis{text-align:center;margin:0;font-size:12.5px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -1060,13 +1057,10 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
     </div>
     <div id="insBox"></div>
     <details class="more" id="statsMore">
-      <summary>자세히 <small>숫자 요약 · 추이 · 분포 · 연도별</small></summary>
+      <summary>자세히 <small>타 잃는 곳 · 분포 · 구질 · 연도별</small></summary>
       <div class="screen">
-        <section class="tiles" id="tiles"></section>
-        <p class="note" id="statsBasis" style="margin:-6px 4px 0"></p>
         <div class="row"><button class="yearbtn" id="yearBtn" aria-expanded="false">연도별 집계</button></div>
         <section class="panel" id="yearPanel" hidden><div class="row" style="justify-content:space-between;margin-bottom:10px"><h2 style="margin:0">연도별 집계</h2><button class="ghost" id="yearClose" style="padding:6px 12px;font-size:13px">닫기</button></div><div id="yearBox"></div></section>
-        <section class="panel"><h2>스코어 추이</h2><div id="trend"></div></section>
         <section class="panel"><h2>어디서 타를 잃나</h2><div id="lossBox"></div></section>
         <section class="panel"><h2>홀 결과 분포</h2><div id="dist"></div></section>
         <section class="panel"><h2>티샷 · 페어웨이</h2><div id="fwBox"></div></section>
@@ -1273,7 +1267,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 12;
-const APP_VERSION = "v65";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v66";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1775,21 +1769,10 @@ function renderStats(){
   $("yearChip").textContent=`${new Date().getFullYear()}년`;
   renderInsights(all,rs);
   const full=rs.filter(hasDetail);
-  const tiles=$("tiles");
   const pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
-  const ss=rs.map(r=>scoreOf(r).tot);
   const cs=full.map(roundCalc); const n=full.length;
   const sum=k=>cs.reduce((a,c)=>a+c[k],0);
-  const fwN=sum("fwN"), holes=sum("n");
-  const avg=(k)=>n?(sum(k)/n).toFixed(1):"–";
-  const t=[[ss.length?(ss.reduce((a,b)=>a+b,0)/ss.length).toFixed(1):"–","평균 스코어"],[ss.length?Math.min(...ss):"–","베스트"],[avg("putts"),"평균 퍼팅"],[pct(sum("fwH"),fwN),"페어웨이 적중"],
-           [pct(sum("gir"),holes),"그린 적중"],[avg("three"),"3퍼트/라운드"],[avg("ob"),"OB/라운드"],[avg("hz"),"해저드/라운드"]];
-  tiles.innerHTML=t.map(x=>`<div class="tile"><b>${x[0]}</b><span>${x[1]}</span></div>`).join("");
-  const n9=doneRounds().length-all.length;
-  $("statsBasis").textContent = (rs.length ? `스코어: ${rs.length}라운드 기준 · 퍼팅·적중률·구질: 홀별 기록 ${n}라운드 기준` : "") + (n9?`${rs.length?" · ":""}9홀 라운드 ${n9}개는 통계에서 제외`:"");
-  if(!rs.length){
-    $("trend").innerHTML=`<p class="note" style="margin:0">라운드를 기록하면 스코어 추이가 여기에 그려집니다.</p>`;
-  } else renderTrend([...rs].reverse());
+  const fwN=sum("fwN");
   if(!$("yearPanel").hidden) renderYearly();
   renderLoss(full); renderShapeTrend(); renderMissionStats();
   // distribution: 파 대비 점수(d)만 있으면 되므로 파를 모르는 과거 홀별 기록도 포함
@@ -1820,31 +1803,46 @@ function renderStats(){
 function renderInsights(all,rs){
   const box=$("insBox"), sc=r=>scoreOf(r).tot, rgLab=range==="y"?`${new Date().getFullYear()}년`:range?`최근 ${rs.length}라운드`:`전체 ${rs.length}라운드`;
   if(!rs.length){ $("insSub").textContent=all.length?`${rgLab} · 기록 없음`:"18홀 라운드를 기록하면 분석이 시작돼요";
-    box.innerHTML=`<section class="panel"><p class="note" style="margin:0">${all.length?"이 기간에 기록한 18홀 라운드가 없어요. 다른 기간을 골라 보세요.":"18홀 라운드를 기록하면 평균 스코어, 타수를 잃는 홀, 티샷 방향, 홀 난이도가 여기에 정리됩니다. 9홀 라운드는 통계에 들어가지 않아요."}</p></section>`; return }
+    box.innerHTML=`<section class="panel"><p class="note" style="margin:0">${all.length?"이 기간에 기록한 18홀 라운드가 없어요. 다른 기간을 골라 보세요.":"18홀 라운드를 기록하면 평균 스코어와 추세, 숫자 요약, 티샷 방향, 미션 달성이 여기에 정리됩니다. 9홀 라운드는 통계에 들어가지 않아요."}</p></section>`; return }
   // 직전 같은 길이 구간 (올해는 작년 같은 기간 대신 바로 앞 같은 개수)
   const idx=all.indexOf(rs[rs.length-1]), prev=range===0?[]:all.slice(idx+1,idx+1+rs.length);
   const a=avgOf(rs.map(sc)), pa=prev.length?avgOf(prev.map(sc)):null, d=pa==null?null:a-pa;
   $("insSub").textContent=[rgLab,`평균 ${a.toFixed(1)}타`,d!=null&&Math.abs(d)>=0.05?`${Math.abs(d).toFixed(1)}타 ${d<0?"개선":"늘어남"}`:""].filter(Boolean).join(" · ");
   const cards=[];
-  // 1) 평균 스코어: 막대 (고른 구간 초록, 비교 구간 회색, 개인 최고 금색)
-  { const bars=[...rs,...prev].slice(0,12).reverse(), best=bestScore(), n=bars.length, vals=bars.map(sc);
-    const W=350, lo=Math.min(...vals)-8, hi=Math.max(...vals)+1, top=20, bot=170, step=W/Math.max(n,1), bw=Math.min(22,step-8), Y=v=>bot-(v-lo)/(hi-lo)*(bot-top);
+  // 1) 평균 스코어 + 추이: 막대(고른 구간 초록, 비교 구간 회색, 개인 최고 금색) + 고른 구간의 추세 점선
+  { const bars=[...rs,...prev].slice(0,20).reverse(), best=bestScore(), n=bars.length, vals=bars.map(sc), many=n>12;
+    const W=350, lo=Math.min(...vals)-8, hi=Math.max(...vals)+1, top=20, bot=170, step=W/Math.max(n,1), bw=Math.min(22,step-(many?4:8)), Y=v=>bot-(v-lo)/(hi-lo)*(bot-top), X=i=>i*step+step/2;
     const months=[...new Set(bars.map(r=>+r.date.slice(5,7)))];
+    // 추세: 고른 구간 라운드 순서에 대한 최소제곱 직선 (4라운드 이상)
+    const ri=bars.map((r,i)=>rs.includes(r)?i:-1).filter(i=>i>=0), ys=ri.map(i=>vals[i]);
+    let trend="", ttxt="";
+    if(ri.length>=4){ const mx=avgOf(ri), my=avgOf(ys), k=ri.reduce((s,x,j)=>s+(x-mx)*(ys[j]-my),0)/ri.reduce((s,x)=>s+(x-mx)**2,0), at=x=>my+k*(x-mx);
+      const x0=ri[0], x1=ri[ri.length-1];
+      trend=`<line x1="${X(x0).toFixed(1)}" y1="${Y(at(x0)).toFixed(1)}" x2="${X(x1).toFixed(1)}" y2="${Y(at(x1)).toFixed(1)}" class="trend"/>`;
+      ttxt=Math.abs(k)<0.05?"추세: 거의 변화 없음":`추세: 한 라운드마다 약 ${Math.abs(k).toFixed(1)}타씩 ${k<0?"줄어드는 중":"늘어나는 중"}`; }
     cards.push(`<section class="panel ic"><small class="lab">평균 스코어</small><b class="bign">${a.toFixed(1)}타</b>
       <div class="sent ${d==null?"":d<0?"under":"over"}">${d==null?`${rgLab} 기준`:Math.abs(d)<0.05?`이전 ${prev.length}라운드와 같아요`:`이전 ${prev.length}라운드보다 ${Math.abs(d).toFixed(1)}타 ${d<0?"줄었어요":"늘었어요"}`}</div>
-      <svg class="ibars" viewBox="0 0 ${W} 176" role="img" aria-label="라운드별 스코어 막대 ${n}개">${bars.map((r,i)=>{const v=vals[i], x=i*step+(step-bw)/2, y=Y(v), isB=v===best, rec=rs.includes(r);
-        return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="${(bot-y).toFixed(1)}" rx="6" class="${isB?"best":rec?"rec":""}"/><text x="${(x+bw/2).toFixed(1)}" y="${(y-7).toFixed(1)}" class="${isB?"best":rec?"rec":""}">${v}</text>`}).join("")}</svg>
-      <div class="mlab">${(months.length>3?[months[0],months[Math.floor(months.length/2)],months[months.length-1]]:months).map(m=>`<span>${m}월</span>`).join("")}</div></section>`) }
-  // 2) 타수를 잃는 홀: 파3·4·5별 라운드당 오버파
-  const pkR=rs.filter(r=>!isTotal(r)&&parKnown(r));
-  if(pkR.length){ const n=pkR.length, hs=pkR.flatMap(r=>r.holes);
-    const P=[3,4,5].map(p=>{const x=hs.filter(h=>h.par===p); return {p,v:x.reduce((s,h)=>s+h.d,0)/n,holes:x.length/n,per:x.length?x.reduce((s,h)=>s+h.d,0)/x.length:0}}).filter(x=>x.holes>0);
-    const tot=P.reduce((s,x)=>s+Math.max(0,x.v),0), top=[...P].sort((a,b)=>b.v-a.v), cols=["#F2683C","#FFB37A","#FFD2B3"], col=p=>cols[top.findIndex(x=>x.p===p)];
-    const share=tot?top[0].v/tot:0;
-    cards.push(`<section class="panel ic"><small class="lab">타수를 잃는 홀 · ${n}라운드</small>
-      <div class="ttl">오버파 ${tot.toFixed(1)}타 중 ${share>=.5?"절반 이상이":`${Math.round(share*100)}%가`}<br>파${top[0].p}에서 나와요</div>
-      <div class="pbar">${P.map(x=>`<div style="flex:${Math.max(.3,x.v).toFixed(2)};background:${col(x.p)}">${x.p===top[0].p?`<span>파${x.p} · ${x.v.toFixed(1)}타</span>`:""}</div>`).join("")}</div>
-      <div class="prows">${top.map(x=>`<div><i style="background:${col(x.p)}"></i><b>파${x.p} <small>${Math.round(x.holes)}홀</small></b><span>홀당 ${(x.per>0?"+":"")+x.per.toFixed(2)}</span><em>${x.v.toFixed(1)}타</em></div>`).join("")}</div></section>`) }
+      <svg class="ibars" viewBox="0 0 ${W} 176" role="img" aria-label="라운드별 스코어 막대 ${n}개${ttxt?", "+ttxt:""}">${bars.map((r,i)=>{const v=vals[i], x=X(i)-bw/2, y=Y(v), isB=v===best, rec=rs.includes(r), lab=!many||isB||i===n-1;
+        return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${(bot-y).toFixed(1)}" rx="${many?4:6}" class="${isB?"best":rec?"rec":""}"><title>${r.date} ${esc(r.club)} ${v}타</title></rect>${lab?`<text x="${X(i).toFixed(1)}" y="${(y-7).toFixed(1)}" class="${isB?"best":rec?"rec":""}">${v}</text>`:""}`}).join("")}${trend}</svg>
+      <div class="mlab">${(months.length>3?[months[0],months[Math.floor(months.length/2)],months[months.length-1]]:months).map(m=>`<span>${m}월</span>`).join("")}</div>
+      ${ttxt?`<p class="tleg"><i></i>${ttxt}</p>`:""}</section>`) }
+  // 2) 숫자 요약: 옆으로 넘기는 카드 묶음 (스마트스택처럼)
+  { const det=rs.filter(hasDetail), cs=det.map(roundCalc), n=cs.length, sum=k=>cs.reduce((x,c)=>x+c[k],0), per=k=>n?(sum(k)/n).toFixed(1):"—", pct=(x,y)=>y?Math.round(x/y*100)+"%":"—";
+    const h18=rs.filter(r=>!isTotal(r)&&parKnown(r)&&r.holes.length===18), fb=rs.map(r=>isTotal(r)?(r.out&&r.in?[r.out,r.in]:null):h18.includes(r)?[0,9].map(k=>r.holes.slice(k,k+9).reduce((s,h)=>s+h.par+h.d,0)):null).filter(Boolean);
+    const back=fb.length?avgOf(fb.map(x=>x[1]-x[0])):null;
+    let bb=0,bn=0; rs.filter(r=>!isTotal(r)&&Array.isArray(r.holes)).forEach(r=>r.holes.forEach((h,i)=>{ if(i<r.holes.length-1&&h.d>=1){bn++; if(r.holes[i+1].d<=0) bb++} }));
+    const tots=rs.map(sc), sd=tots.length>=2?Math.sqrt(tots.reduce((s,v)=>s+(v-a)**2,0)/(tots.length-1)):null;
+    const cell=(v,k,cls="")=>`<div><b class="${cls}">${v}</b><span>${k}</span></div>`;
+    const slides=[
+      ["스코어",`${rs.length}라운드`,[cell(a.toFixed(1),"평균 스코어"),cell(Math.min(...tots),"베스트","gold")]],
+      ["퍼팅",n?`홀별 기록 ${n}라운드`:"홀별 기록 없음",[cell(per("putts"),"평균 퍼팅"),cell(per("three"),"3퍼트 / 라운드")]],
+      ["티샷 · 그린",n?`홀별 기록 ${n}라운드`:"홀별 기록 없음",[cell(pct(sum("fwH"),sum("fwN")),"페어웨이 적중"),cell(pct(sum("gir"),sum("n")),"그린 적중")]],
+      ["벌타",n?`홀별 기록 ${n}라운드`:"홀별 기록 없음",[cell(per("ob"),"OB / 라운드"),cell(per("hz"),"해저드 / 라운드")]],
+      ["흐름",`후반−전반 · 보기 뒤 파 · 편차`,[cell(back==null?"—":sg1(back)+"타","후반 체력",back==null?"":back>0.05?"bogeyt":back<-0.05?"under":""),cell(bn?Math.round(bb/bn*100)+"%":"—","바운스백"),cell(sd==null?"—":"±"+sd.toFixed(1),"기복 (±타)")]]];
+    const n9=doneRounds().length-all.length;
+    cards.push(`<section class="sstack" aria-label="숫자 요약 (옆으로 넘기기)"><div class="sscroll" id="sscroll">${slides.map(([t,sub,cs],i)=>`<div class="panel sslide" aria-label="${i+1}/${slides.length} ${t}"><div class="sh"><b>${t}</b><small>${sub}</small></div><div class="sgrid${cs.length}">${cs.join("")}</div></div>`).join("")}</div>
+      <div class="sdots" id="sdots">${slides.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
+      ${n9?`<p class="note sbasis">9홀 라운드 ${n9}개는 통계에서 제외</p>`:""}</section>`) }
   // 3) 티샷 방향 + 구질 분포 + 변화 한 줄
   const det=rs.filter(hasDetail);
   if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
@@ -1864,16 +1862,6 @@ function renderInsights(all,rs){
       <b class="h15">구질 분포</b>
       <div class="sbars">${sh.map(([k,nm,v])=>`<div><em class="${k==="straight"?"hit":k==="slice"?"miss":""}">${v}%</em><i class="${k==="straight"?"hit":k==="slice"?"miss":""}" style="height:${Math.round(v/smax*70)}px"></i><span>${nm}</span></div>`).join("")}</div>
       ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
-  // 4) 홀 난이도 히트맵: 골프장 → 9홀 코스별 홀 평균(타수−파)
-  cards.push(heatCard());
-  // 5) 후반 체력 · 바운스백 · 기복
-  { const h18=rs.filter(r=>!isTotal(r)&&parKnown(r)&&r.holes.length===18), fb=rs.map(r=>isTotal(r)?(r.out&&r.in?[r.out,r.in]:null):h18.includes(r)?[0,9].map(k=>r.holes.slice(k,k+9).reduce((s,h)=>s+h.par+h.d,0)):null).filter(Boolean);
-    const back=fb.length?avgOf(fb.map(x=>x[1]-x[0])):null;
-    let bb=0,bn=0; rs.filter(r=>!isTotal(r)&&Array.isArray(r.holes)).forEach(r=>r.holes.forEach((h,i)=>{ if(i<r.holes.length-1&&h.d>=1){bn++; if(r.holes[i+1].d<=0) bb++} }));
-    const tots=rs.map(sc), sd=tots.length>=2?Math.sqrt(tots.reduce((s,v)=>s+(v-a)**2,0)/(tots.length-1)):null;
-    cards.push(`<div class="tiles3"><div class="panel"><small>후반 체력</small><b class="${back==null?"":back>0.05?"bogeyt":back<-0.05?"under":""}">${back==null?"—":sg1(back)+"타"}</b><span>후반이 전반보다</span></div>
-      <div class="panel"><small>바운스백</small><b>${bn?Math.round(bb/bn*100)+"%":"—"}</b><span>보기 뒤 바로 파</span></div>
-      <div class="panel"><small>기복</small><b>${sd==null?"—":"±"+sd.toFixed(1)}</b><span>라운드 간 편차</span></div></div>`) }
   // 6) 미션 달성 링 (가장 많이 한 미션 3개, 모든 기간)
   { const g={}; doneRounds().filter(r=>r.mission&&MISSIONS[r.mission.type]).forEach(r=>{const st=missionState(r); if(!st) return; const k=r.mission.type==="score"?"score":r.mission.type, o=g[k]||(g[k]={n:0,ok:0,m:r.mission}); o.n++; if(st.ok) o.ok++});
     const top=Object.entries(g).sort((a,b)=>b[1].n-a[1].n).slice(0,3), C=2*Math.PI*31, cols=["var(--brand)","var(--under-fill)","#F2883C"];
@@ -1881,27 +1869,12 @@ function renderInsights(all,rs){
         <circle cx="38" cy="38" r="31" class="trk"/><circle cx="38" cy="38" r="31" fill="none" stroke="${cols[i]}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(C*o.ok/o.n).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 38 38)"/>
         <text x="38" y="44">${o.ok}/${o.n}</text></svg><span>${k==="score"?"목표 타수":MISSIONS[k][0]}</span></div>`).join("")}</div></section>`) }
   box.innerHTML=cards.join("");
-  const hs=$("heatClub"); if(hs) hs.onchange=()=>{heatSel=hs.value; $("heatCard").outerHTML=heatCard(); const n=$("heatClub"); if(n) n.onchange=hs.onchange};
+  // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
+  const sc2=$("sscroll"); if(sc2){ const dots=[...$("sdots").children];
+    const upd=()=>{const i=Math.round(sc2.scrollLeft/Math.max(1,sc2.clientWidth)); dots.forEach((d,k)=>d.classList.toggle("on",k===i)); statSlide=i};
+    sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd(); }
 }
-let heatSel=null;
-function heatCard(){
-  const rs=eligibleRounds();   // 18홀·파를 아는 완료 라운드 (9홀은 통계에서 제외)
-  const byClub={}; rs.forEach(r=>(byClub[r.club]=byClub[r.club]||[]).push(r));
-  const clubsL=Object.keys(byClub).sort((a,b)=>byClub[b].length-byClub[a].length||a.localeCompare(b,"ko"));
-  if(!clubsL.length) return `<section class="panel ic" id="heatCard"><small class="lab">홀 난이도</small><p class="note" style="margin:6px 0 0">홀별 파를 아는 18홀 라운드가 있으면 골프장별 홀 난이도를 보여 줘요.</p></section>`;
-  const club=clubsL.includes(heatSel)?heatSel:clubsL[0], list=byClub[club];
-  const courseMap={}; list.forEach(r=>[["front",0],["back",9]].forEach(([k,o])=>{ const h=r[k]; if(!h) return; const key=halfKey(r,h);
-    const c=courseMap[key]||(courseMap[key]={name:h.course,n:0,sum:Array(9).fill(0),cnt:Array(9).fill(0)}); c.n++;
-    r.holes.slice(o,o+9).forEach((x,i)=>{c.sum[i]+=x.d;c.cnt[i]++}) }));
-  const cs=Object.values(courseMap).sort((a,b)=>b.n-a.n);
-  let worst=null; cs.forEach(c=>c.sum.forEach((v,i)=>{const m=c.cnt[i]?v/c.cnt[i]:null; if(m!=null&&(!worst||m>worst.m)) worst={c,i,m}}));
-  const shade=v=>v<=0.6?"h0":v<=1.0?"h1":v<=1.5?"h2":"h3";
-  return `<section class="panel ic" id="heatCard"><div class="hh"><small class="lab">홀 난이도 · ${esc(club)} ${list.length}라운드</small>${clubsL.length>1?`<select id="heatClub" aria-label="골프장 선택">${clubsL.map(c=>`<option ${c===club?"selected":""}>${esc(c)}</option>`).join("")}</select>`:""}</div>
-    <div class="ttl">${worst&&worst.m>0?`${esc(worst.c.name)} ${worst.i+1}번에서 평균 ${worst.m.toFixed(1)}타를<br>잃고 있어요`:"모든 홀을 파 가까이 막고 있어요"}</div>
-    ${cs.map(c=>`<div class="hrow9"><small>${esc(c.name)} · ${c.n}회</small><div>${c.sum.map((v,i)=>{const m=c.cnt[i]?v/c.cnt[i]:0;
-      return `<span class="${shade(m)} ${m>=2?"ring":""}"><i>${i+1}</i><b>${sg1(m)}</b></span>`}).join("")}</div></div>`).join("")}
-    <p class="note hleg"><i class="h0"></i>0.6 이하 <i class="h1"></i>1.0 <i class="h2"></i>1.5 <i class="h3"></i>그 이상 · 홀당 평균 (타수−파)</p></section>`;
-}
+let statSlide=0;
 /* 연도별 집계: 위 '최근 5/10/전체' 선택과 상관없이 모든 연도. 9홀 라운드는 제외(따로 개수만 표시). */
 function renderYearly(){
   const box=$("yearBox"), all=doneRounds();
@@ -1929,38 +1902,6 @@ function renderYearly(){
 }
 function barRow(k,sub,v,max,txt){return `<div class="bar"><div class="k">${k}${sub?`<small>${sub}</small>`:""}</div><div class="t"><i style="width:${max?v/max*100:0}%"></i></div><div class="v">${txt}</div></div>`}
 
-function renderTrend(pts){
-  const box=$("trend"); pts=pts.slice(-30);
-  if(pts.length<2){box.innerHTML=`<p class="note" style="margin:0">완료한 라운드가 2개 이상이면 추이가 그려집니다.</p>`;return}
-  const s=pts.map(r=>scoreOf(r).tot);
-  const W=600,H=190,L=34,R=14,T=16,B=24;
-  let lo=Math.floor((Math.min(...s)-2)/5)*5, hi=Math.ceil((Math.max(...s)+2)/5)*5; if(hi-lo<10)hi=lo+10;
-  const x=i=>L+(W-L-R)*i/(pts.length-1), y=v=>T+(H-T-B)*(v-lo)/(hi-lo); // lower score drawn higher
-  const yy=v=>H-B-(y(v)-T);   // 일반 그래프처럼 위로 갈수록 큰 숫자 (좋은 스코어는 아래)
-  let g=""; const step=(hi-lo)>30?10:5;
-  for(let v=lo;v<=hi;v+=step) g+=`<line x1="${L}" x2="${W-R}" y1="${yy(v)}" y2="${yy(v)}" stroke="var(--line)"/><text x="${L-6}" y="${yy(v)+3}" text-anchor="end">${v}</text>`;
-  const line=s.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${yy(v).toFixed(1)}`).join("");
-  const last=s.length-1;
-  // 추세선: 라운드 순서에 대한 최소제곱 직선 (4라운드 이상일 때)
-  let trend="", trendTxt="", trendEnd=null;
-  if(s.length>=4){
-    const n=s.length, mx=(n-1)/2, my=s.reduce((a,v)=>a+v,0)/n;
-    const k=s.reduce((a,v,i)=>a+(i-mx)*(v-my),0)/s.reduce((a,_,i)=>a+(i-mx)**2,0), at=i=>my+k*(i-mx);
-    trendEnd=yy(at(last));
-    trend=`<line x1="${x(0)}" y1="${yy(at(0)).toFixed(1)}" x2="${x(last)}" y2="${yy(at(last)).toFixed(1)}" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="6 5" stroke-linecap="round"/>`;
-    const per10=k*10;
-    trendTxt = Math.abs(per10)<0.5 ? "점선은 추세 · 거의 변화 없음"
-      : `점선은 추세 · 10라운드마다 약 ${Math.abs(per10).toFixed(1)}타 ${per10<0?"줄어드는 중":"늘어나는 중"}`;
-  }
-  box.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="스코어 추이">${g}
-    <path d="${line}L${x(last)},${H-B}L${x(0)},${H-B}Z" fill="var(--accent-soft)"/>
-    ${trend}
-    <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/>
-    ${s.map((v,i)=>`<circle cx="${x(i)}" cy="${yy(v)}" r="${i===last?5:2.8}" fill="${i===last?"var(--accent)":"var(--paper)"}" stroke="var(--accent)" stroke-width="1.6"><title>${pts[i].date} ${esc(pts[i].club)} ${v}</title></circle>`).join("")}
-    <text x="${x(last)-8}" y="${(()=>{const py=yy(s[last]);return trendEnd!=null&&trendEnd>py-24&&trendEnd<py?py+17:py-10})()}" text-anchor="end" style="fill:var(--ink);font-weight:600">${s[last]}</text>
-    <text x="${x(0)}" y="${H-6}">${pts[0].date.slice(2).replace(/-/g,".")}</text><text x="${x(last)}" y="${H-6}" text-anchor="end">${pts[last].date.slice(2).replace(/-/g,".")}</text>
-  </svg><p class="note" style="margin:4px 0 0">아래로 갈수록 좋은 스코어${trendTxt?" · "+trendTxt:""}</p>`;
-}
 
 // 골프장 타일: 이름 앞 2–3글자 + 이름으로 고정 배정한 색
 const TILE_COLORS=["#0E9A5A","#3182F6","#6E5BFF","#F2683C","#00A7B5"];
