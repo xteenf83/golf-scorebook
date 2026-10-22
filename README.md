@@ -16,6 +16,7 @@
 | `firestore.rules` | Firebase 콘솔에 붙여넣을 보안 규칙 (본인 데이터만 읽기/쓰기) |
 | `images/` | 앱 사진 (시작 화면·홈·분석·코스·배지 머리 사진·공유 이미지, 출처 Unsplash) |
 | `design/v3/` | 디자인 v3 지시서(HANDOFF.md)·화면 시안·사진 원본 |
+| `design/IDEAS.md` | 재미·시각 효과 아이디어 노트 (Claude Code에 붙여 넣을 요청문 포함) |
 | `tools/` | 화면 점검 도구 (배포 안 됨, 아래 참고) |
 | `reference/golf-scorebook-v5.html` | 이전(claude.ai 아티팩트) 버전 원본 |
 
