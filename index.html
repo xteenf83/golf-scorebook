@@ -818,7 +818,6 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 svg.ibars{width:100%;height:auto;margin-top:18px;display:block}
 svg.ibars rect{fill:var(--line)} svg.ibars rect.rec{fill:var(--brand)} svg.ibars rect.best{fill:var(--gold-num)}
 svg.ibars text{font-size:12px;font-weight:700;fill:var(--t5);text-anchor:middle;font-family:var(--font)} svg.ibars text.rec{fill:var(--t1)} svg.ibars text.best{fill:#9A6B00}
-.mlab{display:flex;justify-content:space-between;font-size:12px;color:var(--t4);font-weight:500;padding:0 6px}
 svg.fwsvg{width:100%;height:auto;display:block}
 .fwsvg .rough{fill:#EAF6EF} .fwsvg .fair{fill:#BFE6CF} .fwsvg .mow rect{fill:#B1DFC4}
 .fwsvg text{text-anchor:middle;font-family:var(--font)} .fwsvg .pl{font-size:30px;font-weight:800;fill:#4E5968;letter-spacing:-1px} .fwsvg .pl.miss{fill:#C2540F}
@@ -953,6 +952,7 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 .bottomnav .in.edit .pill.gray{flex:1}
 
 /* 분석: 추세 점선 + 옆으로 넘기는 숫자 카드 묶음 */
+svg.ibars text.ax{font-size:12px;font-weight:500;fill:var(--t4)}
 svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-linecap:round}
 .tleg{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13.5px;color:var(--t3);font-weight:500}
 .tleg i{width:18px;border-top:2px dashed var(--t2)}
@@ -1304,7 +1304,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v83";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v84";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1835,9 +1835,13 @@ function renderInsights(all,rs){
   const cards=[];
   let graph="";
   // 1) 평균 스코어 + 추이: 막대(고른 구간 초록, 비교 구간 회색, 개인 최고 금색) + 고른 구간의 추세 점선
-  { const bars=[...rs,...prev].slice(0,20).reverse(), best=bestScore(), n=bars.length, vals=bars.map(sc), many=n>12;
-    const W=350, lo=Math.min(...vals)-8, hi=Math.max(...vals)+1, top=20, bot=170, step=W/Math.max(n,1), bw=Math.min(22,step-(many?4:8)), Y=v=>bot-(v-lo)/(hi-lo)*(bot-top), X=i=>i*step+step/2;
-    const months=[...new Set(bars.map(r=>+r.date.slice(5,7)))];
+  // 막대는 고른 구간 전부(전체면 첫 라운드부터) + 비교 구간은 합쳐서 20개까지만. 많으면 막대를 가늘게
+  { const bars=[...rs,...prev].slice(0,Math.max(20,rs.length)).reverse(), best=bestScore(), n=bars.length, vals=bars.map(sc), many=n>12, dense=n>40;
+    const W=350, lo=Math.min(...vals)-8, hi=Math.max(...vals)+1, top=20, bot=170, step=W/Math.max(n,1), bw=Math.max(1.5,Math.min(22,step-(dense?step*.3:many?4:8))), Y=v=>bot-(v-lo)/(hi-lo)*(bot-top), X=i=>i*step+step/2;
+    // 가로축: 여러 해에 걸치면 해가 바뀌는 첫 라운드에 "22년", 한 해 안이면 달이 바뀌는 첫 라운드에 "5월". 글자끼리 겹치지 않게 간격 유지
+    const multi=bars[0].date.slice(0,4)!==bars[n-1].date.slice(0,4), key=r=>multi?r.date.slice(0,4):r.date.slice(0,7), gap=36;
+    const ticks=[]; bars.forEach((r,i)=>{ if(i&&key(r)===key(bars[i-1])) return; const x=Math.min(Math.max(X(i),18),W-18);
+      if(ticks.length&&x-ticks[ticks.length-1].x<gap) return; ticks.push({x,t:multi?`${r.date.slice(2,4)}년`:`${+r.date.slice(5,7)}월`}) });
     // 추세: 고른 구간 라운드 순서에 대한 최소제곱 직선 (4라운드 이상)
     const ri=bars.map((r,i)=>rs.includes(r)?i:-1).filter(i=>i>=0), ys=ri.map(i=>vals[i]);
     let trend="", ttxt="";
@@ -1847,9 +1851,8 @@ function renderInsights(all,rs){
       ttxt=Math.abs(k)<0.05?"추세: 거의 변화 없음":`추세: 한 라운드마다 약 ${Math.abs(k).toFixed(1)}타씩 ${k<0?"줄어드는 중":"늘어나는 중"}`; }
     graph=(`<small class="lab">평균 스코어</small><b class="bign">${a.toFixed(1)}타</b>
       <div class="sent ${d==null?"":d<0?"under":"over"}">${d==null?`${rgLab} 기준`:Math.abs(d)<0.05?`이전 ${prev.length}라운드와 같아요`:`이전 ${prev.length}라운드보다 ${Math.abs(d).toFixed(1)}타 ${d<0?"줄었어요":"늘었어요"}`}</div>
-      <svg class="ibars" viewBox="0 0 ${W} 176" role="img" aria-label="라운드별 스코어 막대 ${n}개${ttxt?", "+ttxt:""}">${bars.map((r,i)=>{const v=vals[i], x=X(i)-bw/2, y=Y(v), isB=v===best, rec=rs.includes(r), lab=!many||isB||i===n-1;
-        return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${(bot-y).toFixed(1)}" rx="${many?4:6}" class="${isB?"best":rec?"rec":""}"><title>${r.date} ${esc(r.club)} ${v}타</title></rect>${lab?`<text x="${X(i).toFixed(1)}" y="${(y-7).toFixed(1)}" class="${isB?"best":rec?"rec":""}">${v}</text>`:""}`}).join("")}${trend}</svg>
-      <div class="mlab">${(months.length>3?[months[0],months[Math.floor(months.length/2)],months[months.length-1]]:months).map(m=>`<span>${m}월</span>`).join("")}</div>
+      <svg class="ibars" viewBox="0 0 ${W} 194" role="img" aria-label="라운드별 스코어 막대 ${n}개${ttxt?", "+ttxt:""}">${bars.map((r,i)=>{const v=vals[i], x=X(i)-bw/2, y=Y(v), isB=v===best, rec=rs.includes(r), lab=!many||isB||i===n-1;
+        return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${(bot-y).toFixed(1)}" rx="${dense?1:many?4:6}" class="${isB?"best":rec?"rec":""}"><title>${r.date} ${esc(r.club)} ${v}타</title></rect>${lab?`<text x="${Math.min(Math.max(X(i),12),W-12).toFixed(1)}" y="${(y-7).toFixed(1)}" class="${isB?"best":rec?"rec":""}">${v}</text>`:""}`}).join("")}${trend}${ticks.map(k=>`<text x="${k.x.toFixed(1)}" y="190" class="ax">${k.t}</text>`).join("")}</svg>
       ${ttxt?`<p class="tleg"><i></i>${ttxt}</p>`:""}`) }
   // 1-2) 그래프 카드를 옆으로 한 번 넘기면 숫자 통계가 한눈에 (카드 2장 묶음)
   { const det=rs.filter(hasDetail), cs=det.map(roundCalc), n=cs.length, sum=k=>cs.reduce((x,c)=>x+c[k],0), per=k=>n?(sum(k)/n).toFixed(1):"—", pct=(x,y)=>y?Math.round(x/y*100)+"%":"—";
