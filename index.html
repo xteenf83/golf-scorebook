@@ -1241,7 +1241,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
     <div class="phead"><img src="images/courses-header-fairways.jpg" alt="" onerror="this.remove()"><div><h1>코스</h1></div></div>
     <section class="panel">
       <p class="note" style="margin-top:0">골프장을 누르면 코스별 홀 파를 확인하고 고칠 수 있습니다. 새 골프장은 Claude에게 이름만 알려주면 앱 업데이트로 자동 등록해 드립니다.</p>
-      <span class="clr" style="margin-bottom:10px"><input id="clSearch" type="search" placeholder="골프장·코스 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
+      <span class="clr" style="margin-bottom:10px"><input id="clSearch" type="search" placeholder="골프장 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
       <div class="clist" id="courseList"></div>
     </section>
     <section class="panel" id="courseAddPanel">
@@ -1291,7 +1291,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v77";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v78";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2579,7 +2579,7 @@ function renderCourses(){
   // 검색: 골프장 이름이나 그 골프장의 코스 이름에 검색어가 들어 있으면 (띄어쓰기·대소문자 무시)
   const norm=t=>String(t||"").toLowerCase().replace(/\s+/g,""), q=norm($("clSearch").value);
   const all=clubs().sort((a,b)=>a.localeCompare(b,"ko"));
-  const ks=q?all.filter(k=>norm(k).includes(q)||courses.some(c=>c.club===k&&norm(c.name).includes(q))):all;
+  const ks=q?all.filter(k=>norm(k).includes(q)):all;
   if(q&&all.length&&!ks.length){ $("courseList").innerHTML=`<div class="empty"><b>검색 결과가 없습니다</b>다른 이름으로 찾아보거나 아래에서 직접 추가하세요.</div>`; return }
   $("courseList").innerHTML = ks.length ? ks.map(k=>{const list=courses.filter(c=>c.club===k), warn=list.some(c=>parSum(c)!==36);
     return `<button class="crow" data-club="${esc(k)}"><span class="nm"><b>${esc(k)}</b></span>
