@@ -183,27 +183,18 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .kv b em{font-style:normal;font-family:var(--f-num);font-size:13px;font-weight:700}
 
 /* courses */
-/* 내 골프 지도: 코스 탭 맨 위. 가 본 시·도는 초록으로 칠하고, 가 본 골프장은 방문 횟수를 적은 동그라미(자주 갈수록 크고 진하게) */
+/* 내 골프 지도: 코스 탭 맨 위. 가 본 시·도는 옅은 초록, 가 본 골프장은 초록 점(자주 갈수록 조금씩 크게) */
 .vmap{padding-bottom:10px}
 .vmap h3{margin:0;font-size:17px;font-weight:700}
 .vmap .big{display:flex;align-items:baseline;gap:4px;margin-top:6px}
 .vmap .big b{font-size:34px;font-weight:800;letter-spacing:-.02em;color:var(--brand-text);font-variant-numeric:tabular-nums;line-height:1.1}
 .vmap .big span{font-size:15px;color:var(--t4);font-weight:600}
 .vmap .sub{font-size:13px;color:var(--t3);margin-top:2px}
-.vmap svg{display:block;width:100%;height:auto;margin:6px auto 0;overflow:hidden;border-radius:12px}
+.vmap svg{display:block;width:100%;max-width:340px;height:auto;margin:8px auto 0}
 .vmap .prov{fill:var(--fill);stroke:var(--card);stroke-width:1.2px;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .vmap .prov.on{fill:var(--brand)}
-/* 방문 횟수 3단계(1회 / 2–3회 / 4회 이상): 라이트는 진할수록, 다크는 밝을수록 자주. --vNt는 동그라미 안 숫자 색 */
-.vmap{--v1:#8EDDB5;--v1t:#0A5C35;--v2:#1DB46F;--v2t:#fff;--v3:#0A6E3F;--v3t:#fff}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vmap{--v1:#2F7A55;--v1t:#fff;--v2:#29C27C;--v2t:#062B19;--v3:#8EF0BE;--v3t:#062B19}}
-:root[data-theme="dark"] .vmap{--v1:#2F7A55;--v1t:#fff;--v2:#29C27C;--v2t:#062B19;--v3:#8EF0BE;--v3t:#062B19}
-.vmap .pin{cursor:pointer}
-.vmap .pin .ring{fill-opacity:.22}
-.vmap .pin .core{stroke:var(--card);stroke-width:1.8px;vector-effect:non-scaling-stroke}
-.vmap .pin text{font-weight:800;text-anchor:middle;dominant-baseline:central;pointer-events:none}
-.vmap .v1 circle{fill:var(--v1)}.vmap .v1 text{fill:var(--v1t)}
-.vmap .v2 circle{fill:var(--v2)}.vmap .v2 text{fill:var(--v2t)}
-.vmap .v3 circle{fill:var(--v3)}.vmap .v3 text{fill:var(--v3t)}
+.vmap .dot{fill:var(--brand);fill-opacity:.78;stroke:var(--card);stroke-width:1px;vector-effect:non-scaling-stroke;pointer-events:none}
+.vmap .hit{fill:transparent;cursor:pointer}
 .course{border-top:1px solid var(--line);padding-block:12px;display:flex;flex-direction:column;gap:8px}
 .course:first-child{border-top:0;padding-top:0}
 .tag9{display:inline-block;font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px}
@@ -1313,7 +1304,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v82";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v83";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2619,36 +2610,25 @@ function roundDiary(r){
 }
 /* ---------- COURSES: 골프장 목록 → 골프장별 홀 파 확인·수정 ---------- */
 let clubSel=null;
-// 내 골프 지도: 끝난 라운드(9홀 포함)를 골프장별로 세서, 가 본 시·도는 초록으로 칠하고(많이 갈수록 진하게)
-// 가 본 골프장만 방문 횟수를 적은 동그라미로 찍는다. 동그라미를 누르면 그 골프장으로
+// 내 골프 지도: 끝난 라운드(9홀 포함)를 골프장별로 세서, 가 본 시·도는 옅은 초록으로 칠하고
+// 가 본 골프장만 초록 점으로 찍는다(1회는 작은 점, 자주 갈수록 조금씩 크게). 점을 누르면 그 골프장으로.
+// 늘 본토 전체를 보여 주고, 제주는 지도가 너무 길어지지 않게 조금 위로 올려 그린다
+const JEJU_UP=5;
 function renderVisitMap(){
   const V={}; doneRounds().forEach(r=>{if(r.club) V[r.club]=(V[r.club]||0)+1});
-  const seen=Object.keys(V), M=KOREA_MAP, xy=c=>{const l=CLUB_LOC[c];return [(l[3]-M.lon0)*M.kx,(M.lat1-l[2])*M.ky]};
-  const pin=seen.filter(c=>CLUB_LOC[c]), maxV=Math.max(1,...pin.map(c=>V[c]));
+  const seen=Object.keys(V), M=KOREA_MAP;
+  const xy=c=>{const l=CLUB_LOC[c];return [(l[3]-M.lon0)*M.kx,(M.lat1-l[2])*M.ky-(l[0]==="제주"?JEJU_UP:0)]};
+  const pin=seen.filter(c=>CLUB_LOC[c]);
   const R={}; pin.forEach(c=>{const r=CLUB_LOC[c][0]; R[r]=(R[r]||0)+V[c]});
-  const maxR=Math.max(1,...Object.values(R)), f=n=>n.toFixed(1), lv=v=>v>=4?3:v>=2?2:1;
-  const provs=Object.entries(M.p).map(([k,d])=>R[k]?`<path class="prov on" style="fill-opacity:${(.18+.32*R[k]/maxR).toFixed(2)}" d="${d}"/>`:`<path class="prov" d="${d}"/>`).join("");
-  // 보이는 범위: 가 본 골프장이 모두 들어오게 확대(수도권에 몰려 있어도 겹치지 않게). 없으면 본토 전체.
-  // 가로:세로 = 1:1.05, 지도 모양을 알아볼 수 있게 최소 폭 56, 본토 범위(x 15–85) 밖으로는 나가지 않게
-  const P=pin.map(xy), B={x0:15,x1:85,y0:-1,y1:M.h+1};
-  let x0=P.length?Math.min(...P.map(p=>p[0]))-9:B.x0, x1=P.length?Math.max(...P.map(p=>p[0]))+9:B.x1,
-      y0=P.length?Math.min(...P.map(p=>p[1]))-9:B.y0, y1=P.length?Math.max(...P.map(p=>p[1]))+9:B.y1;
-  let w=Math.max(56,x1-x0,(y1-y0)/1.05), h=w*1.05; const cx=(x0+x1)/2, cy=(y0+y1)/2;
-  if(w>B.x1-B.x0){w=B.x1-B.x0;h=w*1.05}
-  x0=Math.min(Math.max(cx-w/2,B.x0),B.x1-w); y0=Math.min(Math.max(cy-h/2,B.y0),Math.max(B.y0,B.y1-h));
-  const z=w/70;   // 확대해도 동그라미·글자는 화면에서 같은 크기로
-  // 가까운 골프장(예: 강화·영종)은 동그라미가 겹치지 않게 서로 조금씩 밀어낸다
-  const D=pin.map(c=>{const [x,y]=xy(c);return {c,x,y,r:(2.2+1.3*Math.sqrt(V[c]/maxV))*z}});
-  for(let it=0;it<40;it++) for(let i=0;i<D.length;i++) for(let j=i+1;j<D.length;j++){
-    const a=D[i], b=D[j], dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||.01, need=a.r+b.r+.5*z;
-    if(d<need){const k=(need-d)/2/d; a.x-=dx*k; a.y-=dy*k; b.x+=dx*k; b.y+=dy*k}}
-  // 적게 간 곳부터 그려서 자주 간 곳이 위로
-  const pins=D.sort((a,b)=>V[a.c]-V[b.c]).map(({c,x,y,r})=>{
-    return `<g class="pin v${lv(V[c])}" data-club="${esc(c)}"><title>${esc(c)} · ${V[c]}회</title><circle class="ring" cx="${f(x)}" cy="${f(y)}" r="${f(r+1.2*z)}"/><circle class="core" cx="${f(x)}" cy="${f(y)}" r="${f(r)}"/><text x="${f(x)}" y="${f(y)}" font-size="${f(2.7*z)}">${V[c]}</text></g>`}).join("");
+  const maxR=Math.max(1,...Object.values(R)), f=n=>n.toFixed(1);
+  const provs=Object.entries(M.p).map(([k,d])=>`<path class="prov${R[k]?" on":""}"${R[k]?` style="fill-opacity:${(.14+.22*R[k]/maxR).toFixed(2)}"`:""}${k==="제주"?` transform="translate(0 -${JEJU_UP})"`:""} d="${d}"/>`).join("");
+  // 많이 간 곳(큰 점)을 먼저 그려서 작은 점이 가려지지 않게
+  const dots=[...pin].sort((a,b)=>V[b]-V[a]).map(c=>{const [x,y]=xy(c), r=Math.min(2.4,.9+.9*(Math.sqrt(V[c])-1));
+    return `<g data-club="${esc(c)}"><title>${esc(c)}</title><circle class="dot" cx="${f(x)}" cy="${f(y)}" r="${f(r)}"/><circle class="hit" cx="${f(x)}" cy="${f(y)}" r="2.4"/></g>`}).join("");
   $("visitMap").innerHTML=`<h3>내 골프 지도</h3>
     <div class="big"><b>${seen.length}</b><span>곳 방문</span></div>
     ${seen.length?"":`<div class="sub">라운드를 기록하면 가 본 골프장이 지도에 찍혀요</div>`}
-    <svg viewBox="${f(x0)} ${f(y0)} ${f(w)} ${f(h)}" role="img" aria-label="가 본 골프장 지도: ${seen.length}곳">${provs}${pins}</svg>`;
+    <svg viewBox="19 1.5 62 ${f(108.5-JEJU_UP-1.5)}" role="img" aria-label="가 본 골프장 지도: ${seen.length}곳">${provs}${dots}</svg>`;
 }
 const parSum=c=>c.pars.reduce((a,b)=>a+b,0);
 function renderCourses(){
