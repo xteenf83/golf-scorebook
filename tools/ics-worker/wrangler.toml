@@ -1,0 +1,5 @@
+# Cloudflare Worker 'golf-ics' (캘린더에 추가용). Cloudflare 대시보드에서 이 레포를 연결하고
+# Root directory를 tools/ics-worker 로 두면 main에 푸시할 때마다 자동 배포된다.
+name = "golf-ics"
+main = "index.js"
+compatibility_date = "2025-01-01"
