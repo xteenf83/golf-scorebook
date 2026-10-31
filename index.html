@@ -1374,7 +1374,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v92";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v93";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2397,37 +2397,44 @@ function schedWx(x,now){
 }
 // 끝난 라운드에 그날 날씨 채우기: 골프장마다 한 번에 (최근 80일은 예보 API의 지난 자료, 그 전은 과거 자료 API)
 let wxFilling=false;
-async function fillWeather(){
+const wxNeed=()=>{ const t=today(); return rounds.filter(r=>r.status==="done"&&!r.weather&&r.date&&r.date<=t&&clubXY(r.club)&&!(cur&&cur.id===r.id)) };
+function wxErrSet(m){ try{ m?localStorage.setItem("gsb.wxErr",JSON.stringify({at:Date.now(),m:String(m).slice(0,120)})):localStorage.removeItem("gsb.wxErr") }catch(e){} }
+function wxErrGet(){ try{ return JSON.parse(localStorage.getItem("gsb.wxErr")||"null") }catch(e){ return null } }
+async function fillWeather(force){
   if(wxFilling||!rcol) return;
-  try{ if(Date.now()-(+localStorage.getItem("gsb.wxFail")||0)<6*3600e3) return }catch(e){}
-  const t=today(), need=rounds.filter(r=>r.status==="done"&&!r.weather&&r.date&&r.date<=t&&clubXY(r.club)&&!(cur&&cur.id===r.id));
+  const er=wxErrGet(); if(!force&&er&&Date.now()-er.at<30*60e3) return;   // 실패하면 30분 쉬었다가 다시
+  const need=wxNeed();
   if(!need.length) return;
-  wxFilling=true;
+  wxFilling=true; let err=null; if(!$("scrStats").hidden) renderWxStats();
   const lim=new Date(); lim.setDate(lim.getDate()-80); const recent=lim.toISOString().slice(0,10), groups={};
   need.forEach(r=>{ const k=r.club+"|"+(r.date>=recent?"f":"a"); (groups[k]=groups[k]||[]).push(r) });
-  try{
-    for(const k of Object.keys(groups)){
+  for(const k of Object.keys(groups)){
+    try{
       const rs=groups[k], [club,kind]=k.split("|"), xy=clubXY(club), ds=rs.map(r=>r.date).sort();
       const base=kind==="f"?"https://api.open-meteo.com/v1/forecast":"https://archive-api.open-meteo.com/v1/archive";
       const u=`${base}?latitude=${xy[0]}&longitude=${xy[1]}&start_date=${ds[0]}&end_date=${ds[ds.length-1]}&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m&wind_speed_unit=ms&timezone=Asia%2FSeoul`;
-      const j=await (await fetch(u)).json(); if(!j.hourly) throw new Error(j.reason||"no data");
+      const res=await fetch(u), j=await res.json().catch(()=>({})); if(!j.hourly) throw new Error(`${club}: ${j.reason||"HTTP "+res.status}`);
       for(const r of rs){
         const st=r.createdAt&&!isTotal(r)&&!r.teeTime?new Date(r.createdAt):null, sameDay=st&&(()=>{const d=new Date(st);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)===r.date})();
         const h0=r.teeTime?hm2h(r.teeTime):sameDay&&st.getHours()>=5&&st.getHours()<=17?st.getHours():7;
         const w=wxSummary(j.hourly,r.date,h0); if(!w) continue;
         delete w.pop; delete w.w0; delete w.w1; r.weather=w; rcol.doc(r.id).update({weather:w});
       }
-    }
-    if(!$("scrStats").hidden) renderWxStats();
-  }catch(e){ try{localStorage.setItem("gsb.wxFail",String(Date.now()))}catch(_){} }
-  wxFilling=false;
+    }catch(e){ err=e.message||String(e) }   // 한 골프장이 실패해도 나머지는 계속
+  }
+  wxErrSet(err); wxFilling=false;
+  if(!$("scrStats").hidden) renderWxStats();
 }
 // 분석: 날씨별 스코어 (전체 기록 기준 — 날씨가 붙은 18홀 라운드)
 function renderWxStats(){
   const box=$("wxPanel"), rs=statRounds().filter(r=>r.weather&&scoreOf(r).tot!=null);
   if(!rounds.some(r=>clubXY(r.club))){ box.hidden=true; return }
   box.hidden=false;
-  if(rs.length<3){ box.innerHTML=`<h2>날씨별 스코어</h2><p class="note" style="margin:0">라운드에 그날 날씨를 붙이는 중이에요 (${rs.length}라운드). 위치를 아는 골프장 18홀 라운드가 3개 이상이면 보여요.</p>`; return }
+  const left=wxNeed().length, er=wxErrGet();
+  const st=wxFilling?"그날 날씨를 받는 중이에요…":er?`날씨를 받지 못했어요 (${esc(er.m)})`:left?`날씨를 아직 못 받은 라운드 ${left}개`:"";
+  const retry=left&&!wxFilling?`<button class="linkbtn acc" id="wxRetry" style="padding-left:0">다시 받기</button>`:"";
+  if(rs.length<3){ box.innerHTML=`<h2>날씨별 스코어</h2><p class="note" style="margin:0">날씨가 붙은 18홀 라운드가 3개 이상이면 보여요 (지금 ${rs.length}개). 위치를 아는 골프장만 들어가요.</p>${st?`<p class="note" style="margin:8px 0 0">${st}</p>`:""}${retry}`;
+    if($("wxRetry")) $("wxRetry").onclick=()=>{ wxErrSet(null); fillWeather(true); renderWxStats() }; return }
   const sc=r=>scoreOf(r).tot, all=avgOf(rs.map(sc));
   const G=[["기온"],["cold","추움","5° 이하",r=>r.weather.t<=5,"temp","추위에","추운 날"],["cool","쌀쌀","5–15°",r=>r.weather.t>5&&r.weather.t<15,"temp","쌀쌀한 날에","쌀쌀한 날"],
     ["nice","딱 좋음","15–25°",r=>r.weather.t>=15&&r.weather.t<25,"sun","좋은 날씨에"],["hot","더움","25° 이상",r=>r.weather.t>=25,"temp","더위에","더운 날"],
@@ -2443,7 +2450,8 @@ function renderWxStats(){
   html=html.replace(/<div class="wsec">[^<]*<\/div>(?=<div class="wsec">|$)/g,"");
   const ins=worst&&worst.d>=1?`${worst.g[5]} 가장 약해요 — ${worst.g[6]} 평균 <b>+${worst.d.toFixed(1)}타</b>`:"날씨를 크게 타지 않아요 — 어느 날씨든 평균과 1타 안쪽";
   box.innerHTML=`<h2>날씨별 스코어 <small>내 평균 ${all.toFixed(1)} · ${rs.length}라운드</small></h2>${html}
-    <p class="wins">${ins}</p><p class="note" style="margin:8px 0 0">티오프부터 5시간 날씨 기준 (시각을 모르면 오전 7시) · 위치를 아는 골프장만 · 전체 기록 · Open-Meteo</p>`;
+    <p class="wins">${ins}</p><p class="note" style="margin:8px 0 0">티오프부터 5시간 날씨 기준 (시각을 모르면 오전 7시) · 위치를 아는 골프장만 · 전체 기록 · Open-Meteo</p>${st?`<p class="note" style="margin:6px 0 0">${st}</p>`:""}${retry}`;
+  if($("wxRetry")) $("wxRetry").onclick=()=>{ wxErrSet(null); fillWeather(true); renderWxStats() };
 }
 
 /* ---------- PLAY ---------- */
