@@ -980,6 +980,37 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .sstats .sgrid2>div,.sstats .sgrid3>div{padding:9px 0;border-top:1px solid var(--fill)}
 .sstats .sgrid2 b{font-size:24px} .sstats .sgrid3 b{font-size:21px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* 골프 일정: 홈 D-day 카드 · 다음 일정 줄 · 일정 입력 화면 */
+.tee{padding:20px 20px 18px;margin-top:4px;position:relative}
+.tee .thd{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-right:44px}
+.tee .dday{flex:none;font-size:13px;font-weight:800;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:3px 8px}
+.tee .when{font-size:14.5px;font-weight:600;color:var(--t2)}
+.tee .club{display:block;font-size:21px;font-weight:700;letter-spacing:-0.035em;line-height:1.3}
+.tee .sub{display:block;font-size:14.5px;color:var(--t3);margin-top:3px}
+.tee .memo{font-size:14px;color:var(--t3);margin:8px 0 0}
+.tee .mates{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tee .mates span{font-size:13px;font-weight:600;background:var(--fill);border-radius:999px;padding:4px 10px;color:var(--t2)}
+.tee .acts{display:flex;gap:8px;margin-top:16px}
+.tee .acts:empty{display:none}
+.tee .acts button{flex:1}
+.tee .edit{position:absolute;top:14px;right:12px;border:0;background:none;color:var(--t3);font-size:14px;padding:6px 8px;min-height:0}
+.tee.today{background:var(--brand);border-color:var(--brand);color:#fff}
+.tee.today .dday{background:rgba(255,255,255,.2);color:#fff}
+.tee.today .when,.tee.today .sub,.tee.today .memo,.tee.today .edit{color:rgba(255,255,255,.85)}
+.tee.today .mates span{background:rgba(255,255,255,.18);color:#fff}
+.tee.today .go{background:#fff;color:var(--brand);border:0;font-size:16px;font-weight:700;padding:14px}
+.nexts{margin:8px 4px 0;display:flex;flex-direction:column}
+.nexts button{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:none;padding:10px 2px;border-top:1px solid var(--line);border-radius:0;font-weight:500;font-size:14.5px;color:var(--t2);min-height:0;width:100%;text-align:left}
+.nexts button:first-child{border-top:0}
+.nexts button b{flex:none;font-weight:700;color:var(--brand);font-size:13px}
+.addsched{display:block;width:100%;margin-top:10px;border:1px dashed var(--line);background:none;color:var(--t3);font-weight:600;padding:12px;border-radius:14px}
+.flab{display:block;font-size:13.5px;color:var(--t3);font-weight:600;margin-bottom:6px}
+.mrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.mrow .chip{font-size:14px;font-weight:600;background:var(--fill);border-radius:999px;padding:2px 2px 2px 12px;display:inline-flex;gap:2px;align-items:center}
+.mrow .chip button{border:0;background:none;color:var(--t3);padding:4px 8px;min-height:0;font-size:15px}
+.mrow input{flex:1;min-width:140px}
+.alarm{display:flex;flex-direction:column;gap:4px;background:var(--fill);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--t2)}
+.rmates{font-size:14px;color:var(--t3);margin-top:4px}
 </style>
 </head>
 <body>
@@ -1027,6 +1058,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
   <section class="screen" id="scrHome" hidden>
     <div class="phead" id="homeHead"><img src="images/home-header-aerial.jpg" alt="" onerror="this.remove()"><div><h1 id="homeTitle">나의 골프 스코어북</h1><p id="homeSub"></p></div></div>
     <div id="resumeBox"></div>
+    <div id="schedBox"></div>
     <p class="msg err" id="homeMsg" role="status"></p>
     <section class="panel avgcard" id="hero"></section>
     <button class="notice" id="missionNote" hidden></button>
@@ -1138,6 +1170,28 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <p class="note" id="setupInfo" style="margin:10px 0 16px"></p>
       <p class="msg err" id="setupMsg" role="status"></p>
       <button class="primary big" id="startBtn">1번 홀부터 시작</button>
+    </section>
+  </section>
+
+  <!-- SCHEDULE: 골프 일정 추가·수정 -->
+  <section class="screen" id="scrSched" hidden>
+    <section class="panel">
+      <div class="grid2">
+        <label>날짜<input type="date" id="kDate"></label>
+        <label>티 시각<input type="time" id="kTime"></label>
+        <label class="full">골프장<input id="kClub" list="clubList" placeholder="예: 서원힐스CC" autocomplete="off"></label>
+        <label><span id="kFrontLbl">전반 코스</span><select id="kFront"></select></label>
+        <label id="kBackWrap">후반 코스<select id="kBack"></select></label>
+        <label>티<select id="kTee"></select></label>
+        <label>홀 수<select id="kHoles"><option value="18">18홀</option><option value="9">9홀</option></select></label>
+        <div class="full"><span class="flab">동반자</span><div class="mrow" id="kMates"></div><datalist id="mateList"></datalist>
+          <p class="note" style="margin:6px 0 0">이름을 쓰고 완료(또는 쉼표)를 누르면 추가돼요. 전에 같이 친 이름은 추천되고, 라운드 기록에도 남아요.</p></div>
+        <label class="full">메모 (선택)<input id="kMemo" placeholder="예: 카트비 현장 결제, 5시 30분 출발" autocomplete="off"></label>
+        <div class="full alarm"><b>캘린더 알림</b><span>'캘린더에 추가'를 누르면 폰 캘린더에 일정이 들어가고, 전날 저녁 8시 · 티오프 2시간 전에 캘린더가 알려 줘요.</span></div>
+      </div>
+      <p class="msg err" id="kMsg" role="status"></p>
+      <button class="primary big" id="kSave" style="margin-top:16px">일정 저장</button>
+      <div class="row" style="margin-top:10px;justify-content:space-between"><button class="outline" id="kCal">캘린더에 추가</button><button class="linkbtn" id="kDel">이 일정 삭제</button></div>
     </section>
   </section>
 
@@ -1304,7 +1358,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v85";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v86";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1589,19 +1643,19 @@ function relCls(d){return d==null?"even":d<0?"under":d===0?"even":"over"}
 function clone(o){return JSON.parse(JSON.stringify(o))}
 
 let userName="";
-const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],
+const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],Sched:["Schedule","골프 일정"],
   Round:["Scorecard","라운드 기록"],Rounds:["All Rounds","전체 라운드"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"],Badges:["Badges","배지"]};
 const TAB_SCREENS=["Home","Stats","Courses","Badges","More"];
 function scrollTop(){$("scroller").scrollTop=0}
 function show(name){
   if(pendingReload && !["Play","Setup","Info"].includes(name)){ location.reload(); return; }
-  ["Login","Home","Stats","Setup","Play","Round","Rounds","Courses","Info","More","Badges"].forEach(n=>$("scr"+n).hidden = n!==name);
+  ["Login","Home","Stats","Setup","Sched","Play","Round","Rounds","Courses","Info","More","Badges"].forEach(n=>$("scr"+n).hidden = n!==name);
   $("bottomNav").hidden = name!=="Play";
   const tabs=TAB_SCREENS.includes(name);
   $("tabBar").hidden=!tabs; document.body.classList.toggle("tabs",tabs); if(tabs) updFab();
   document.querySelectorAll(".tab[data-tab]").forEach(t=>t.classList.toggle("on",t.dataset.tab===name));
   $("menuBtn").hidden = name!=="Home";
-  const sub=["Setup","Rounds","Info","More"].includes(name);
+  const sub=["Setup","Sched","Rounds","Info","More"].includes(name);
   $("topBar").classList.toggle("nav",name==="Play"); $("topBar").classList.toggle("sub",sub); $("topBack").hidden = name!=="Play"&&!sub;
   $("topBack").setAttribute("aria-label", name==="Play"?"홈으로 (자동 저장됨)":name==="Info"?"돌아가기":"홈으로");
   const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
@@ -1706,7 +1760,7 @@ function renderHome(){
     $("resumeMore").onclick=()=>acts(true);
     acts(false);
   } else $("resumeBox").innerHTML="";
-  renderHero(); renderMissionNote();
+  renderSched(); renderHero(); renderMissionNote();
   renderRoundList();
 }
 /* 평균 카드: 고른 기간(5R·10R·3달·1년·전체)의 평균과 직전 같은 길이 구간 대비 변화량.
@@ -1790,7 +1844,7 @@ function startNewRound(){
 // 새 라운드 화면 열기. mode: hole(홀별 입력) · score(지난 기록: 홀별 타수만)
 function openSetup(mode,msgEl=$("homeMsg")){
   if(!rcol){msgEl.textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
-  $("sDate").value=today(); fillClubList(); $("sTee").value=""; $("sTee").innerHTML=`<option>${DEFAULT_TEE}</option>`;
+  schedStart=null; $("sDate").value=today(); fillClubList(); $("sTee").value=""; $("sTee").innerHTML=`<option>${DEFAULT_TEE}</option>`;
   const last=doneRounds()[0]; if(last && !$("sClub").value) $("sClub").value=last.club;
   syncClears(); $("sGhost").value="best"; $("sMission").value=""; $("sMTarget").value="";
   $("modeSeg").querySelector(`[data-m="${mode}"]`).click();
@@ -2093,18 +2147,154 @@ $("startBtn").onclick=async()=>{
       $("startBtn").disabled=false; rounds.push({id:ref.id,...body}); openRound(ref.id,true); return;
     }
     const holes=pars.map(newHole);
-    const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"playing",...(mb.mission?{mission:mb.mission}:{}),createdAt:Date.now(),updatedAt:Date.now()};
+    const mates=schedStart&&Array.isArray(schedStart.mates)?schedStart.mates:[];
+    const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"playing",...(mb.mission?{mission:mb.mission}:{}),...(mates.length?{mates:[...mates]}:{}),createdAt:Date.now(),updatedAt:Date.now()};
     // 고스트: 9홀 코스(courseId)마다 따로 고른다. 그 코스 기록이 없으면 그 9홀은 고스트 없음
     if(setOn("ghost")&&$("sGhost").value!=="none"){
       const pick=h=>{const x=h&&pickGhost(h.courseId,$("sGhost").value,null); if(x) delete x.tot; return x||null};
       const gf=pick(front), gb=nine?null:pick(back); if(gf||gb) body.ghost={front:gf,back:gb};
     }
     const ref=await rcol.add(body);
+    if(schedStart){ const sid=schedStart.id; scheds=scheds.filter(x=>x.id!==sid); if(scol) scol.doc(sid).delete(); schedStart=null }   // 시작한 일정은 목록에서 뺀다
     cur={id:ref.id,...body}; hole=0; $("sNewCourse").value="";
     renderPlay(); show("Play");
   }catch(e){$("setupMsg").textContent="시작하지 못했습니다: "+(e.message||e.code)}
   $("startBtn").disabled=false;
 };
+
+/* ---------- 골프 일정: 몇 주 전에 잡힌 라운드 (날짜·티 시각·골프장·코스·동반자) ----------
+   홈 맨 위에 가장 가까운 일정 D-day 카드, 당일엔 '라운드 시작'으로 설정이 채워진 채 바로 1번 홀.
+   알림은 폰 캘린더에 맡긴다 (.ics: 전날 20시 · 티오프 2시간 전) — 홈 화면 앱은 몇 주 뒤 알림을 스스로 예약할 수 없어서 */
+let scol=null, scheds=[], schedEdit=null, schedMates=[], schedStart=null;
+const upcoming=()=>scheds.filter(x=>x.date>=today()).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+const dDays=date=>Math.round((new Date(date+"T00:00")-new Date(today()+"T00:00"))/864e5);
+function schedDay(x){ const d=new Date(x.date+"T00:00"); return `${d.getMonth()+1}월 ${d.getDate()}일 (${"일월화수목금토"[d.getDay()]})` }
+function renderSched(){
+  const box=$("schedBox"), up=upcoming(), add=`<button class="addsched" data-sadd="1">＋ 골프 일정 추가</button>`;
+  if(!up.length){ box.innerHTML=add; return }
+  const x=up[0], dd=dDays(x.date), now=dd===0, playing=playingRound();
+  let when=`${schedDay(x)} · ${x.time} 티오프`;
+  if(now){ const left=Math.round((new Date(`${x.date}T${x.time}`)-Date.now())/6e4);
+    when=`${x.time} 티오프`+(left>0?` · ${left>=60?Math.floor(left/60)+"시간 ":""}${left%60}분 남음`:"") }
+  const sub=[courseTxt(x," → "),x.tee?teeKo(x.tee)+" 티":"",x.holes===9?"9홀":""].filter(Boolean).join(" · ");
+  box.innerHTML=`<section class="panel tee${now?" today":""}"><button class="edit" data-sedit="${x.id}">수정</button>
+      <div class="thd"><span class="dday">${now?"오늘":"D-"+dd}</span><span class="when">${when}</span></div>
+      <b class="club">${esc(x.club)}</b>${sub?`<span class="sub">${esc(sub)}</span>`:""}
+      ${x.mates&&x.mates.length?`<div class="mates">${x.mates.map(m=>`<span>${esc(m)}</span>`).join("")}</div>`:""}
+      ${x.memo?`<p class="memo">${esc(x.memo)}</p>`:""}
+      <div class="acts">${now?(playing?"":`<button class="go" data-sgo="${x.id}">라운드 시작</button>`):`<button class="outline" data-scal="${x.id}">캘린더에 추가</button>`}</div></section>
+    ${up.length>1?`<div class="nexts">${up.slice(1,4).map(y=>`<button data-sedit="${y.id}"><span>${schedDay(y)} ${y.time} · ${esc(y.club)}</span><b>${dDays(y.date)?"D-"+dDays(y.date):"오늘"}</b></button>`).join("")}</div>`:""}${add}`;
+}
+$("schedBox").onclick=e=>{
+  const b=e.target.closest("button"); if(!b) return; const find=id=>scheds.find(x=>x.id===id);
+  if(b.dataset.sadd) openSched(null);
+  else if(b.dataset.sedit) openSched(b.dataset.sedit);
+  else if(b.dataset.scal&&find(b.dataset.scal)) schedCal(find(b.dataset.scal));
+  else if(b.dataset.sgo&&find(b.dataset.sgo)) startFromSched(find(b.dataset.sgo));
+};
+setInterval(()=>{ if(!$("scrHome").hidden&&scheds.length) renderSched() },60000);   // 당일 '○분 남음'
+// 당일: 새 라운드 화면을 일정대로 채우고, 코스가 정해져 있으면 바로 1번 홀부터
+function startFromSched(x){
+  openSetup("hole"); if($("scrSetup").hidden) return;
+  schedStart=x; $("sDate").value=today(); $("sClub").value=x.club; syncClears();
+  const nine=x.holes===9; $("holesSeg").querySelector(`[data-n="${nine?9:18}"]`).click();
+  fillCourseSelects();
+  const has=h=>!!(h&&h.courseId&&courses.some(c=>c.id===h.courseId));
+  if(has(x.front)) $("sFront").value=x.front.courseId;
+  if(!nine&&has(x.back)) $("sBack").value=x.back.courseId;
+  updSetupInfo(); if(x.tee&&[...$("sTee").options].some(o=>o.value===x.tee)) $("sTee").value=x.tee;
+  if(has(x.front)&&(nine||has(x.back))) $("startBtn").click();
+  else $("setupMsg").textContent="일정에 등록된 코스가 없어요. 코스를 고른 뒤 시작해 주세요.";
+}
+function fillSchedCourses(keep){
+  const club=$("kClub").value.trim(), cs=courses.filter(c=>c.club===club).sort((a,b)=>a.name.localeCompare(b.name));
+  const pf=keep?keep[0]:$("kFront").value, pb=keep?keep[1]:$("kBack").value;
+  const opts=cs.length?cs.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join(""):`<option value="">(코스 미정)</option>`;
+  $("kFront").innerHTML=opts; $("kBack").innerHTML=opts;
+  if(cs.length){ $("kFront").value=cs.some(c=>c.id===pf)?pf:cs[0].id; $("kBack").value=cs.some(c=>c.id===pb)?pb:(cs[1]||cs[0]).id }
+  fillSchedTee();
+}
+function fillSchedTee(want){
+  const nine=$("kHoles").value==="9"; $("kBackWrap").hidden=nine; $("kFrontLbl").textContent=nine?"코스":"전반 코스";
+  fillTeeSelect($("kTee"),(nine?[$("kFront").value]:[$("kFront").value,$("kBack").value]).map(id=>courses.find(c=>c.id===id)),want||$("kTee").value||DEFAULT_TEE);
+}
+$("kClub").addEventListener("input",()=>fillSchedCourses());
+$("kFront").onchange=$("kBack").onchange=$("kHoles").onchange=()=>fillSchedTee();
+function openSched(id){
+  if(!scol){$("homeMsg").textContent="저장소에 연결되지 않았습니다. 로그인 상태를 확인해 주세요.";return}
+  const x=id?scheds.find(y=>y.id===id):null; schedEdit=x?x.id:null;
+  const wk=new Date(); wk.setDate(wk.getDate()+7); wk.setMinutes(wk.getMinutes()-wk.getTimezoneOffset());
+  const last=doneRounds()[0];
+  $("kDate").value=x?x.date:wk.toISOString().slice(0,10); $("kTime").value=x?x.time:"07:00";
+  $("kClub").value=x?x.club:(last?last.club:""); $("kHoles").value=x&&x.holes===9?"9":"18"; $("kMemo").value=x?x.memo||"":"";
+  schedMates=x&&Array.isArray(x.mates)?[...x.mates]:[];
+  fillClubList(); $("mateList").innerHTML=[...new Set([...rounds,...scheds].flatMap(y=>Array.isArray(y.mates)?y.mates:[]))].sort().map(m=>`<option value="${esc(m)}">`).join("");
+  renderMates(); fillSchedCourses(x?[x.front&&x.front.courseId,x.back&&x.back.courseId]:null); if(x&&x.tee) fillSchedTee(x.tee);
+  $("kCal").hidden=$("kDel").hidden=!x; $("kDel").textContent="이 일정 삭제"; $("kMsg").textContent="";
+  show("Sched");
+}
+// 동반자: 이름표(×로 빼기) + 입력칸. 완료·쉼표·칸 벗어나기로 추가
+function renderMates(){
+  $("kMates").innerHTML=schedMates.map((m,i)=>`<span class="chip">${esc(m)}<button type="button" data-rm="${i}" aria-label="${esc(m)} 빼기">×</button></span>`).join("")+
+    `<input id="kMateIn" list="mateList" placeholder="이름" autocomplete="off" enterkeyhint="done">`;
+  const inp=$("kMateIn");
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); if(addMate()){ renderMates(); $("kMateIn").focus() } } });
+  inp.addEventListener("input",()=>{ if(inp.value.includes(",")&&addMate()){ renderMates(); $("kMateIn").focus() } });
+  inp.addEventListener("blur",()=>{ if(addMate()) renderMates() });
+}
+function addMate(){
+  const inp=$("kMateIn"); if(!inp) return false;
+  const vs=inp.value.split(",").map(v=>v.trim()).filter(Boolean); inp.value="";
+  vs.forEach(v=>{ if(!schedMates.includes(v)&&schedMates.length<8) schedMates.push(v) });
+  return vs.length>0;
+}
+$("kMates").addEventListener("mousedown",e=>{ if(e.target.closest("[data-rm]")) e.preventDefault() });   // ×를 눌러도 입력칸 blur로 다시 그려지지 않게
+$("kMates").addEventListener("click",e=>{ const b=e.target.closest("[data-rm]"); if(b){ schedMates.splice(+b.dataset.rm,1); renderMates() } });
+$("kSave").onclick=async()=>{
+  addMate();
+  const date=$("kDate").value, time=$("kTime").value, club=$("kClub").value.trim();
+  if(!date||!time||!club){$("kMsg").textContent="날짜, 티 시각, 골프장을 입력해 주세요.";return}
+  if(date<today()){$("kMsg").textContent="지난 날짜예요. 날짜를 확인해 주세요.";return}
+  const nine=$("kHoles").value==="9", co=id=>{const c=courses.find(y=>y.id===id);return c?{courseId:c.id,course:c.name}:null};
+  const old=schedEdit&&scheds.find(y=>y.id===schedEdit);
+  const body={date,time,club,holes:nine?9:18,front:co($("kFront").value),back:nine?null:co($("kBack").value),tee:$("kTee").value||DEFAULT_TEE,
+    mates:[...schedMates],memo:$("kMemo").value.trim(),createdAt:old&&old.createdAt||Date.now(),updatedAt:Date.now()};
+  $("kSave").disabled=true;
+  try{
+    if(old){ await scol.doc(old.id).set(body); scheds=scheds.map(y=>y.id===old.id?{id:old.id,...body}:y) }
+    else { const ref=await scol.add(body); scheds=[...scheds.filter(y=>y.id!==ref.id),{id:ref.id,...body}] }
+    show("Home"); renderHome();
+  }catch(e){$("kMsg").textContent="저장하지 못했습니다: "+(e.message||e.code)}
+  $("kSave").disabled=false;
+};
+$("kDel").onclick=()=>{
+  if($("kDel").dataset.ask!=="1"){ $("kDel").dataset.ask="1"; $("kDel").textContent="한 번 더 누르면 삭제돼요"; return }
+  $("kDel").dataset.ask=""; const id=schedEdit; if(!id) return;
+  scheds=scheds.filter(y=>y.id!==id); scol.doc(id).delete(); show("Home"); renderHome();
+};
+$("kCal").onclick=()=>{ const x=schedEdit&&scheds.find(y=>y.id===schedEdit); if(x) schedCal(x) };
+// .ics 한 줄은 75바이트까지: 넘으면 줄을 바꾸고 공백 한 칸으로 이어 쓴다 (한글은 글자당 3바이트)
+function icsFold(line){
+  let out="", n=0; for(const ch of line){ const b=new TextEncoder().encode(ch).length; if(n+b>73){ out+="\r\n "; n=1 } out+=ch; n+=b } return out;
+}
+function schedIcs(x){
+  const utc=d=>d.toISOString().replace(/[-:]/g,"").slice(0,15)+"Z", t=v=>String(v).replace(/[\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n");
+  const st=new Date(`${x.date}T${x.time}`), en=new Date(st.getTime()+5*3600e3), eve=new Date(st); eve.setDate(eve.getDate()-1); eve.setHours(20,0,0,0);
+  const desc=[courseTxt(x," → "),x.tee?teeKo(x.tee)+" 티":"",x.mates&&x.mates.length?"동반: "+x.mates.join(", "):"",x.memo].filter(Boolean).join("\n");
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//golf-scorebook//KO","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+    `UID:${x.id}@golf-scorebook`,`DTSTAMP:${utc(new Date())}`,`DTSTART:${utc(st)}`,`DTEND:${utc(en)}`,
+    `SUMMARY:${t(`골프 · ${x.club} ${x.time} 티오프`)}`,`LOCATION:${t(x.club)}`,`DESCRIPTION:${t(desc)}`,
+    "BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${t(`내일 ${x.time} ${x.club} 티오프`)}`,`TRIGGER;VALUE=DATE-TIME:${utc(eve)}`,"END:VALARM",
+    "BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${t(`2시간 뒤 티오프 · ${x.club}`)}`,"TRIGGER:-PT2H","END:VALARM",
+    "END:VEVENT","END:VCALENDAR"].map(icsFold).join("\r\n");
+}
+// 아이폰은 text/calendar 주소를 열면 '캘린더에 추가' 화면을 띄운다. 그 밖의 기기는 .ics 파일로 받는다
+function schedCal(x){
+  const ics=schedIcs(x), a=document.createElement("a");
+  if(/iPhone|iPad|iPod/.test(navigator.userAgent)) a.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(ics);
+  else { a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})); a.download=`golf-${x.date}.ics` }
+  document.body.appendChild(a); a.click(); a.remove();
+}
 
 /* ---------- PLAY ---------- */
 function openPlay(id){const r=rounds.find(x=>x.id===id);if(!r)return;cur=clone(r);
@@ -2267,7 +2457,7 @@ $("ttSave").onclick=async()=>{
 // 왼쪽 위 ←: 기록 중이면 홈으로(자동 저장됨), 완료한 라운드를 고치는 중이면 '수정 완료'와 같음
 $("topBack").onclick=()=>{
   if(!$("scrInfo").hidden) return infoReturn();
-  if(!$("scrSetup").hidden||!$("scrRounds").hidden||!$("scrMore").hidden){ show("Home"); renderHome(); return }
+  if(!$("scrSetup").hidden||!$("scrSched").hidden||!$("scrRounds").hidden||!$("scrMore").hidden){ show("Home"); renderHome(); return }
   if($("scrPlay").hidden||!cur) return;
   if(cur.status==="done") return $("doneEditBtn").click();
   flush();cur=null;show("Home");renderHome() };
@@ -2395,6 +2585,7 @@ function renderRound(r,fresh){
   const head=`<div class="rhead">
       ${fresh?`<span class="saved">라운드를 저장했어요</span>`:""}
       <div class="rclub"><b>${esc(r.club)}</b><span>${esc(courseTxt(r,"·"))}</span>${r.tee?`<em>${esc(teeKo(r.tee))} 티</em>`:""}${nine?`<em>9홀</em>`:""}${r.demo?`<em>예시</em>`:""}</div>
+      ${Array.isArray(r.mates)&&r.mates.length?`<div class="rmates">함께한 사람 · ${r.mates.map(esc).join(", ")}</div>`:""}
       <div class="rbig"><b>${big}</b>${c.rel!=null?`<div class="seg" id="relSeg"><button class="${roundRel?"":"on"}" data-v="0">타수</button><button class="${roundRel?"on":""}" data-v="1">파 대비</button></div>`:""}</div>
       <div class="rline">${c.rel!=null||roundRel?`<span class="${roundRel?"":relCls(c.rel)}">${small}</span>`:""}${pv!=null&&c.tot!=null&&pv!==c.tot?`<span class="${c.tot<pv?"under":"over"}">(직전보다 ${c.tot<pv?"−":"+"}${Math.abs(c.tot-pv)}타)</span>`:""}
         <small>${pb?`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.1l-5.7 3.2 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>개인 최고 · `:""}${dLab}</small></div>
@@ -3399,7 +3590,7 @@ async function seedCourses(uid,force=false){
 function start(user){
   unsubs.forEach(u=>u()); unsubs=[];
   const base=`users/${user.uid}`; curUid=user.uid;
-  rcol=colApi(base+"/rounds"); ccol=colApi(base+"/courses");
+  rcol=colApi(base+"/rounds"); ccol=colApi(base+"/courses"); scol=colApi(base+"/schedules");
   userName=(user.displayName||"").trim().split(/\s+/)[0]||"";
   const ini=(user.displayName||user.email||"?").trim().charAt(0).toUpperCase();
   $("avatar2").textContent=ini;
@@ -3418,6 +3609,12 @@ function start(user){
     if(!$("scrSetup").hidden) {fillClubList();fillCourseSelects();}
     if(!$("scrCourses").hidden) renderCourses();
   }));
+  unsubs.push(scol.onSnapshot(snap=>{
+    const t=today(), all=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.date&&x.club);
+    all.filter(x=>x.date<t).forEach(x=>scol.doc(x.id).delete());   // 날짜가 지난 일정은 저절로 지운다
+    scheds=all.filter(x=>x.date>=t);
+    if(!$("scrHome").hidden) renderSched();
+  },()=>{}));
   unsubs.push(onSnapshot(doc(fs,"users",user.uid,"settings","app"),snap=>{
     settings=snap.exists()?snap.data():{}; renderSettings();
     if(!$("scrPlay").hidden&&cur&&cur.holes) renderPlay();
@@ -3450,7 +3647,7 @@ function bootInner(){
   getRedirectResult(auth).catch(e=>{ $("loginMsg").textContent=authErr(e); });
   onAuthStateChanged(auth,user=>{
     if(user){ start(user); }
-    else { unsubs.forEach(u=>u()); unsubs=[]; rcol=null; ccol=null; curUid=null; rounds=[]; courses=[]; cur=null; settings={};
+    else { unsubs.forEach(u=>u()); unsubs=[]; rcol=null; ccol=null; scol=null; curUid=null; rounds=[]; courses=[]; scheds=[]; cur=null; settings={};
       setSync("","로그인 필요"); show("Login"); splashDone(); }
   });
   $("loginBtn").onclick=async()=>{
