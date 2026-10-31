@@ -1353,7 +1353,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v89";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v90";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2284,10 +2284,16 @@ function schedIcs(x){
     "BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${t(`2시간 뒤 티오프 · ${x.club}`)}`,"TRIGGER:-PT2H","END:VALARM",
     "END:VEVENT","END:VCALENDAR"].map(icsFold).join("\r\n");
 }
-// 홈 화면 앱(아이폰)은 data:·blob: 주소를 열지 못한다 → 공유 시트로 .ics 파일을 넘긴다 (캘린더, 또는 파일에 저장 → 열기 → 추가).
-// 공유를 못 하는 기기는 .ics 파일로 받는다
+// 홈 화면 앱(아이폰)은 data:·blob: 주소를 열지 못한다. 인터넷 주소로 받은 .ics만 바로 '캘린더에 추가' 화면이 뜨므로
+// Cloudflare Worker(ICS_URL)가 ?d=(.ics를 base64url로)를 그대로 text/calendar로 돌려준다 — 저장은 하지 않음.
+// ICS_URL이 없으면 공유 시트로 .ics 파일을 넘기고 (파일에 저장 → 열기 → 추가), 공유를 못 하는 기기는 파일로 받는다
+const ICS_URL="https://golf-ics.xteenf.workers.dev/";
 function schedCal(x){
   const ics=schedIcs(x), name=`golf-${x.date}.ics`, file=new File([ics],name,{type:"text/calendar"});
+  if(ICS_URL){
+    const d=btoa(String.fromCharCode(...new TextEncoder().encode(ics))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+    window.open(`${ICS_URL}?d=${d}`,"_blank"); return;
+  }
   if(navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file]}).catch(()=>{}); return }
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})); a.download=name;
   document.body.appendChild(a); a.click(); a.remove();
