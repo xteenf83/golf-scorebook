@@ -1353,7 +1353,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v90";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v91";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2288,11 +2288,26 @@ function schedIcs(x){
 // Cloudflare Worker(ICS_URL)가 ?d=(.ics를 base64url로)를 그대로 text/calendar로 돌려준다 — 저장은 하지 않음.
 // ICS_URL이 없으면 공유 시트로 .ics 파일을 넘기고 (파일에 저장 → 열기 → 추가), 공유를 못 하는 기기는 파일로 받는다
 const ICS_URL="https://golf-ics.xteenf.workers.dev/";
+function calShareOv(file){
+  showOv(`<div class="ovcard"><p style="margin:0">사파리를 열지 못했어요. 일정 파일을 공유 시트로 넘길게요 — '파일에 저장' 후 파일 앱에서 열고 '추가'를 누르면 캘린더에 들어가요.</p>
+    <div class="row"><button class="primary" id="calShare">파일로 넘기기</button><button class="ghost" id="ovClose">닫기</button></div></div>`);
+  $("calShare").onclick=()=>{ navigator.share({files:[file]}).catch(()=>{}); closeOv() };
+}
 function schedCal(x){
   const ics=schedIcs(x), name=`golf-${x.date}.ics`, file=new File([ics],name,{type:"text/calendar"});
   if(ICS_URL){
-    const d=btoa(String.fromCharCode(...new TextEncoder().encode(ics))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-    window.open(`${ICS_URL}?d=${d}`,"_blank"); return;
+    const d=btoa(String.fromCharCode(...new TextEncoder().encode(ics))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""), url=`${ICS_URL}?d=${d}`;
+    // 아이폰 홈 화면 앱에서 window.open은 앱 안 사파리 창이라 .ics를 못 연다(빈 화면) → x-safari-https:로 사파리 앱에서 연다 (iOS 17+).
+    // 1.5초 안에 앱이 가려지지 않으면(구형 iOS) 공유 시트로 넘기는 버튼을 보여 준다
+    const standalone=navigator.standalone||matchMedia("(display-mode: standalone)").matches;
+    if(/iPhone|iPad|iPod/.test(navigator.userAgent)&&standalone){
+      let left=false; const hide=()=>{ if(document.visibilityState==="hidden") left=true };
+      document.addEventListener("visibilitychange",hide);
+      location.href="x-safari-"+url;
+      setTimeout(()=>{ document.removeEventListener("visibilitychange",hide); if(!left) calShareOv(file) },1500);
+      return;
+    }
+    window.open(url,"_blank"); return;
   }
   if(navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file]}).catch(()=>{}); return }
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})); a.download=name;
