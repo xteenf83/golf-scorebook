@@ -980,6 +980,26 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .sstats .sgrid2>div,.sstats .sgrid3>div{padding:9px 0;border-top:1px solid var(--fill)}
 .sstats .sgrid2 b{font-size:24px} .sstats .sgrid3 b{font-size:21px}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* 날씨: 일정 카드 한 줄 · 라운드 기록 한 줄 · 분석 '날씨별 스코어' */
+.wxi{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wx1{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:14px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wx1 .wxi{color:var(--t3)} .wx1 i{font-style:normal;color:var(--t4)}
+.wx1.soft{color:var(--t3);font-size:13px;white-space:normal}
+.tee.today .wx1,.tee.today .wx1 .wxi{color:rgba(255,255,255,.9)} .tee.today .wx1 i{color:rgba(255,255,255,.6)}
+.rwx{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--t3)}
+.rwx i{font-style:normal}
+.wcard h2{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.wcard h2 small{font-size:13px;font-weight:500;color:var(--t3)}
+.wrow{display:grid;grid-template-columns:28px 1fr auto auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.wsec+.wrow{border-top:0}
+.wrow .ic{width:28px;height:28px;border-radius:9px;background:var(--fill);display:grid;place-items:center;color:var(--t2)}
+.wrow .nm b{display:block;font-size:15px}.wrow .nm small{font-size:12.5px;color:var(--t3)}
+.wrow .av{font-size:16px;font-weight:700;text-align:right}
+.wrow .dl{font-size:13px;font-weight:700;min-width:46px;text-align:right}
+.dl.up{color:var(--triple)} .dl.dn{color:var(--under)} .dl.eq{color:var(--t3)}
+.wsec{font-size:13px;font-weight:700;color:var(--t3);margin:14px 0 2px}
+.wins{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--fill);font-size:14.5px;font-weight:600;line-height:1.45}
+.wins b{color:var(--triple)}
 /* 골프 일정: 홈 D-day 카드 · 다음 일정 줄 · 일정 입력 화면 */
 .tee{padding:20px 20px 18px;margin-top:4px;position:relative}
 .tee .thd{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-right:44px}
@@ -1138,6 +1158,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <button data-r="5" class="on">최근 5라운드</button><button data-r="10">10라운드</button><button data-r="y" id="yearChip">올해</button><button data-r="0">전체</button>
     </div>
     <div id="insBox"></div>
+    <section class="panel wcard" id="wxPanel" hidden></section>
     <section class="panel"><h2>어디서 타를 잃나</h2><div id="lossBox"></div></section>
     <details class="more" id="statsMore">
       <summary>자세히 <small>분포 · 구질 추이 · 연도별</small></summary>
@@ -1353,7 +1374,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v91";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v92";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1865,7 +1886,7 @@ function renderStats(){
   renderInsights(all,rs);
   const full=rs.filter(hasDetail);
   if(!$("yearPanel").hidden) renderYearly();
-  renderLoss(full); renderShapeTrend();
+  renderLoss(full); renderShapeTrend(); renderWxStats();
   // distribution: 파 대비 점수(d)만 있으면 되므로 파를 모르는 과거 홀별 기록도 포함
   const bins=[["버디 이하",d=>d<=-1,"var(--under)"],["파",d=>d===0,"var(--accent-soft)"],["보기",d=>d===1,"var(--even)"],["더블",d=>d===2,"var(--over)"],["트리플+",d=>d>=3,"var(--danger)"]];
   const dH=rs.filter(r=>!isTotal(r)).flatMap(r=>r.holes).filter(h=>typeof h.d==="number");
@@ -2145,7 +2166,7 @@ $("startBtn").onclick=async()=>{
       $("startBtn").disabled=false; rounds.push({id:ref.id,...body}); openRound(ref.id,true); return;
     }
     const holes=pars.map(newHole);
-    const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"playing",...(mb.mission?{mission:mb.mission}:{}),...mt,createdAt:Date.now(),updatedAt:Date.now()};
+    const body={date,club,front,back,holes,holesPlayed:setupHoles,tee:$("sTee").value||DEFAULT_TEE,status:"playing",...(mb.mission?{mission:mb.mission}:{}),...mt,...(schedStart&&schedStart.time?{teeTime:schedStart.time}:{}),createdAt:Date.now(),updatedAt:Date.now()};
     // 고스트: 9홀 코스(courseId)마다 따로 고른다. 그 코스 기록이 없으면 그 9홀은 고스트 없음
     if(setOn("ghost")&&$("sGhost").value!=="none"){
       const pick=h=>{const x=h&&pickGhost(h.courseId,$("sGhost").value,null); if(x) delete x.tot; return x||null};
@@ -2178,7 +2199,7 @@ function renderSched(){
   box.innerHTML=`<section class="panel tee${now&&!playing?" today":""}"><button class="edit" data-sedit="${x.id}">수정</button>
       <div class="thd"><span class="dday">${now?"오늘":"D-"+dd}</span><span class="when">${when}</span></div>
       <div class="crow2"><b class="club">${esc(x.club)}</b>${x.mates&&x.mates.length?`<span class="mates">${esc(x.mates.join(" · "))}</span>`:""}</div>${sub?`<span class="sub">${esc(sub)}</span>`:""}
-      ${x.memo?`<p class="memo">${esc(x.memo)}</p>`:""}
+      ${schedWx(x,now)}${x.memo?`<p class="memo">${esc(x.memo)}</p>`:""}
       <div class="acts">${now?(playing?"":`<button class="go" data-sgo="${x.id}">라운드 시작</button>`):`<button class="outline" data-scal="${x.id}">캘린더에 추가</button>`}</div></section>
     ${up.length>1?`<div class="nexts">${up.slice(1,4).map(y=>`<button data-sedit="${y.id}"><span>${schedDay(y)} ${y.time} · ${esc(y.club)}</span><b>${dDays(y.date)?"D-"+dDays(y.date):"오늘"}</b></button>`).join("")}</div>`:""}`;
 }
@@ -2312,6 +2333,117 @@ function schedCal(x){
   if(navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file]}).catch(()=>{}); return }
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})); a.download=name;
   document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ---------- 날씨 (Open-Meteo: 무료·키 없음, 16일 예보 + 과거 자료) ----------
+   위치는 CLUB_LOC 좌표 (없는 골프장은 날씨 없음). 시간대: 티오프부터 5시간 — 라운드는 teeTime(일정에서 시작) →
+   홀별 입력으로 시작한 시각(createdAt, 같은 날일 때) → 없으면 7시. 라운드에는 weather:{code,t0,t1,t,wind,rain} 한 번 받아 저장 */
+const WX_ICON={sun:'<svg class="wxi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>',
+  cloud:'<svg class="wxi" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 11a3.5 3.5 0 0 0 1 7z"/></svg>',
+  rain:'<svg class="wxi" viewBox="0 0 24 24"><path d="M7 14h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 7a3.5 3.5 0 0 0 1 7zM9 17l-1 3M13 17l-1 3M17 17l-1 3"/></svg>',
+  snow:'<svg class="wxi" viewBox="0 0 24 24"><path d="M7 14h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 7a3.5 3.5 0 0 0 1 7zM8 18h.01M12 20h.01M16 18h.01"/></svg>',
+  wind:'<svg class="wxi" viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h8"/></svg>',
+  temp:'<svg class="wxi" viewBox="0 0 24 24"><path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0z"/></svg>'};
+function wxName(c){ return c<=0?"맑음":c===1?"대체로 맑음":c===2?"구름 조금":c===3?"흐림":c<=48?"안개":c<=57?"이슬비":c<=67?"비":c<=77?"눈":c<=82?"소나기":c<=86?"눈":"뇌우" }
+function wxIcon(c){ return WX_ICON[c<=1?"sun":c<=48?"cloud":(c>=71&&c<=77)||c===85||c===86?"snow":"rain"] }
+const clubXY=club=>{ const l=CLUB_LOC[club]; return l?[l[2],l[3]]:null };
+const hm2h=t=>{ const [h,m]=String(t||"7:00").split(":").map(Number); return Math.min(23,Math.max(0,Math.round(h+(m||0)/60))) };
+// 시간별 자료(hourly)에서 date의 h0시부터 5시간을 요약
+function wxSummary(H,date,h0){
+  const idx=[]; for(let h=h0;h<h0+5&&h<24;h++){ const i=H.time.indexOf(`${date}T${String(h).padStart(2,"0")}:00`); if(i>=0&&H.temperature_2m[i]!=null) idx.push(i) }
+  if(!idx.length) return null;
+  const v=k=>idx.map(i=>H[k]?H[k][i]:null).filter(x=>x!=null), avg=a=>a.reduce((x,y)=>x+y,0)/a.length, codes=v("weather_code");
+  const rain=v("precipitation").reduce((x,y)=>x+y,0), wet=codes.filter(c=>c>=51).sort((a,b)=>b-a)[0];
+  const cnt={}; codes.forEach(c=>cnt[c]=(cnt[c]||0)+1);
+  const code=rain>=1&&wet!=null?wet:+Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a-b)[0];
+  const T=v("temperature_2m"), W=v("wind_speed_10m"), P=v("precipitation_probability");
+  return {code,t0:Math.round(T[0]),t1:Math.round(T[T.length-1]),t:Math.round(avg(T)*10)/10,wind:Math.round(Math.max(...W)),w0:Math.round(W[0]),w1:Math.round(W[W.length-1]),
+    rain:Math.round(rain*10)/10,...(P.length?{pop:Math.max(...P)}:{})};
+}
+function wxLine(w,o={}){
+  const wind=o.range&&Math.abs(w.w1-w.w0)>=2?`${w.w0}→${w.w1}m/s`:`${w.wind}m/s`;
+  return [`${wxIcon(w.code)}<span>${wxName(w.code)} ${w.t0}°→${w.t1}°</span>`,`<span>바람 ${wind}</span>`,
+    w.pop!=null&&!o.rain?`<span>비 ${w.pop}%</span>`:"", o.rain&&w.rain>=1?`<span>비 ${w.rain}mm</span>`:"", ...(o.extra||[])].filter(Boolean).join("<i>·</i>");
+}
+// 예보: 골프장마다 3시간 동안 기기에 저장
+const wxMem={}, wxBusy={};
+function wxCacheGet(club){ const m=wxMem[club]; if(m) return m; try{ const v=JSON.parse(localStorage.getItem("gsb.wx."+club)||"null"); if(v){wxMem[club]=v; return v} }catch(e){} return null }
+async function wxForecast(club){
+  const xy=clubXY(club); if(!xy) return null;
+  const c=wxCacheGet(club); if(c&&Date.now()-c.at<3*3600e3) return c;
+  if(wxBusy[club]) return c; wxBusy[club]=true;
+  try{
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${xy[0]}&longitude=${xy[1]}&hourly=temperature_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m&daily=sunrise,sunset&wind_speed_unit=ms&timezone=Asia%2FSeoul&forecast_days=16`;
+    const j=await (await fetch(u)).json(); if(!j.hourly) throw 0;
+    const v={at:Date.now(),hourly:j.hourly,daily:j.daily}; wxMem[club]=v; try{localStorage.setItem("gsb.wx."+club,JSON.stringify(v))}catch(e){}
+    return v;
+  }catch(e){ return c }finally{ wxBusy[club]=false }
+}
+// 일정 카드 한 줄. 예보가 아직 없으면 받아 온 뒤 카드를 다시 그린다
+function schedWx(x,now){
+  if(!clubXY(x.club)) return "";
+  const dd=dDays(x.date);
+  if(dd>15){ const d=new Date(x.date+"T00:00"); d.setDate(d.getDate()-15); return `<div class="wx1 soft">날씨 예보는 경기 16일 전(${d.getMonth()+1}월 ${d.getDate()}일)부터 보여요</div>` }
+  const f=wxCacheGet(x.club);
+  if(!f||Date.now()-f.at>=3*3600e3) wxForecast(x.club).then(v=>{ if(v&&v!==f&&!$("scrHome").hidden) renderSched() });
+  const w=f&&wxSummary(f.hourly,x.date,hm2h(x.time)); if(!w) return "";
+  const di=f.daily&&f.daily.time?f.daily.time.indexOf(x.date):-1, tm=t=>t?t.slice(11,16):"", tee=hm2h(x.time)*60;
+  const mins=t=>{ const [h,m]=tm(t).split(":").map(Number); return h*60+m };
+  const extra=[];
+  if(di>=0){ const sr=f.daily.sunrise[di], ss=f.daily.sunset[di];
+    if(!now&&sr&&tee-mins(sr)<60) extra.push(`<span>일출 ${tm(sr)}</span>`);
+    if(now&&ss&&mins(ss)-(tee+300)<90) extra.push(`<span>일몰 ${tm(ss)}</span>`); }
+  return `<div class="wx1">${wxLine(w,{range:now,extra})}</div>`;
+}
+// 끝난 라운드에 그날 날씨 채우기: 골프장마다 한 번에 (최근 80일은 예보 API의 지난 자료, 그 전은 과거 자료 API)
+let wxFilling=false;
+async function fillWeather(){
+  if(wxFilling||!rcol) return;
+  try{ if(Date.now()-(+localStorage.getItem("gsb.wxFail")||0)<6*3600e3) return }catch(e){}
+  const t=today(), need=rounds.filter(r=>r.status==="done"&&!r.weather&&r.date&&r.date<=t&&clubXY(r.club)&&!(cur&&cur.id===r.id));
+  if(!need.length) return;
+  wxFilling=true;
+  const lim=new Date(); lim.setDate(lim.getDate()-80); const recent=lim.toISOString().slice(0,10), groups={};
+  need.forEach(r=>{ const k=r.club+"|"+(r.date>=recent?"f":"a"); (groups[k]=groups[k]||[]).push(r) });
+  try{
+    for(const k of Object.keys(groups)){
+      const rs=groups[k], [club,kind]=k.split("|"), xy=clubXY(club), ds=rs.map(r=>r.date).sort();
+      const base=kind==="f"?"https://api.open-meteo.com/v1/forecast":"https://archive-api.open-meteo.com/v1/archive";
+      const u=`${base}?latitude=${xy[0]}&longitude=${xy[1]}&start_date=${ds[0]}&end_date=${ds[ds.length-1]}&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m&wind_speed_unit=ms&timezone=Asia%2FSeoul`;
+      const j=await (await fetch(u)).json(); if(!j.hourly) throw new Error(j.reason||"no data");
+      for(const r of rs){
+        const st=r.createdAt&&!isTotal(r)&&!r.teeTime?new Date(r.createdAt):null, sameDay=st&&(()=>{const d=new Date(st);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)===r.date})();
+        const h0=r.teeTime?hm2h(r.teeTime):sameDay&&st.getHours()>=5&&st.getHours()<=17?st.getHours():7;
+        const w=wxSummary(j.hourly,r.date,h0); if(!w) continue;
+        delete w.pop; delete w.w0; delete w.w1; r.weather=w; rcol.doc(r.id).update({weather:w});
+      }
+    }
+    if(!$("scrStats").hidden) renderWxStats();
+  }catch(e){ try{localStorage.setItem("gsb.wxFail",String(Date.now()))}catch(_){} }
+  wxFilling=false;
+}
+// 분석: 날씨별 스코어 (전체 기록 기준 — 날씨가 붙은 18홀 라운드)
+function renderWxStats(){
+  const box=$("wxPanel"), rs=statRounds().filter(r=>r.weather&&scoreOf(r).tot!=null);
+  if(!rounds.some(r=>clubXY(r.club))){ box.hidden=true; return }
+  box.hidden=false;
+  if(rs.length<3){ box.innerHTML=`<h2>날씨별 스코어</h2><p class="note" style="margin:0">라운드에 그날 날씨를 붙이는 중이에요 (${rs.length}라운드). 위치를 아는 골프장 18홀 라운드가 3개 이상이면 보여요.</p>`; return }
+  const sc=r=>scoreOf(r).tot, all=avgOf(rs.map(sc));
+  const G=[["기온"],["cold","추움","5° 이하",r=>r.weather.t<=5,"temp","추위에","추운 날"],["cool","쌀쌀","5–15°",r=>r.weather.t>5&&r.weather.t<15,"temp","쌀쌀한 날에","쌀쌀한 날"],
+    ["nice","딱 좋음","15–25°",r=>r.weather.t>=15&&r.weather.t<25,"sun","좋은 날씨에"],["hot","더움","25° 이상",r=>r.weather.t>=25,"temp","더위에","더운 날"],
+    ["바람 · 비"],["wind","바람 센 날","5m/s 이상",r=>r.weather.wind>=5,"wind","바람에","바람 센 날"],["rain","비 온 날","1mm 이상",r=>r.weather.rain>=1,"rain","비에","비 온 날"]];
+  let html="", worst=null;
+  G.forEach(g=>{
+    if(g.length===1){ html+=`<div class="wsec">${g[0]}</div>`; return }
+    const m=rs.filter(g[3]); if(!m.length) return;
+    const a=avgOf(m.map(sc)), d=a-all, cls=d>0.5?"up":d<-0.5?"dn":"eq";
+    if(m.length>=2&&g[0]!=="nice"&&(!worst||d>worst.d)) worst={d,g};
+    html+=`<div class="wrow"><span class="ic">${WX_ICON[g[4]]}</span><div class="nm"><b>${g[1]}</b><small>${g[2]} · ${m.length}라운드</small></div><span class="av">${a.toFixed(1)}</span><span class="dl ${cls}">${d>0?"+":d<0?"−":"±"}${Math.abs(d).toFixed(1)}</span></div>`;
+  });
+  html=html.replace(/<div class="wsec">[^<]*<\/div>(?=<div class="wsec">|$)/g,"");
+  const ins=worst&&worst.d>=1?`${worst.g[5]} 가장 약해요 — ${worst.g[6]} 평균 <b>+${worst.d.toFixed(1)}타</b>`:"날씨를 크게 타지 않아요 — 어느 날씨든 평균과 1타 안쪽";
+  box.innerHTML=`<h2>날씨별 스코어 <small>내 평균 ${all.toFixed(1)} · ${rs.length}라운드</small></h2>${html}
+    <p class="wins">${ins}</p><p class="note" style="margin:8px 0 0">티오프부터 5시간 날씨 기준 (시각을 모르면 오전 7시) · 위치를 아는 골프장만 · 전체 기록 · Open-Meteo</p>`;
 }
 
 /* ---------- PLAY ---------- */
@@ -2603,6 +2735,7 @@ function renderRound(r,fresh){
   const head=`<div class="rhead">
       ${fresh?`<span class="saved">라운드를 저장했어요</span>`:""}
       <div class="rclub"><b>${esc(r.club)}</b><span>${esc(courseTxt(r,"·"))}</span>${r.tee?`<em>${esc(teeKo(r.tee))} 티</em>`:""}${nine?`<em>9홀</em>`:""}${r.demo?`<em>예시</em>`:""}</div>
+      ${r.weather?`<div class="rwx">${wxLine(r.weather,{rain:true})}</div>`:""}
       ${Array.isArray(r.mates)&&r.mates.length?`<div class="rmates">함께한 사람 · ${r.mates.map(esc).join(", ")}</div>`:""}
       <div class="rbig"><b>${big}</b>${c.rel!=null?`<div class="seg" id="relSeg"><button class="${roundRel?"":"on"}" data-v="0">타수</button><button class="${roundRel?"on":""}" data-v="1">파 대비</button></div>`:""}</div>
       <div class="rline">${c.rel!=null||roundRel?`<span class="${roundRel?"":relCls(c.rel)}">${small}</span>`:""}${pv!=null&&c.tot!=null&&pv!==c.tot?`<span class="${c.tot<pv?"under":"over"}">(직전보다 ${c.tot<pv?"−":"+"}${Math.abs(c.tot-pv)}타)</span>`:""}
@@ -3621,6 +3754,7 @@ function start(user){
     if(!$("scrHome").hidden) renderHome();
     autoResume();
     if(!$("scrStats").hidden) renderStats();
+    fillWeather();
   },err=>setSync("err","동기화 오류: "+(err.message||err.code))));
   unsubs.push(ccol.onSnapshot(snap=>{
     courses=snap.docs.map(d=>({id:d.id,...d.data()})).filter(c=>c.club&&Array.isArray(c.pars)).map(c=>({...c,pars:[...c.pars]}));
