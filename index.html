@@ -1304,7 +1304,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v84";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v85";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -3228,6 +3228,8 @@ function renderShapeTrend(){
 function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 function fitFont(g,txt,max,size,weight,fam){ let s=size; for(;;){ g.font=`${weight} ${s}px ${fam}`; if(s<=20||g.measureText(txt).width<=max) return s; s-=2 } }
 // 시안(390×693)을 2.77배로: 사진 배경 + 아래 어둡게, 위 앱 이름·날짜, 아래 골프장·금색 총타·결과 띠·4칸
+// 배경 사진: 내보낼 때마다 무작위 (처음 쓰는 사진은 오프라인이면 못 받으니 lush로)
+const SHARE_PHOTOS=["lush","aerial-pond","aerial-bunkers","yellow-flag","golden-hour","seaside","evening-fairway","sunrise","pines"];
 function loadImg(src){ return new Promise(res=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>res(null); i.src=src }) }
 async function drawShare(r){
   const W=1080,H=1920,k=W/390,cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
@@ -3235,9 +3237,10 @@ async function drawShare(r){
   // 화면에 아직 안 쓰인 굵기·글자도 미리 받아야 이미지 글씨가 기본 글꼴로 바뀌지 않는다
   try{ await Promise.all([800,700,600,500].map(w=>document.fonts.load(`${w} 40px ${F}`,r.club+courseTxt(r)+"스코어북 개인 최고 기록 전반 후반 퍼팅 페어웨이 고스트 승 패 동률 0123456789.+−·→타%"))); await document.fonts.ready }catch(e){}
   g.fillStyle="#1F3A22"; g.fillRect(0,0,W,H);
-  const img=await loadImg("images/share-card-lush.jpg");
+  const pick=SHARE_PHOTOS[Math.floor(Math.random()*SHARE_PHOTOS.length)];
+  const img=await loadImg(`images/share-card-${pick}.jpg`)||(pick!=="lush"?await loadImg("images/share-card-lush.jpg"):null);
   if(img){ const sc=Math.max(W/img.width,H/img.height), iw=img.width*sc, ih=img.height*sc; g.drawImage(img,(W-iw)/2,(H-ih)/2,iw,ih) }
-  const gr=g.createLinearGradient(0,0,0,H); gr.addColorStop(0,"rgba(0,0,0,.35)"); gr.addColorStop(.28,"rgba(0,0,0,0)"); gr.addColorStop(.40,"rgba(0,0,0,0)"); gr.addColorStop(.78,"rgba(3,16,8,.86)"); gr.addColorStop(1,"rgba(3,16,8,.86)");
+  const gr=g.createLinearGradient(0,0,0,H); gr.addColorStop(0,"rgba(0,0,0,.35)"); gr.addColorStop(.24,"rgba(0,0,0,0)"); gr.addColorStop(.34,"rgba(0,0,0,0)"); gr.addColorStop(.68,"rgba(3,16,8,.86)"); gr.addColorStop(1,"rgba(3,16,8,.9)");
   g.fillStyle=gr; g.fillRect(0,0,W,H);
   const c=scoreOf(r), X=24*k, R=W-24*k, font=(w,px)=>`${w} ${px*k}px ${F}`;
   g.textBaseline="alphabetic"; g.fillStyle="#fff";
@@ -3248,19 +3251,29 @@ async function drawShare(r){
   g.font=font(500,13); g.globalAlpha=.85; g.textAlign="right"; g.fillText(dotDate(r.date),R,39.5*k); g.globalAlpha=1; g.textAlign="left";
   // 아래 블록: 아래에서 위로 쌓는다
   const fb=isTotal(r)?[r.out,r.in]:(r.holes.length===18&&parKnown(r)?[0,9].map(a=>r.holes.slice(a,a+9).reduce((s,h)=>s+h.par+h.d,0)):[]);
-  const det=!isTotal(r)&&hasDetail(r), kc=det?roundCalc(r):null, gd=r.ghost&&!isTotal(r)?ghostDiff(r,false):null;
+  const det=!isTotal(r)&&hasDetail(r), kc=det?roundCalc(r):null;
   const cells=[fb.some(v=>v!=null)?["전반 · 후반",`${fb[0]??"–"} · ${fb[1]??"–"}`]:null, det?["퍼팅",String(kc.putts)]:null,
-    det?["페어웨이",kc.fwN?Math.round(kc.fwH/kc.fwN*100)+"%":"–"]:null, gd?["고스트",gd.d<0?`${-gd.d}타 승`:gd.d>0?`${gd.d}타 패`:"동률"]:null,
+    det?["페어웨이",kc.fwN?Math.round(kc.fwH/kc.fwN*100)+"%":"–"]:null,
     !det&&c.par!=null?["파",String(c.par)]:null, is9(r)?["홀 수","9홀"]:null].filter(Boolean).slice(0,4);
   let y=H-26*k;
   if(cells.length){
-    const cw=(R-X)/4; cells.forEach(([lab,v],i)=>{ g.globalAlpha=.7; g.font=font(500,11.5); g.fillText(lab,X+i*cw,y-17*k-2*k); g.globalAlpha=1; g.font=font(700,17); g.fillText(v,X+i*cw,y) });
+    const cw=(R-X)/Math.max(3,cells.length); cells.forEach(([lab,v],i)=>{ g.globalAlpha=.7; g.font=font(500,11.5); g.fillText(lab,X+i*cw,y-17*k-2*k); g.globalAlpha=1; g.font=font(700,17); g.fillText(v,X+i*cw,y) });
     y-=17*k+11.5*k+2*k+12*k; g.fillStyle="rgba(255,255,255,.18)"; g.fillRect(X,y,R-X,1.2*k); g.fillStyle="#fff"; y-=14*k;
   }
   if(!isTotal(r)&&Array.isArray(r.holes)){
-    const n=r.holes.length, gap=3*k, cw=(R-X-gap*(n-1))/n;
-    r.holes.forEach((h,i)=>{ const d=+h.d||0; g.fillStyle=d<0?"#5AA2FF":d===0?"rgba(255,255,255,.35)":d===1?"#FFB37A":d===2?"#F2683C":"#E0353F"; rrect(g,X+i*(cw+gap),y-8*k,cw,8*k,2*k); g.fill() });
-    g.fillStyle="#fff"; y-=8*k+14*k;
+    // 홀 번호 / 파 / 파 대비 세 줄 (18홀은 9번과 10번 사이를 조금 띄운다)
+    const n=r.holes.length, mid=n>9?5*k:0, colW=(R-X-mid)/n, rowH=17*k, rg=3*k, bw=Math.min(colW-2*k,26*k);
+    const cx=i=>X+i*colW+(i>=9?mid:0)+colW/2, top=y-rowH*3-rg*2;
+    g.textAlign="center";
+    r.holes.forEach((h,i)=>{
+      const d=+h.d||0, bg=d<0?"#5AA2FF":d===0?null:d===1?"#FFB37A":d===2?"#F2683C":"#E0353F", ry=top+2*(rowH+rg);
+      g.globalAlpha=.55; g.font=font(500,10.5); g.fillText(String(i+1),cx(i),top+rowH*.72);
+      g.globalAlpha=.85; g.font=font(600,11.5); g.fillText(h.par?String(h.par):"–",cx(i),top+rowH+rg+rowH*.72); g.globalAlpha=1;
+      if(bg){ g.fillStyle=bg; rrect(g,cx(i)-bw/2,ry,bw,rowH,3*k); g.fill() }
+      else{ g.strokeStyle="rgba(255,255,255,.35)"; g.lineWidth=k; rrect(g,cx(i)-bw/2+.5*k,ry+.5*k,bw-k,rowH-k,3*k); g.stroke() }
+      g.fillStyle=d===1?"#3A1A05":"#fff"; g.font=font(700,11); g.fillText(d===0?"0":d>0?"+"+d:"−"+(-d),cx(i),ry+rowH*.72); g.fillStyle="#fff";
+    });
+    g.textAlign="left"; y=top-16*k;
   }
   // 금색 큰 총타 + 파 대비 + 개인 최고
   const pb=isScoreR(r)&&(()=>{const t=scoreRounds().map(x=>scoreOf(x).tot); return t.length&&c.tot===Math.min(...t)})();
