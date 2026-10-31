@@ -295,8 +295,8 @@ button.primary.big{border-radius:16px;padding:16px;font-size:17px}
 .parsum.warn b,.parsum.warn small{color:var(--warn)}
 .parsum small{flex-basis:100%;font-size:12px;font-weight:600}
 .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:46px;text-align:left}
-input[type=date]::-webkit-date-and-time-value{text-align:left}
+input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;width:100%;box-sizing:border-box;min-height:46px;text-align:left}
+input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:left}
 #resumeBox:empty,.msg:empty{display:none}
 /* 스코어카드: 9홀씩 한 표(18홀은 전반·후반 두 표), 홀 칸은 화면 폭을 똑같이 나눔 */
 /* 모든 행 높이를 같게: 타수 행(표시 박스·합계의 +/-)도 이 높이 안에 들어가게 맞춘다 */
@@ -1010,10 +1010,19 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 .mrow .chip button{border:0;background:none;color:var(--t3);padding:4px 8px;min-height:0;font-size:15px}
 .mrow input{flex:1;min-width:140px}
 .alarm{display:flex;flex-direction:column;gap:4px;background:var(--fill);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--t2)}
+/* 새 라운드 화면 맨 위: 입력 방식 + 18/9홀 한 줄 */
+.setrow{display:flex;gap:6px;margin-bottom:12px;min-width:0}
+.setrow #modeSeg{flex:1;min-width:0}
+.setrow #modeSeg button{flex:1;min-width:0;padding:6px 4px;white-space:nowrap}
+.setrow #holesSeg{flex:none}
+.setrow #holesSeg button{padding:6px 10px}
 /* 새 라운드 화면에서 미래 날짜 = 일정 저장: 입력 방식·고스트·미션 숨기고 티 시각·메모만 */
-#scrSetup:not(.fut) .futonly,#scrSetup.fut .futhint{display:none!important}
-.futhint{font-size:12px;font-weight:500;color:var(--t4);line-height:1.35}
-#scrSetup.fut #modeRow,#scrSetup.fut #ghostWrap,#scrSetup.fut #ghostNote,#scrSetup.fut #missionWrap,#scrSetup.fut #mTargetWrap,#scrSetup.fut #newCourseWrap{display:none!important}
+#scrSetup:not(.fut) .futonly{display:none!important}
+/* 일정 배치: 날짜·티 시각 / 골프장·티 / 전반·후반 */
+#scrSetup.fut .grid2>*{order:2}
+#scrSetup.fut #sDateWrap,#scrSetup.fut #sTimeWrap,#scrSetup.fut #sClubWrap{order:0}
+#scrSetup.fut #sTeeWrap{order:1}
+#scrSetup.fut #modeSeg,#scrSetup.fut #ghostWrap,#scrSetup.fut #ghostNote,#scrSetup.fut #missionWrap,#scrSetup.fut #mTargetWrap,#scrSetup.fut #newCourseWrap{display:none!important}
 .rmates{font-size:14px;color:var(--t3);margin-top:4px}
 </style>
 </head>
@@ -1144,19 +1153,18 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
   <!-- SETUP -->
   <section class="screen" id="scrSetup" hidden>
     <section class="panel">
-      <div class="row" id="modeRow" style="justify-content:space-between;margin-bottom:12px">
-        <h2 style="margin:0">입력 방식</h2>
-        <div class="seg" id="modeSeg"><button data-m="hole" class="on">홀별 입력</button><button data-m="score">홀별 타수만</button><button data-m="total">총 타수만</button></div>
+      <div class="setrow" id="modeRow">
+        <div class="seg" id="modeSeg" aria-label="입력 방식"><button data-m="hole" class="on">홀별 입력</button><button data-m="score">홀별 타수</button><button data-m="total">총 타수</button></div>
+        <div class="seg" id="holesSeg"><button data-n="18" class="on">18홀</button><button data-n="9">9홀</button></div>
       </div>
-      <div class="row" style="margin-bottom:12px"><div class="seg" id="holesSeg"><button data-n="18" class="on">18홀</button><button data-n="9">9홀</button></div>
-        <span class="note" id="holesNote" hidden>9홀 라운드는 기록 목록에만 남고 통계에는 들어가지 않습니다.</span></div>
+      <p class="note" id="holesNote" style="margin:-4px 0 12px" hidden>9홀 라운드는 기록 목록에만 남고 통계에는 들어가지 않습니다.</p>
       <div class="grid2">
-        <label>날짜<input type="date" id="sDate"><small class="futhint">다음 라운드 날짜를 고르면 일정으로 저장돼요</small></label>
-        <label class="futonly">티 시각<input type="time" id="sTime"></label>
-        <label>골프장<span class="clr"><input id="sClub" list="clubList" placeholder="예: 서원힐스CC" autocomplete="off"><button type="button" class="x" aria-label="골프장 이름 지우기">×</button></span><datalist id="clubList"></datalist></label>
+        <label id="sDateWrap">날짜<input type="date" id="sDate"></label>
+        <label class="futonly" id="sTimeWrap">티 시각<input type="time" id="sTime"></label>
+        <label id="sClubWrap">골프장<span class="clr"><input id="sClub" list="clubList" placeholder="예: 서원힐스CC" autocomplete="off"><button type="button" class="x" aria-label="골프장 이름 지우기">×</button></span><datalist id="clubList"></datalist></label>
         <label><span id="sFrontLbl">전반 코스</span><select id="sFront"></select></label>
         <label id="sBackWrap">후반 코스<select id="sBack"></select></label>
-        <label>티<select id="sTee"></select></label>
+        <label id="sTeeWrap">티<select id="sTee"></select></label>
         <label id="ghostWrap">고스트 (과거 나와 대결)<select id="sGhost"><option value="best">베스트</option><option value="last">직전 라운드</option><option value="none">없음</option></select></label>
         <p class="note full" id="ghostNote" style="margin:-4px 0 0"></p>
         <label id="missionWrap">미션 (선택)<select id="sMission"></select></label>
@@ -1345,7 +1353,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v87";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v88";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
