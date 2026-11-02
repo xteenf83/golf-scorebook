@@ -789,6 +789,20 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .sitem small{font-size:13px;font-weight:500;color:var(--t3)}
 .sitem.danger{color:var(--triple);box-shadow:none;background:var(--triple-soft)}
 .ovcard.sheet .big{margin-top:6px}
+/* 지도 점 → 골프장 방문 기록 */
+.cvis{gap:12px;padding:20px 16px 16px}
+.cvh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.cvh h3{margin:0!important;font-size:20px!important}
+.cvh small{display:block;font-size:13px;color:var(--t3);margin-top:2px}
+.cvh .iconbtn{margin:-8px -8px 0 0;flex:none}
+.cvk{display:grid;grid-template-columns:repeat(4,1fr);background:var(--fill2);border-radius:16px;padding:12px 4px;text-align:center}
+.cvk b{display:block;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--t1)}
+.cvk b em{font-style:normal;font-size:13px;font-weight:600;color:var(--t3);margin-left:1px}
+.cvk span{font-size:12px;color:var(--t3)}
+.cvl{margin:0 -14px}
+.cvc{flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:8px}
+.cvc small{flex:1}
+.cvc .chev{color:var(--t4);font-size:20px}
 
 /* ===== 분석 (HANDOFF 4-5) ===== */
 #scrStats,#scrHome,#scrCourses,#scrBadges{padding-top:6px}
@@ -2043,8 +2057,8 @@ $("rlYear").onchange=renderAllRounds;
 $("rlSearch").addEventListener("input",renderAllRounds);
 $("roundList").onclick=e=>{const b=e.target.closest("[data-id]");if(b){roundFrom="Home";openRound(b.dataset.id)}};
 $("rlList").onclick=e=>{const b=e.target.closest("[data-id]");if(b){roundFrom="Rounds";openRound(b.dataset.id)}};
-$("roundBack").onclick=()=>{ if(roundFrom==="Rounds") openAllRounds(); else {show("Home");renderHome()} };
-const leaveRound=()=>{ if(roundFrom==="Rounds") openAllRounds(); else {show("Home");renderHome()} };
+$("roundBack").onclick=()=>{ if(roundFrom==="Rounds") openAllRounds(); else if(roundFrom==="Courses"){show("Courses");renderCourses()} else {show("Home");renderHome()} };
+const leaveRound=()=>{ if(roundFrom==="Rounds") openAllRounds(); else if(roundFrom==="Courses"){show("Courses");renderCourses()} else {show("Home");renderHome()} };
 
 /* ---------- SETUP ---------- */
 function clubs(){return [...new Set(courses.map(c=>c.club))].sort()}
@@ -2754,7 +2768,7 @@ function renderRound(r,fresh){
   $("roundBox").innerHTML=head+`<div class="rbody">${body}</div>`;
   $("roundBox").querySelector(".utabs").onclick=e=>{const b=e.target.closest("[data-t]"); if(!b||b.disabled) return; roundTab=b.dataset.t; renderRound(r); $("scroller").scrollTop=Math.min($("scroller").scrollTop,$("roundBox").querySelector(".utabs").offsetTop-8)};
   const rs=$("relSeg"); if(rs) rs.onclick=e=>{const b=e.target.closest("[data-v]"); if(!b) return; roundRel=b.dataset.v==="1"; renderRound(r)};
-  $("roundBack").setAttribute("aria-label", roundFrom==="Rounds" ? "전체 라운드로" : "홈으로");
+  $("roundBack").setAttribute("aria-label", roundFrom==="Rounds" ? "전체 라운드로" : roundFrom==="Courses" ? "코스로" : "홈으로");
   $("roundShare").onclick=$("roundShare2").onclick=()=>openShare(r);
   $("roundMore").onclick=()=>roundMenu(r);
   $("roundEdit").hidden=!det&&!tot; $("roundEdit").textContent=tot?"타수 수정":"홀별 수정";
@@ -3018,9 +3032,32 @@ function renderClubDetail(cs){
       <div class="pars ${ed?"":"locked"}" data-cid="${c.id}">${ps.map((p,i)=>`<button class="p${p}" data-i="${i}" ${ed?"":"disabled"} aria-label="${i+1}번 홀 파${p}"><small>${i+1}</small>${p}</button>`).join("")}</div>
       ${ed?`<p class="note" style="margin:6px 0 0">바꿀 홀을 탭하면 3 → 4 → 5 순서로 바뀝니다. 저장을 눌러야 반영돼요.</p>`:""}${distTable(c)}</div>`}).join("");
 }
-$("courseList").onclick=$("visitMap").onclick=e=>{const b=e.target.closest("[data-club]");if(!b)return;
+const openClub=club=>{ clubSel=club; $("cdMsg").textContent=""; renderCourses(); scrollTop() };
+$("courseList").onclick=e=>{const b=e.target.closest("[data-club]");if(!b)return;
   if(!courses.some(c=>c.club===b.dataset.club)) return;   // 코스가 등록되지 않은 골프장(지도에만 있음)은 열 것이 없음
-  clubSel=b.dataset.club; $("cdMsg").textContent=""; renderCourses(); scrollTop()};
+  openClub(b.dataset.club)};
+// 지도 점 → 그 골프장 방문 기록 (요약 + 라운드 목록). 라운드를 누르면 그 기록으로, 코스 정보는 맨 아래 버튼으로
+$("visitMap").onclick=e=>{const b=e.target.closest("[data-club]"); if(b) clubVisits(b.dataset.club)};
+// 방문 기록 한 줄: 골프장 이름은 위에 있으니 빼고, 날짜 타일 + 코스 + 요일·티. 금별 = 이 골프장 베스트
+function cvRow(r,best){ const c=scoreOf(r), [y,m,d]=r.date.split("-"), st=missionState(r), wd="일월화수목금토"[new Date(+y,m-1,+d).getDay()];
+  const tags=(is9(r)?`<em class="tg">9홀</em>`:"")+(isTotal(r)?`<em class="tg">총타만</em>`:"")+(st?`<em class="tg ${st.ok?"ok":"no"}">미션 ${st.ok?"성공":"실패"}</em>`:""), pb=best!=null&&isScoreR(r)&&c.tot===best;
+  return `<button class="lrow" data-id="${r.id}"><span class="ltile sm gray"><small>${y}</small>${m}.${d}</span>
+    <span class="lmain"><b>${esc(courseTxt(r,"·")||"코스 미정")}${tags}</b><small>${wd}요일${r.tee?` · ${esc(r.tee)} 티`:""}</small></span>
+    <span class="lval"><b class="${relCls(c.rel)}">${relTxt(c.rel)}</b><small>${c.tot??"–"}타</small></span>
+    <span class="lend ${pb?"gold":""}" aria-label="${pb?"이 골프장 베스트":"일반 라운드"}">${STAR}</span></button>` }
+function clubVisits(club){
+  const rs=doneRounds().filter(r=>r.club===club); if(!rs.length) return;
+  const sc=rs.filter(isScoreR).map(r=>scoreOf(r).tot), loc=CLUB_LOC[club];
+  const best=sc.length?Math.min(...sc):null, avg=sc.length?(sc.reduce((a,b)=>a+b,0)/sc.length).toFixed(1).replace(/\.0$/,""):null;
+  const kv=(v,l)=>`<div><b>${v}</b><span>${l}</span></div>`;
+  showOv(`<div class="ovcard sheet cvis"><div class="cvh"><div><h3>${esc(club)}</h3>${loc?`<small>${esc(loc[0])} ${esc(loc[1])}</small>`:""}</div>
+      <button class="iconbtn" id="ovClose" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="cvk">${kv(`${rs.length}<em>회</em>`,"방문")}${kv(best??"–","베스트")}${kv(avg??"–","평균")}${kv(rs[rs.length-1].date.slice(2,7).replace("-","."),"첫 방문")}</div>
+    <div class="lrows cvl">${rs.map(r=>cvRow(r,best)).join("")}</div>
+    ${courses.some(c=>c.club===club)?`<button class="sitem cvc" id="cvCourse">코스 정보 보기<small>코스별 홀 파·거리</small><span class="chev">›</span></button>`:""}</div>`);
+  $("ov").querySelector(".cvl").onclick=e=>{const b=e.target.closest("[data-id]"); if(!b) return; closeOv(); roundFrom="Courses"; openRound(b.dataset.id)};
+  const cb=$("cvCourse"); if(cb) cb.onclick=()=>{closeOv(); openClub(club)};
+}
 $("clSearch").addEventListener("input",renderCourses);
 $("courseBack").onclick=()=>{clubSel=null;parEdit=null;renderCourses();scrollTop()};
 $("cdCourses").onclick=e=>{
