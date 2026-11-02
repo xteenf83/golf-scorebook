@@ -1388,7 +1388,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v93";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v94";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2978,7 +2978,7 @@ function roundDiary(r){
 /* ---------- COURSES: 골프장 목록 → 골프장별 홀 파 확인·수정 ---------- */
 let clubSel=null;
 // 내 골프 지도: 끝난 라운드(9홀 포함)를 골프장별로 세서, 가 본 시·도는 옅은 초록으로 칠하고
-// 가 본 골프장만 초록 점으로 찍는다(1회는 작은 점, 자주 갈수록 조금씩 크게). 점을 누르면 그 골프장으로.
+// 가 본 골프장만 초록 점으로 찍는다(1회는 작은 점, 자주 갈수록 조금씩 크게). 점을 누르면 그 골프장 방문 기록 창.
 // 늘 본토 전체를 보여 주고, 제주는 지도가 너무 길어지지 않게 조금 위로 올려 그린다
 const JEJU_UP=5;
 function renderVisitMap(){
