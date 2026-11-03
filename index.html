@@ -832,13 +832,17 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 svg.ibars{width:100%;height:auto;margin-top:18px;display:block}
 svg.ibars rect{fill:var(--line)} svg.ibars rect.rec{fill:var(--brand)} svg.ibars rect.best{fill:var(--gold-num)}
 svg.ibars text{font-size:12px;font-weight:700;fill:var(--t5);text-anchor:middle;font-family:var(--font)} svg.ibars text.rec{fill:var(--t1)} svg.ibars text.best{fill:#9A6B00}
-svg.fwsvg{width:100%;height:auto;display:block}
-.fwsvg .rough{fill:#EAF6EF} .fwsvg .fair{fill:#BFE6CF} .fwsvg .mow rect{fill:#B1DFC4}
-.fwsvg text{text-anchor:middle;font-family:var(--font)} .fwsvg .pl{font-size:30px;font-weight:800;fill:#4E5968;letter-spacing:-1px} .fwsvg .pl.miss{fill:#C2540F}
-.fwsvg .pm{font-size:36px;font-weight:800;fill:#0A5C37;letter-spacing:-1px} .fwsvg .ll{font-size:13px;font-weight:600;fill:#4E5968} .fwsvg .lm{font-size:13px;font-weight:600;fill:#0A5C37}
-.fwsvg .tee{fill:#fff;stroke:#0A5C37;stroke-width:2}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fwsvg .rough{fill:#17291F}:root:not([data-theme="light"]) .fwsvg .fair{fill:#1F4430}:root:not([data-theme="light"]) .fwsvg .mow rect{fill:#245036}:root:not([data-theme="light"]) .fwsvg .pl,:root:not([data-theme="light"]) .fwsvg .ll{fill:#C3C8CE}:root:not([data-theme="light"]) .fwsvg .pl.miss{fill:#FFB37A}:root:not([data-theme="light"]) .fwsvg .pm,:root:not([data-theme="light"]) .fwsvg .lm{fill:#7FE0AE}}
-:root[data-theme="dark"] .fwsvg .rough{fill:#17291F} :root[data-theme="dark"] .fwsvg .fair{fill:#1F4430}
+/* 티샷 방향 사진 + 궤적 (사진 색은 라이트/다크 공통) */
+.tshot{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:1189/1323;background:#7FB86A;margin-top:4px}
+.tshot img,.tshot svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tshot text{text-anchor:middle;font-family:var(--font)}
+.tshot .zone text{font-size:40px;font-weight:600;fill:#24443A} .tshot .zone .p{font-size:84px;font-weight:800;fill:#0F2A1E;letter-spacing:-2px} .tshot .zone .p.miss{fill:#D9531A}
+.tshot .tag rect{fill:rgba(255,255,255,.96)} .tshot .tag .v{font-size:50px;font-weight:800;fill:#191F28;letter-spacing:-1px} .tshot .tag .n{font-size:32px;font-weight:600;fill:#4E5968}
+.tshot .tag .miss text{fill:#E5671E} .tshot .tag .hit text{fill:#0A7A47}
+.tsfw{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));margin-top:14px;text-align:center;border-top:1px solid var(--line);padding-top:12px}
+.tsfw b{display:block;font-size:12.5px;font-weight:600;color:var(--t1);white-space:nowrap;letter-spacing:-0.04em}
+.tsfw span{font-size:11.5px;color:var(--t4)}
+.tsfw .miss b{color:var(--bogey-text)} .tsfw .hit b{color:var(--brand-text)}
 .ic b.h15{font-size:15px;font-weight:700;margin:16px 0 6px}
 .ic .sbars>div{height:110px}
 .ic .tipbox.ico{display:flex;gap:12px;align-items:center;margin-top:16px;padding:14px;border-radius:16px}
@@ -1388,7 +1392,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v94";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v95";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -1959,21 +1963,11 @@ function renderInsights(all,rs){
   if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
     const sent=!t.length?"파4·5 티샷 기록이 없어요":L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
     const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(h=>h.fw==="H").length/a.length*100)+"%":"–"};
-    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]), smax=Math.max(1,...sh.map(x=>x[2]));
+    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
     const pdet=prev.filter(hasDetail), slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
     const s0=slp(pdet), s1=slp(det);
     cards.push(`<section class="panel ic"><small class="lab">티샷 방향 · 좌타 기준</small><div class="ttl">${sent}</div>
-      <svg class="fwsvg" viewBox="0 0 350 200" role="img" aria-label="티샷 결과: 왼쪽 미스 ${pc(L)}퍼센트, 페어웨이 ${pc(H)}퍼센트, 오른쪽 미스 ${pc(R)}퍼센트">
-        <defs><clipPath id="fwc"><path d="M118 200 C112 140 104 80 112 20 Q175 4 238 20 C246 80 238 140 232 200 Z"/></clipPath></defs>
-        <rect width="350" height="200" rx="18" class="rough"/><path d="M118 200 C112 140 104 80 112 20 Q175 4 238 20 C246 80 238 140 232 200 Z" class="fair"/>
-        <g clip-path="url(#fwc)" class="mow"><rect x="100" width="22" height="200"/><rect x="144" width="22" height="200"/><rect x="188" width="22" height="200"/><rect x="232" width="22" height="200"/></g>
-        <text x="58" y="96" class="pl miss">${pc(L)}%</text><text x="58" y="118" class="ll">왼쪽 미스</text>
-        <text x="175" y="96" class="pm">${pc(H)}%</text><text x="175" y="118" class="lm">페어웨이</text>
-        <text x="292" y="96" class="pl">${pc(R)}%</text><text x="292" y="118" class="ll">오른쪽 미스</text>
-        <circle cx="175" cy="186" r="5" class="tee"/></svg>
-      <b class="h15">구질 분포</b>
-      <div class="sbars">${sh.map(([k,nm,v,fw])=>`<div><em class="${k==="straight"?"hit":k==="slice"?"miss":""}">${v}%</em><i class="${k==="straight"?"hit":k==="slice"?"miss":""}" style="height:${Math.round(v/smax*70)}px"></i><span>${nm}</span><small>FW ${fw}</small></div>`).join("")}</div>
-      <p class="sbnote">FW = 그 구질일 때 페어웨이 적중률</p>
+      ${teeShotView(pc(L),pc(H),pc(R),sh)}
       ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
   box.innerHTML=cards.join("");
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
@@ -2974,6 +2968,47 @@ function roundDiary(r){
   const mp=picks.length?`<div class="band"></div><h2 class="sec">다음 라운드 미션</h2><p class="note pad" style="margin:-6px 0 0">이번 기록에서 가장 많이 잃은 부분으로 골랐어요. 고르면 다음 새 라운드에 미리 채워져요.</p>
     <div class="mpick pad">${picks.map(p=>`<button data-nm="${p.t}" class="${nm&&nm.type===p.t?"on":""}" aria-pressed="${!!(nm&&nm.type===p.t)}"><i></i><b>${MISSIONS[p.t][0]}</b><small>이번 ${p.val}${p.t==="fw"?"%":"개"}</small></button>`).join("")}</div>`:"";
   return diaryHtml(r)+mh+mp;
+}
+/* 티샷 방향 그림: 좌타자 피니시 사진(images/teeshot-lefty.jpg, 1189×1323 좌표) 위에
+   하늘에는 왼쪽 러프·페어웨이·오른쪽 러프 비율, 티에서 구질별 궤적(가늘고 투명 → 굵고 진하게 + 화살촉)과 이름표.
+   착지점은 같은 거리 한 줄에 공이 가는 방향(좌타 기준) 순서로 고르게 놓는다. 선 굵기는 비율과 상관없이 같다 */
+const TS_TEE=[595,1188];
+// [키, 착지점, 휘는 정도 0~1 (0 = 곧게)]
+const TS_SHOTS=[["slice",[130,600],.75],["push",[285,600],0],["fade",[440,600],.4],["straight",[595,600],0],["draw",[750,600],.4],["pull",[905,600],0],["hook",[1060,600],.75]];
+const TS_TONE={miss:["#FF9A52","#FF6A1A"],hit:["#4BE39A","#12B76A"],"":["#FFFFFF","#FFFFFF"]};
+function tsTrail([ox,oy],[x,y],k,id,tone){
+  const P=k?[[ox,oy],[ox+(x-ox)*.05,oy-(oy-y)*.55],[x+(ox-x)*k,y-40],[x,y]]:[[ox,oy],[ox+(x-ox)/3,oy+(y-oy)/3],[ox+(x-ox)*2/3,oy+(y-oy)*2/3],[x,y]];
+  const bz=t=>{const u=1-t;return [0,1].map(i=>u*u*u*P[0][i]+3*u*u*t*P[1][i]+3*u*t*t*P[2][i]+t*t*t*P[3][i])};
+  const HEAD=58, HW=26, W0=2, W1=13, N=40, pts=[]; for(let i=0;i<=N;i++) pts.push(bz(i/N));
+  let len=0, cut=N; for(let i=N;i>0;i--){ len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]); if(len>=HEAD){cut=i;break} }
+  const body=pts.slice(0,cut+1), A=[], B=[];
+  body.forEach((p,i)=>{ const q=body[Math.min(i+1,cut)], o=body[Math.max(i-1,0)], dx=q[0]-o[0], dy=q[1]-o[1], m=Math.hypot(dx,dy)||1, w=(W0+(W1-W0)*Math.pow(i/cut,1.3))/2;
+    A.push([p[0]-dy/m*w,p[1]+dx/m*w]); B.push([p[0]+dy/m*w,p[1]-dx/m*w]) });
+  const e=pts[N], b0=body[cut], dx=e[0]-b0[0], dy=e[1]-b0[1], m=Math.hypot(dx,dy)||1, nx=-dy/m, ny=dx/m;
+  const poly=[...A,[b0[0]+nx*HW,b0[1]+ny*HW],[e[0]+dx/m*6,e[1]+dy/m*6],[b0[0]-nx*HW,b0[1]-ny*HW],...B.reverse()];
+  const c=TS_TONE[tone];
+  return [`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${ox}" y1="${oy}" x2="${x}" y2="${y}"><stop offset="0" stop-color="${c[0]}" stop-opacity="0"/><stop offset=".35" stop-color="${c[0]}" stop-opacity=".55"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`,
+    `<path d="M${poly.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L")}Z" fill="url(#${id})"/>`];
+}
+function teeShotView(L,H,R,sh){
+  const by=Object.fromEntries(sh.map(x=>[x[0],x]));
+  // 주황 = 직진이 아니면서 페어웨이 적중률 50% 미만인 구질 중 가장 많은 것, 초록 = 직진(늘)
+  const miss=(sh.filter(x=>x[0]!=="straight"&&x[2]>0&&parseInt(x[3])<50).sort((a,b)=>b[2]-a[2])[0]||[])[0];
+  const tone=k=>k===miss?"miss":k==="straight"?"hit":"";
+  let defs="", trails="", tags="";
+  TS_SHOTS.forEach(([k,[x,y],bend],i)=>{ const [,nm,v]=by[k], t=tone(k);
+    if(v){ const [g,pth]=tsTrail(TS_TEE,[x,y],bend,"tsg"+i,t); defs+=g; trails+=pth }
+    tags+=`<g class="${t}"${v?"":' opacity=".55"'}><rect x="${x-68}" y="${y-170}" width="136" height="118" rx="30"/><text x="${x}" y="${y-115}" class="v">${v}%</text><text x="${x}" y="${y-72}" class="n">${nm}</text></g>` });
+  const zm=L!==R?(L>R?"l":"r"):"";
+  return `<div class="tshot"><img src="images/teeshot-lefty.jpg" alt="" width="800" height="890" onerror="this.remove()">
+    <svg viewBox="0 0 1189 1323" role="img" aria-label="티샷 결과: 왼쪽 러프 ${L}퍼센트, 페어웨이 ${H}퍼센트, 오른쪽 러프 ${R}퍼센트. 구질 ${TS_SHOTS.map(([k])=>by[k][1]+" "+by[k][2]+"퍼센트").join(", ")}">
+    <defs>${defs}<filter id="tsds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity=".35"/></filter></defs>
+    <g class="zone"><text x="200" y="110" class="p${zm==="l"?" miss":""}">${L}%</text><text x="200" y="160">왼쪽 러프</text>
+      <text x="595" y="110" class="p">${H}%</text><text x="595" y="160">페어웨이</text>
+      <text x="990" y="110" class="p${zm==="r"?" miss":""}">${R}%</text><text x="990" y="160">오른쪽 러프</text></g>
+    <g filter="url(#tsds)">${trails}</g><g class="tag" filter="url(#tsds)">${tags}</g></svg></div>
+    <div class="tsfw">${TS_SHOTS.map(([k])=>{const [,nm,,fw]=by[k];return `<div class="${tone(k)}"><b>${nm}</b><span>${fw}</span></div>`}).join("")}</div>
+    <p class="sbnote">구질 아래 숫자 = 그 구질일 때 페어웨이 적중률</p>`;
 }
 /* ---------- COURSES: 골프장 목록 → 골프장별 홀 파 확인·수정 ---------- */
 let clubSel=null;
