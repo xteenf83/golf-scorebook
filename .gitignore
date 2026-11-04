@@ -1,1 +1,15 @@
 shots/
+
+# 비밀 파일 (API 키 등) — 커밋하지 않음
+.env
+.env.*
+!.env.example
+*.env
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
+*.p12
+*serviceaccount*.json
+*service-account*.json
+*-adminsdk-*.json
