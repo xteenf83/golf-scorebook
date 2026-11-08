@@ -203,8 +203,14 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 .wbtn .cty{stroke:none;fill:var(--t4);fill-opacity:.35}
 .vmap .cty.on,.wmap .cty.on{fill:var(--brand);fill-opacity:.85}
 .wbtn .cty.on{fill:var(--brand);fill-opacity:1}
-.wmap .wsvg{margin:0 -6px;background:var(--fill2);border-radius:16px;padding:10px 6px}
-.wmap .wsvg svg{display:block;width:100%;height:auto}
+.wmap .wsvg{position:relative;margin:0 -6px;background:var(--fill2);border-radius:16px;overflow:hidden;height:300px}
+.wmap .wsvg>svg{display:block;width:100%;height:100%;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.wmap .wsvg>svg:active{cursor:grabbing}
+.wzoom{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px}
+.wzoom button{width:44px;height:44px;border:0;border-radius:12px;background:var(--card);color:var(--t1);display:grid;place-items:center;padding:0;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.wzoom button:active{transform:scale(.94)}
+.wzoom svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.wmap .whint{font-size:12px;color:var(--t4);text-align:center;margin-top:-4px}
 .wmap .cty{fill:var(--line2);stroke:var(--fill2)}
 .wmap .dot{fill:var(--brand);stroke:var(--card);stroke-width:1px;vector-effect:non-scaling-stroke;pointer-events:none}
 .wmap .hit{fill:transparent;cursor:pointer}
@@ -3126,10 +3132,55 @@ function openWorldMap(){
   const kv=(v,l)=>`<div><b>${v}</b><span>${l}</span></div>`;
   showOv(`<div class="ovcard sheet cvis wmap"><div class="cvh"><div><h3>세계 골프 지도</h3><small>가 본 나라와 골프장</small></div>
       <button class="iconbtn" id="ovClose" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-    <div class="wsvg">${worldSvg(false)}</div>
+    <div class="wsvg">${worldSvg(false)}<div class="wzoom"><button type="button" data-z="in" aria-label="확대"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" data-z="out" aria-label="축소"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button type="button" data-z="all" aria-label="세계 전체 보기"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17"/></svg></button></div></div>
+    <p class="whint">끌어서 이동 · 두 손가락으로 확대·축소</p>
     <div class="cvk wk">${kv(`${W.length}<em>개국</em>`,"방문 나라")}${kv(`${abroad}<em>개국</em>`,"해외")}${kv(`${W.reduce((a,x)=>a+x[1],0)}<em>곳</em>`,"골프장")}</div>
     <div class="lrows wl">${W.map(([k,c,n])=>`<div class="lrow"><span class="flag">${(COUNTRY[k]||[])[1]||"🏳️"}</span><span class="lmain"><b>${esc(k)}</b></span><span class="lval">${c}곳 · ${n}회</span></div>`).join("")}</div></div>`);
-  $("ov").querySelector(".wsvg").onclick=e=>{ const b=e.target.closest("[data-club]"); if(b){ closeOv(); clubVisits(b.dataset.club) } };
+  worldPanZoom($("ov").querySelector(".wsvg"));
+}
+/* 세계 지도 끌기·확대: viewBox를 바꿔서 움직인다 (화면 그리기만 바뀜, 애니메이션 없음).
+   처음엔 가 본 골프장이 모두 보이게 확대해서 보여 주고, 지구본 버튼은 세계 전체. */
+function worldPanZoom(box){
+  const svg=box.querySelector("svg"), M=WORLD_MAP, [X0,Y0,MW,MH]=M.vb, ZMAX=16;
+  const pw=()=>svg.clientWidth||330, ph=()=>svg.clientHeight||300;
+  // 확대 1 = 세계 전체 가로가 꼭 맞는 크기. v={x,y,z}: 보이는 영역 가운데 좌표와 확대 배율
+  const size=z=>{ const w=MW/z; return [w, w*ph()/pw()] };
+  let v={x:X0+MW/2,y:Y0+MH/2,z:1};
+  const clamp=()=>{ v.z=Math.min(ZMAX,Math.max(1,v.z)); const [w,hh]=size(v.z);
+    v.x=w>=MW?X0+MW/2:Math.min(X0+MW-w/2,Math.max(X0+w/2,v.x));
+    v.y=hh>=MH?Y0+MH/2:Math.min(Y0+MH-hh/2,Math.max(Y0+hh/2,v.y)) };
+  const draw=()=>{ clamp(); const [w,hh]=size(v.z), u=w/pw();
+    svg.setAttribute("viewBox",`${(v.x-w/2).toFixed(2)} ${(v.y-hh/2).toFixed(2)} ${w.toFixed(2)} ${hh.toFixed(2)}`);
+    svg.querySelectorAll(".dot").forEach(c=>c.setAttribute("r",(5*u).toFixed(2)));
+    svg.querySelectorAll(".hit").forEach(c=>c.setAttribute("r",(14*u).toFixed(2))) };
+  // 화면 위치(px) → 지도 좌표
+  const toMap=(cx,cy)=>{ const r=svg.getBoundingClientRect(), [w,hh]=size(v.z); return [v.x-w/2+(cx-r.left)/r.width*w, v.y-hh/2+(cy-r.top)/r.height*hh] };
+  // 지도 좌표 (mx,my)가 화면 같은 자리에 머물도록 배율 바꾸기
+  const zoomAt=(f,cx,cy)=>{ const [mx,my]=cx==null?[v.x,v.y]:toMap(cx,cy), z=Math.min(ZMAX,Math.max(1,v.z*f)), k=v.z/z;
+    v.x=mx+(v.x-mx)*k; v.y=my+(v.y-my)*k; v.z=z; draw() };
+  const fitVisits=()=>{ const pts=[...svg.querySelectorAll(".dot")].map(c=>[+c.getAttribute("cx"),+c.getAttribute("cy")]);
+    if(!pts.length){ v={x:X0+MW/2,y:Y0+MH/2,z:1}; return draw() }
+    const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+    const pad=24, bw=x1-x0+pad*2, bh=y1-y0+pad*2, a=ph()/pw();
+    v={x:(x0+x1)/2,y:(y0+y1)/2,z:Math.min(6,MW/Math.max(bw,bh/a))}; draw() };
+  // 손가락·마우스: 1개 = 끌기, 2개 = 벌리고 좁혀서 확대·축소
+  const P=new Map(); let moved=0, last=null;
+  const two=()=>{ const [a,b]=[...P.values()]; return {d:Math.hypot(a.x-b.x,a.y-b.y),x:(a.x+b.x)/2,y:(a.y+b.y)/2} };
+  svg.addEventListener("pointerdown",e=>{ svg.setPointerCapture(e.pointerId); P.set(e.pointerId,{x:e.clientX,y:e.clientY}); if(P.size===1) moved=0; last=P.size===2?two():null });
+  svg.addEventListener("pointermove",e=>{ const q=P.get(e.pointerId); if(!q) return;
+    if(P.size===1){ const r=svg.getBoundingClientRect(), [w]=size(v.z), s=w/r.width, dx=e.clientX-q.x, dy=e.clientY-q.y;
+      moved+=Math.abs(dx)+Math.abs(dy); v.x-=dx*s; v.y-=dy*s; q.x=e.clientX; q.y=e.clientY; draw() }
+    else if(P.size===2){ q.x=e.clientX; q.y=e.clientY; const t=two();
+      if(last&&last.d>0){ const r=svg.getBoundingClientRect(), [w]=size(v.z), s=w/r.width; v.x-=(t.x-last.x)*s; v.y-=(t.y-last.y)*s; zoomAt(t.d/last.d,t.x,t.y) }
+      last=t; moved=99 } });
+  const up=e=>{ P.delete(e.pointerId); last=P.size===2?two():null };
+  svg.addEventListener("pointerup",up); svg.addEventListener("pointercancel",up);
+  svg.addEventListener("wheel",e=>{ e.preventDefault(); zoomAt(Math.exp(-e.deltaY*.0025),e.clientX,e.clientY) },{passive:false});
+  // 점을 눌렀을 때만 골프장 창 (끌다가 손을 뗀 건 무시)
+  svg.addEventListener("click",e=>{ if(moved>8) return; const b=e.target.closest("[data-club]"); if(b){ closeOv(); clubVisits(b.dataset.club) } });
+  box.querySelector(".wzoom").onclick=e=>{ const b=e.target.closest("[data-z]"); if(!b) return;
+    const z=b.dataset.z; if(z==="in") zoomAt(1.8); else if(z==="out") zoomAt(1/1.8); else { v={x:X0+MW/2,y:Y0+MH/2,z:1}; draw() } };
+  fitVisits();
 }
 // 방문 기록 한 줄: 골프장 이름은 위에 있으니 빼고, 날짜 타일 + 코스 + 요일·티. 금별 = 이 골프장 베스트
 function cvRow(r,best){ const c=scoreOf(r), [y,m,d]=r.date.split("-"), st=missionState(r), wd="일월화수목금토"[new Date(+y,m-1,+d).getDay()];
