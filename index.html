@@ -1417,7 +1417,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 13;
-const APP_VERSION = "v96";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v97";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -2431,6 +2431,52 @@ function schedWx(x,now){
   return `<div class="wx1">${wxLine(w,{range:now,extra})}</div>`;
 }
 // 끝난 라운드에 그날 날씨 채우기: 골프장마다 한 번에 (최근 80일은 예보 API의 지난 자료, 그 전은 과거 자료 API)
+/* ---------- 좌표 없는 골프장 위치 자동 찾기 ----------
+   CLUB_LOC에 없는 골프장(직접 입력한 이름 등)은
+   1) 이름에서 띄어쓰기·CC/GC 등을 뺀 뒤 CLUB_LOC 이름과 같으면 그 좌표를 쓰고 (예: "휘닉스평창" = "휘닉스 평창")
+   2) 아니면 Photon(OpenStreetMap)에서 골프장으로 검색해 첫 결과를 쓴다.
+   찾은 값은 이 기기 localStorage(gsb.clubLoc)에만 저장 (저장 형식 변경 없음). 못 찾으면 7일 뒤 다시 시도.
+   결과 형식은 CLUB_LOC와 같다: [시도(해외는 나라), 시군, 위도, 경도] */
+const CLUB_LOC_BASE=new Set(Object.keys(CLUB_LOC));
+const clubNorm=t=>String(t||"").toLowerCase().replace(/\(.*?\)/g,"").replace(/골프\s*클럽|컨트리\s*클럽|골프\s*리조트|골프장|리조트|c\.?\s*c\.?|g\.?\s*c\.?|golf|club|[\s·.\-_]/g,"");
+const KR_STATE=s=>{ s=String(s||""); const t=[["충청북","충북"],["충청남","충남"],["전라북","전북"],["전북","전북"],["전라남","전남"],["경상북","경북"],["경상남","경남"],["제주","제주"]].find(([a])=>s.startsWith(a));
+  return t?t[1]:Object.keys(KOREA_MAP.p).find(k=>s.startsWith(k))||null };
+const CC_NAME={JP:"일본",CN:"중국",TW:"대만",TH:"태국",VN:"베트남",PH:"필리핀",MY:"말레이시아",ID:"인도네시아",KH:"캄보디아",LA:"라오스",MN:"몽골",US:"미국",GU:"괌",MP:"사이판",CA:"캐나다",AU:"호주",NZ:"뉴질랜드",GB:"영국",ES:"스페인",PT:"포르투갈",TR:"튀르키예",AE:"아랍에미리트"};
+function clubLocStore(v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem("gsb.clubLoc")||"{}")||{}; localStorage.setItem("gsb.clubLoc",JSON.stringify(v)) }catch(e){ return {} } }
+// 저장해 둔 값을 바로 CLUB_LOC에 합친다 (지도·날씨가 처음부터 쓰도록)
+(()=>{ const st=clubLocStore(); for(const [k,v] of Object.entries(st)) if(Array.isArray(v)&&!CLUB_LOC[k]) CLUB_LOC[k]=v })();
+async function photonFind(club){
+  const base=club.replace(/\(.*?\)/g,"").trim(), short=base.replace(/\s*(골프\s*클럽|컨트리\s*클럽|골프\s*리조트|골프장|C\.?C\.?|G\.?C\.?)\s*$/i,"").trim();
+  const qs=[...new Set([base,short,short.replace(/\s+/g,""),short.split(/\s+/)[0]])].filter(q=>q.length>=2);
+  for(const q of qs){
+    const u=`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&osm_tag=leisure:golf_course&limit=1`;
+    const r=await fetch(u); if(!r.ok) throw new Error("HTTP "+r.status);
+    const f=((await r.json()).features||[])[0]; if(!f) continue;
+    const pr=f.properties||{}, [lon,lat]=f.geometry.coordinates, area=String(pr.county||pr.city||pr.district||"").replace(/(시|군|구)$/,"");
+    if(pr.countrycode==="KR"){ const s=KR_STATE(pr.state); if(s) return [s,area,+lat.toFixed(4),+lon.toFixed(4)] }
+    else if(CC_NAME[pr.countrycode]) return [CC_NAME[pr.countrycode],String(pr.state||pr.city||area||""),+lat.toFixed(4),+lon.toFixed(4)];
+  }
+  return null;
+}
+let clubLocBusy=false;
+async function fillClubLoc(){
+  if(clubLocBusy) return fillWeather(); clubLocBusy=true;
+  const st=clubLocStore(), now=Date.now(), byNorm={}; let changed=false;
+  CLUB_LOC_BASE.forEach(k=>{ byNorm[clubNorm(k)]=k });
+  const names=[...new Set([...rounds.map(r=>r.club),...courses.map(c=>c.club)].filter(Boolean).map(s=>String(s).trim()))];
+  for(const c of names){
+    if(CLUB_LOC[c]) continue;
+    const same=byNorm[clubNorm(c)];
+    if(same){ CLUB_LOC[c]=CLUB_LOC[same]; changed=true; continue }
+    if(st[c]&&st[c].miss&&now-st[c].miss<7*864e5) continue;
+    if(navigator.onLine===false) break;
+    try{ const l=await photonFind(c); st[c]=l||{miss:now}; if(l){ CLUB_LOC[c]=l; changed=true } }
+    catch(e){ break }   // 인터넷·서버 문제면 다음에 다시
+  }
+  clubLocStore(st); clubLocBusy=false;
+  if(changed&&!$("scrCourses").hidden&&!clubSel) renderVisitMap();
+  fillWeather();
+}
 let wxFilling=false;
 const wxNeed=()=>{ const t=today(); return rounds.filter(r=>r.status==="done"&&!r.weather&&r.date&&r.date<=t&&clubXY(r.club)&&!(cur&&cur.id===r.id)) };
 function wxErrSet(m){ try{ m?localStorage.setItem("gsb.wxErr",JSON.stringify({at:Date.now(),m:String(m).slice(0,120)})):localStorage.removeItem("gsb.wxErr") }catch(e){} }
@@ -3943,7 +3989,7 @@ function start(user){
     if(!$("scrHome").hidden) renderHome();
     autoResume();
     if(!$("scrStats").hidden) renderStats();
-    fillWeather();
+    fillClubLoc();
   },err=>setSync("err","동기화 오류: "+(err.message||err.code))));
   unsubs.push(ccol.onSnapshot(snap=>{
     courses=snap.docs.map(d=>({id:d.id,...d.data()})).filter(c=>c.club&&Array.isArray(c.pars)).map(c=>({...c,pars:[...c.pars]}));
