@@ -405,9 +405,10 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 .ovcard .nb small{display:block;font-size:12px;color:var(--muted)}
 .ovcard img{display:block;max-width:100%;max-height:58vh;margin:0 auto;border-radius:12px}
 .ovcard .row{justify-content:center}
-.ovcard .shpick{display:flex;flex-direction:row;margin:0;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:12px;background:var(--fill);color:var(--t1);font-size:15px;font-weight:600;cursor:pointer}
-.shpick svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.shpick:active{transform:scale(.98)}
+.shbar{display:flex;justify-content:center;gap:16px}
+.ovcard .shb{width:52px;height:52px;margin:0;padding:0;border:0;border-radius:50%;background:var(--fill);color:var(--t1);display:grid;place-items:center;cursor:pointer;text-decoration:none;flex:none}
+.shb svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.shb:active{transform:scale(.94)}
 .pop{animation:pop .35s ease-out}
 @keyframes pop{from{transform:scale(.85);opacity:0}}
 
@@ -3934,10 +3935,13 @@ async function openShare(r,bg){
     const cv=await drawShare(r,bg), blob=await new Promise(res=>cv.toBlob(res,"image/png"));
     const name=`golf-${r.date}.png`, file=new File([blob],name,{type:"image/png"}), url=URL.createObjectURL(blob);
     const canShare=!!(navigator.canShare&&navigator.canShare({files:[file]}));
+    // 버튼은 모두 같은 모양의 아이콘 버튼: 공유 · 저장 · 내 사진 · 닫기
+    const ic=d=>`<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
     showOv(`<div class="ovcard"><img src="${url}" alt="스코어카드 이미지">
-      <div class="row">${canShare?`<button class="primary" id="shGo">공유하기</button>`:""}<a class="linkbtn acc" id="shSave" href="${url}" download="${name}">PNG 저장</a><button class="ghost" id="ovClose">닫기</button></div>
-      <label class="shpick"><input type="file" accept="image/*" id="shPhoto" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17.5 5-5 3.5 3.5 2.5-2.5 4 4"/></svg>${bg?"다른 내 사진 고르기":"내 사진으로 만들기"}</label>
-      <p class="note" style="margin:0">이미지를 길게 누르면 사진에 저장할 수도 있어요.</p></div>`);
+      <div class="shbar">${canShare?`<button type="button" class="shb" id="shGo" aria-label="공유">${ic('<path d="M12 3.5v11M8 7.2l4-3.7 4 3.7"/><path d="M7.5 10.5H6.8A2.3 2.3 0 0 0 4.5 12.8v5.4a2.3 2.3 0 0 0 2.3 2.3h10.4a2.3 2.3 0 0 0 2.3-2.3v-5.4a2.3 2.3 0 0 0-2.3-2.3h-.7"/>')}</button>`:""}
+        <a class="shb" id="shSave" href="${url}" download="${name}" aria-label="저장">${ic('<path d="M12 4v11M7.5 10.8 12 15.2l4.5-4.4"/><path d="M5 17.5v1.2A1.8 1.8 0 0 0 6.8 20.5h10.4a1.8 1.8 0 0 0 1.8-1.8v-1.2"/>')}</a>
+        <label class="shb" aria-label="내 사진 선택"><input type="file" accept="image/*" id="shPhoto" hidden>${ic('<rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17.5 5-5 3.5 3.5 2.5-2.5 4 4"/>')}</label>
+        <button type="button" class="shb" id="ovClose" aria-label="닫기">${ic('<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>')}</button></div></div>`);
     if(canShare) $("shGo").onclick=()=>navigator.share({files:[file]}).catch(()=>{});
     $("shPhoto").onchange=async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return;
       const u=URL.createObjectURL(f), im=await loadImg(u);
