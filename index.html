@@ -405,6 +405,9 @@ input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display
 .ovcard .nb small{display:block;font-size:12px;color:var(--muted)}
 .ovcard img{display:block;max-width:100%;max-height:58vh;margin:0 auto;border-radius:12px}
 .ovcard .row{justify-content:center}
+.ovcard .shpick{display:flex;flex-direction:row;margin:0;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:12px;background:var(--fill);color:var(--t1);font-size:15px;font-weight:600;cursor:pointer}
+.shpick svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.shpick:active{transform:scale(.98)}
 .pop{animation:pop .35s ease-out}
 @keyframes pop{from{transform:scale(.85);opacity:0}}
 
@@ -3864,14 +3867,15 @@ function fitFont(g,txt,max,size,weight,fam){ let s=size; for(;;){ g.font=`${weig
 // 배경 사진: 내보낼 때마다 무작위 (처음 쓰는 사진은 오프라인이면 못 받으니 lush로)
 const SHARE_PHOTOS=["lush","aerial-pond","aerial-bunkers","yellow-flag","golden-hour","seaside","evening-fairway","sunrise","pines"];
 function loadImg(src){ return new Promise(res=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>res(null); i.src=src }) }
-async function drawShare(r){
+// bg: 사용자가 고른 사진(Image). 없으면 기본 사진 중 무작위
+async function drawShare(r,bg){
   const W=1080,H=1920,k=W/390,cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
   const F='"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif';
   // 화면에 아직 안 쓰인 굵기·글자도 미리 받아야 이미지 글씨가 기본 글꼴로 바뀌지 않는다
   try{ await Promise.all([800,700,600,500].map(w=>document.fonts.load(`${w} 40px ${F}`,r.club+courseTxt(r)+"스코어북 개인 최고 기록 전반 후반 퍼팅 페어웨이 고스트 승 패 동률 0123456789.+−·→타%"))); await document.fonts.ready }catch(e){}
   g.fillStyle="#1F3A22"; g.fillRect(0,0,W,H);
   const pick=SHARE_PHOTOS[Math.floor(Math.random()*SHARE_PHOTOS.length)];
-  const img=await loadImg(`images/share-card-${pick}.jpg`)||(pick!=="lush"?await loadImg("images/share-card-lush.jpg"):null);
+  const img=bg||await loadImg(`images/share-card-${pick}.jpg`)||(pick!=="lush"?await loadImg("images/share-card-lush.jpg"):null);
   if(img){ const sc=Math.max(W/img.width,H/img.height), iw=img.width*sc, ih=img.height*sc; g.drawImage(img,(W-iw)/2,(H-ih)/2,iw,ih) }
   const gr=g.createLinearGradient(0,0,0,H); gr.addColorStop(0,"rgba(0,0,0,.35)"); gr.addColorStop(.24,"rgba(0,0,0,0)"); gr.addColorStop(.34,"rgba(0,0,0,0)"); gr.addColorStop(.68,"rgba(3,16,8,.86)"); gr.addColorStop(1,"rgba(3,16,8,.9)");
   g.fillStyle=gr; g.fillRect(0,0,W,H);
@@ -3922,16 +3926,23 @@ async function drawShare(r){
   return cv;
 }
 // 아이폰은 버튼을 누른 직후에만 공유 시트를 열어 주므로: 이미지를 먼저 만들어 보여 주고, '공유하기'를 누를 때 바로 공유
-async function openShare(r){
+// '내 사진으로': 폰 사진을 골라 배경으로 다시 그린다. 사진은 이 화면에서만 쓰고 어디에도 저장·업로드하지 않는다
+// (카드는 새로 그린 그림이라 원본 사진의 위치 정보 등도 남지 않음)
+async function openShare(r,bg){
   showOv(`<div class="ovcard"><p style="margin:0">이미지를 만드는 중…</p></div>`);
   try{
-    const cv=await drawShare(r), blob=await new Promise(res=>cv.toBlob(res,"image/png"));
+    const cv=await drawShare(r,bg), blob=await new Promise(res=>cv.toBlob(res,"image/png"));
     const name=`golf-${r.date}.png`, file=new File([blob],name,{type:"image/png"}), url=URL.createObjectURL(blob);
     const canShare=!!(navigator.canShare&&navigator.canShare({files:[file]}));
     showOv(`<div class="ovcard"><img src="${url}" alt="스코어카드 이미지">
       <div class="row">${canShare?`<button class="primary" id="shGo">공유하기</button>`:""}<a class="linkbtn acc" id="shSave" href="${url}" download="${name}">PNG 저장</a><button class="ghost" id="ovClose">닫기</button></div>
+      <label class="shpick"><input type="file" accept="image/*" id="shPhoto" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17.5 5-5 3.5 3.5 2.5-2.5 4 4"/></svg>${bg?"다른 내 사진 고르기":"내 사진으로 만들기"}</label>
       <p class="note" style="margin:0">이미지를 길게 누르면 사진에 저장할 수도 있어요.</p></div>`);
     if(canShare) $("shGo").onclick=()=>navigator.share({files:[file]}).catch(()=>{});
+    $("shPhoto").onchange=async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return;
+      const u=URL.createObjectURL(f), im=await loadImg(u);
+      if(!im){ URL.revokeObjectURL(u); showOv(`<div class="ovcard"><p style="margin:0">이 사진은 열 수 없어요. 다른 사진을 골라 주세요.</p><button class="ghost" id="ovClose">닫기</button></div>`); return }
+      URL.revokeObjectURL(url); await openShare(r,im); URL.revokeObjectURL(u) };
   }catch(e){ showOv(`<div class="ovcard"><p style="margin:0">이미지를 만들지 못했습니다 (${esc(e.message||e)}).</p><button class="ghost" id="ovClose">닫기</button></div>`) }
 }
 
