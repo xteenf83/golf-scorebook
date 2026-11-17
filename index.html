@@ -471,11 +471,10 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 .lval{text-align:right;flex:none}
 .lval b{display:block;font-size:17px;font-weight:700}
 .lval small{display:block;font-size:14.5px;color:var(--t2);margin-top:3px}
-/* 라운드 줄: 타수를 크게, 파 대비는 작게 */
+/* 라운드 줄: 타수를 크게, 파 대비는 작은 회색 (거의 다 오버라 색은 정보가 없음, 강조는 베스트 별이 맡음) */
 .lsc b{font-size:21px;font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.15}
 .lsc b em{font-style:normal;font-size:14px;font-weight:600;color:var(--t3);margin-left:1px}
-.lsc small{font-size:14px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
-.lsc small.over{color:var(--over)} .lsc small.under{color:var(--under)} .lsc small.even{color:var(--t3)}
+.lsc small{font-size:14px;font-weight:600;color:var(--t3);margin-top:2px;font-variant-numeric:tabular-nums}
 .lend{width:24px;flex:none;display:flex;justify-content:center;color:var(--line2)}
 .lend svg{width:20px;height:20px;fill:currentColor}
 .lend.gold{color:var(--gold)}
@@ -2107,7 +2106,7 @@ function rcHtml(r,best){const c=scoreOf(r); const [,m,d]=r.date.split("-"), st=m
   const sub=[`${m}.${d}`, courseTxt(r,"·"), isTotal(r)?"총타만":""].filter(Boolean).join(" · ");
   return `<button class="lrow" data-id="${r.id}"><span class="ltile" style="background:${clubColor(r.club)}">${esc(clubAbbr(r.club))}</span>
       <span class="lmain"><b>${esc(r.club)}${tags}</b><small>${esc(sub)}</small></span>
-      <span class="lval lsc"><b>${c.tot??"–"}<em>타</em></b><small class="${relCls(c.rel)}">${relTxt(c.rel)}</small></span>
+      <span class="lval lsc"><b>${c.tot??"–"}<em>타</em></b><small>${relTxt(c.rel)}</small></span>
       <span class="lend ${pb?"gold":""}" aria-label="${pb?"개인 최고 기록":"일반 라운드"}">${STAR}</span></button>`}
 const bestScore=()=>{const t=scoreRounds().map(r=>scoreOf(r).tot); return t.length?Math.min(...t):null};
 function renderRoundList(){
@@ -3298,7 +3297,7 @@ function cvRow(r,best){ const c=scoreOf(r), [y,m,d]=r.date.split("-"), st=missio
   const tags=(is9(r)?`<em class="tg">9홀</em>`:"")+(isTotal(r)?`<em class="tg">총타만</em>`:"")+(st?`<em class="tg ${st.ok?"ok":"no"}">미션 ${st.ok?"성공":"실패"}</em>`:""), pb=best!=null&&isScoreR(r)&&c.tot===best;
   return `<button class="lrow" data-id="${r.id}"><span class="ltile sm gray"><small>${y}</small>${m}.${d}</span>
     <span class="lmain"><b>${esc(courseTxt(r,"·")||"코스 미정")}${tags}</b><small>${wd}요일${r.tee?` · ${esc(r.tee)} 티`:""}</small></span>
-    <span class="lval lsc"><b>${c.tot??"–"}<em>타</em></b><small class="${relCls(c.rel)}">${relTxt(c.rel)}</small></span>
+    <span class="lval lsc"><b>${c.tot??"–"}<em>타</em></b><small>${relTxt(c.rel)}</small></span>
     <span class="lend ${pb?"gold":""}" aria-label="${pb?"이 골프장 베스트":"일반 라운드"}">${STAR}</span></button>` }
 function clubVisits(club){
   const rs=doneRounds().filter(r=>r.club===club); if(!rs.length) return;
