@@ -856,11 +856,21 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .rchips{display:flex;gap:8px;padding:0 2px 6px;overflow-x:auto;scrollbar-width:none}
 .rchips button{flex:none;height:38px;min-height:38px;padding:0 16px;border-radius:19px;background:var(--card);color:var(--t2);font-size:14.5px;font-weight:600}
 .rchips button.on{background:var(--t1);color:var(--card);font-weight:700}
-/* 티샷 방향 카드 안 기간 고르기 (옆으로 넘김) */
-.tchips{display:flex;gap:6px;margin:10px -2px 12px;padding:0 2px;overflow-x:auto;scrollbar-width:none}
-.tchips::-webkit-scrollbar{display:none}
-.tchips button{flex:none;height:44px;min-height:44px;padding:0 14px;border-radius:22px;background:var(--fill);color:var(--t3);font-size:14px;font-weight:600}
-.tchips button.on{background:var(--t1);color:var(--card);font-weight:700}
+/* 분석 기간: 최근▾ · 시즌▾ · 전체. 스크롤해도 위에 붙어 있고, 고르면 아래 분석이 모두 그 기간으로 */
+.rbar{position:sticky;top:0;z-index:8;background:var(--bg);margin:-6px -16px -6px;padding:6px 16px 10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rbar>button{height:44px;min-height:44px;border-radius:22px;padding:0 10px;background:var(--card);color:var(--t2);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;min-width:0}
+.rbar>button span{overflow:hidden;text-overflow:ellipsis}
+.rbar>button svg{flex:none;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+.rbar>button.on{background:var(--t1);color:var(--card);font-weight:700}
+.rbar>button.open svg{transform:rotate(180deg)}
+.rmenu{position:absolute;top:54px;min-width:170px;background:var(--card);border-radius:18px;padding:6px;box-shadow:0 12px 32px rgba(0,0,0,.18),0 0 0 1px var(--line);display:flex;flex-direction:column;transform-origin:top center;animation:rmIn .16s ease-out}
+.rmenu button{height:44px;min-height:44px;border-radius:12px;padding:0 12px;background:transparent;color:var(--t1);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}
+.rmenu button small{color:var(--t4);font-size:13px;font-weight:500}
+.rmenu button.on{background:var(--fill)}
+.rmenu button.on::after{content:"";width:16px;height:16px;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+.rmenu button span{display:flex;align-items:baseline;gap:8px}
+@keyframes rmIn{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rmenu{animation:none}.rbar>button svg{transition:none}}
 #insBox{display:flex;flex-direction:column;gap:12px}
 .ic{display:flex;flex-direction:column;gap:4px}
 .ic small.lab{font-size:14.5px;color:var(--t3);font-weight:600}
@@ -1210,8 +1220,11 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
   <!-- STATS (분석) -->
   <section class="screen" id="scrStats" hidden>
     <div class="phead"><img src="images/insights-header-bunker.jpg" alt="" onerror="this.remove()"><div><h1>분석</h1></div></div>
-    <div class="rchips" id="rangeSeg" role="group" aria-label="기간">
-      <button data-r="5" class="on">최근 5라운드</button><button data-r="10">10라운드</button><button data-r="y" id="yearChip">올해</button><button data-r="0">전체</button>
+    <div class="rbar" id="rangeBar" role="group" aria-label="분석 기간">
+      <button data-k="recent" aria-haspopup="menu"><span id="rRecent">최근 5라운드</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <button data-k="season" aria-haspopup="menu"><span id="rSeason">시즌</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <button data-k="all"><span>전체</span></button>
+      <div class="rmenu" id="rangeMenu" role="menu" hidden></div>
     </div>
     <div id="insBox"></div>
     <section class="panel wcard" id="wxPanel" hidden></section>
@@ -1859,8 +1872,38 @@ function setYearOpen(open){
 }
 $("yearBtn").onclick=()=>setYearOpen($("yearPanel").hidden);
 $("yearClose").onclick=()=>setYearOpen(false);
-$("rangeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;range=b.dataset.r==="y"?"y":+b.dataset.r;
-  [...$("rangeSeg").children].forEach(x=>x.classList.toggle("on",x===b));renderStats()};
+/* 분석 기간 막대: range = 5 | 10 (최근 N라운드) · "2026" (그 해 시즌) · 0 (전체). 고른 값은 이 기기에만 기억 */
+let recentN=5, seasonY=null;
+try{ const v=JSON.parse(localStorage.getItem("gsb.statRange")||"null"); if(v){ recentN=v.n===10?10:5; seasonY=v.y||null; range=v.k==="season"&&v.y?String(v.y):v.k==="all"?0:recentN } }catch(e){}
+const seasonYears=()=>{ const y=[...new Set(statRounds().map(r=>r.date.slice(0,4)))].sort().reverse(); return y.length?y:[String(new Date().getFullYear())] };
+function setRange(k,v){
+  if(k==="recent"){ recentN=v; range=v } else if(k==="season"){ seasonY=v; range=v } else range=0;
+  try{ localStorage.setItem("gsb.statRange",JSON.stringify({k,n:recentN,y:seasonY})) }catch(e){}
+  closeRangeMenu(); renderStats();
+}
+function paintRangeBar(){
+  const ys=seasonYears(); if(!seasonY||!ys.includes(seasonY)) seasonY=ys[0];
+  if(typeof range==="string"&&!ys.includes(range)) range=seasonY;
+  const k=typeof range==="string"?"season":range?"recent":"all";
+  $("rRecent").textContent=`최근 ${recentN}라운드`; $("rSeason").textContent=`${seasonY} 시즌`;
+  [...$("rangeBar").querySelectorAll(":scope>button")].forEach(b=>{const on=b.dataset.k===k; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on)});
+}
+function closeRangeMenu(){ $("rangeMenu").hidden=true; $("rangeBar").querySelectorAll(".open").forEach(b=>{b.classList.remove("open");b.setAttribute("aria-expanded","false")}) }
+$("rangeBar").onclick=e=>{
+  const it=e.target.closest(".rmenu [data-v]"); if(it){ const k=it.dataset.k; setRange(k,k==="recent"?+it.dataset.v:it.dataset.v); return }
+  const b=e.target.closest("#rangeBar>button"); if(!b) return;
+  if(b.dataset.k==="all"){ setRange("all"); return }
+  const m=$("rangeMenu"), wasOpen=b.classList.contains("open"); closeRangeMenu(); if(wasOpen) return;
+  const all=statRounds(), cnt=y=>all.filter(r=>r.date.startsWith(y)).length;
+  const items=b.dataset.k==="recent"?[5,10].map(n=>[n,`최근 ${n}라운드`,"",range===n])
+    :seasonYears().map(y=>[y,`${y} 시즌`,`${cnt(y)}라운드`,range===y]);
+  m.innerHTML=items.map(([v,t,sub,on])=>`<button role="menuitemradio" aria-checked="${on}" data-k="${b.dataset.k}" data-v="${v}" class="${on?"on":""}"><span>${t}${sub?`<small>${sub}</small>`:""}</span></button>`).join("");
+  // 메뉴를 누른 버튼 아래에 맞춤 (화면 밖으로 나가지 않게)
+  const bar=$("rangeBar").getBoundingClientRect(), r=b.getBoundingClientRect(), w=Math.max(170,r.width);
+  m.style.left=Math.min(Math.max(r.left-bar.left,16),bar.width-16-w)+"px"; m.style.width=w+"px";
+  m.hidden=false; b.classList.add("open"); b.setAttribute("aria-expanded","true");
+};
+document.addEventListener("click",e=>{ if(!$("rangeMenu").hidden&&!e.target.closest("#rangeBar")) closeRangeMenu() },true);
 
 // 홈 머리글: 진행 중이면 "● 라운드 진행 중 · 골프장", 아니면 인사
 function homeHead(){
@@ -1993,10 +2036,10 @@ $("tabBar").onclick=e=>{const t=e.target.closest("[data-tab]"); if(!t) return; c
 };
 $("menuBtn").onclick=()=>{$("moreMsg").textContent="";show("More")};
 
-const inRange=(all,rg)=>rg==="y"?all.filter(r=>r.date.startsWith(String(new Date().getFullYear()))):rg?all.slice(0,rg):all;
+const inRange=(all,rg)=>typeof rg==="string"?all.filter(r=>r.date.startsWith(rg)):rg?all.slice(0,rg):all;
 function renderStats(){
   const all=statRounds(), rs = inRange(all,range);
-  $("yearChip").textContent=`${new Date().getFullYear()}년`;
+  paintRangeBar(); closeRangeMenu();
   renderInsights(all,rs);
   const full=rs.filter(hasDetail);
   if(!$("yearPanel").hidden) renderYearly();
@@ -2011,7 +2054,7 @@ function renderStats(){
 }
 /* ---------- 분석 화면 카드 (HANDOFF 4-5, 5장): 모두 저장된 라운드로 계산 ---------- */
 function renderInsights(all,rs){
-  const box=$("insBox"), sc=r=>scoreOf(r).tot, rgLab=range==="y"?`${new Date().getFullYear()}년`:range?`최근 ${rs.length}라운드`:`전체 ${rs.length}라운드`;
+  const box=$("insBox"), sc=r=>scoreOf(r).tot, rgLab=typeof range==="string"?`${range} 시즌`:range?`최근 ${rs.length}라운드`:`전체 ${rs.length}라운드`;
   if(!rs.length){ box.innerHTML=`<section class="panel"><p class="note" style="margin:0">${all.length?"이 기간에 기록한 18홀 라운드가 없어요. 다른 기간을 골라 보세요.":"18홀 라운드를 기록하면 평균 스코어와 추세, 숫자 요약, 티샷 방향, 타를 잃는 곳이 여기에 정리됩니다. 9홀 라운드는 통계에 들어가지 않아요."}</p></section>`; return }
   // 직전 같은 길이 구간 (올해는 작년 같은 기간 대신 바로 앞 같은 개수)
   const idx=all.indexOf(rs[rs.length-1]), prev=range===0?[]:all.slice(idx+1,idx+1+rs.length);
@@ -2054,10 +2097,18 @@ function renderInsights(all,rs){
     cards.push(`<section class="sstack" aria-label="평균 스코어와 숫자 요약 (옆으로 넘기기)"><div class="sscroll" id="sscroll">
       <div class="panel ic sslide" aria-label="1/2 평균 스코어">${graph}</div><div class="panel sslide sstats" aria-label="2/2 숫자 요약">${stats}</div></div>
       <div class="sdots" id="sdots"><i class="on"></i><i></i></div></section>`) }
-  // 3) 티샷 방향 + 구질 분포 + 변화 한 줄 — 위 기간 선택과 따로, 카드 안에서 기간을 고른다 (renderTee)
-  if(all.some(hasDetail)) cards.push(`<section class="panel ic" id="teeDir"></section>`);
+  // 3) 티샷 방향 + 구질 분포 + 변화 한 줄
+  const det=rs.filter(hasDetail);
+  if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
+    const sent=!t.length?"파4·5 티샷 기록이 없어요":L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
+    const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(h=>h.fw==="H").length/a.length*100)+"%":"–"};
+    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
+    const pdet=prev.filter(hasDetail), slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
+    const s0=slp(pdet), s1=slp(det);
+    cards.push(`<section class="panel ic"><small class="lab">티샷 방향 · 좌타 기준</small><div class="ttl">${sent}</div>
+      ${teeShotView(pc(L),pc(H),pc(R),sh)}
+      ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
   box.innerHTML=cards.join("");
-  if($("teeDir")) renderTee(all);
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
   const sc2=$("sscroll"); if(sc2){ const dots=[...$("sdots").children];
     // 보고 있는 카드 높이에 맞춤 — 짧은 그래프 카드 아래에 빈 공간이 남지 않게
@@ -2065,34 +2116,6 @@ function renderInsights(all,rs){
     sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd(); }
 }
 let statSlide=0;
-/* 티샷 방향 카드의 기간: "10"(최근 10라운드) · "2026" 같은 연도 · "0"(전체). 기기에만 기억 */
-let teeRange="10"; try{ teeRange=localStorage.getItem("gsb.teeRange")||"10" }catch(e){}
-function renderTee(all){
-  const box=$("teeDir"), det=all.filter(hasDetail), years=[...new Set(det.map(r=>r.date.slice(0,4)))].sort().reverse();
-  if(teeRange!=="10"&&teeRange!=="0"&&!years.includes(teeRange)) teeRange="10";
-  const opts=[["10","최근 10라운드"],...years.map(y=>[y,`${y}년`]),["0","전체"]];
-  // 고른 기간 / 비교할 직전 기간 (최근 10 → 그 앞 10라운드, 연도 → 전년도, 전체 → 비교 없음)
-  let cur, prev;
-  if(teeRange==="10"){ cur=det.slice(0,10); prev=det.slice(10,20) }
-  else if(teeRange==="0"){ cur=det; prev=[] }
-  else { cur=det.filter(r=>r.date.startsWith(teeRange)); prev=det.filter(r=>r.date.startsWith(String(+teeRange-1))) }
-  const chips=`<div class="tchips" role="group" aria-label="티샷 방향 기간">${opts.map(([k,n])=>`<button data-t="${k}" class="${k===teeRange?"on":""}" aria-pressed="${k===teeRange}">${n}</button>`).join("")}</div>`;
-  const hs=cur.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
-  let body;
-  if(!t.length) body=`<div class="ttl">파4·5 티샷 기록이 없어요</div><p class="note" style="margin:0">다른 기간을 골라 보세요.</p>`;
-  else {
-    const sent=L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
-    const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(h=>h.fw==="H").length/a.length*100)+"%":"–"};
-    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
-    const slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
-    const s0=slp(prev), s1=slp(cur), pl=teeRange==="10"?"이전 10라운드보다":`${+teeRange-1}년보다`;
-    body=`<div class="ttl">${sent}</div>
-      ${teeShotView(pc(L),pc(H),pc(R),sh)}
-      ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>${pl} 슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}`;
-  }
-  box.innerHTML=`<small class="lab">티샷 방향 · 좌타 기준${t.length?` · ${cur.length}라운드`:""}</small>${chips}${body}`;
-  box.querySelector(".tchips").onclick=e=>{const b=e.target.closest("[data-t]"); if(!b||b.dataset.t===teeRange) return; teeRange=b.dataset.t; try{localStorage.setItem("gsb.teeRange",teeRange)}catch(_){} renderTee(all)};
-}
 /* 연도별 집계: 위 '최근 5/10/전체' 선택과 상관없이 모든 연도. 9홀 라운드는 제외(따로 개수만 표시). */
 function renderYearly(){
   const box=$("yearBox"), all=doneRounds();
@@ -2597,13 +2620,13 @@ async function fillWeather(force){
 }
 // 분석: 날씨별 스코어 (전체 기록 기준 — 날씨가 붙은 18홀 라운드)
 function renderWxStats(){
-  const box=$("wxPanel"), rs=statRounds().filter(r=>r.weather&&scoreOf(r).tot!=null);
+  const box=$("wxPanel"), rs=inRange(statRounds(),range).filter(r=>r.weather&&scoreOf(r).tot!=null);
   if(!rounds.some(r=>clubXY(r.club))){ box.hidden=true; return }
   box.hidden=false;
   const left=wxNeed().length, er=wxErrGet();
   const st=wxFilling?"그날 날씨를 받는 중이에요…":er?`날씨를 받지 못했어요 (${esc(er.m)})`:left?`날씨를 아직 못 받은 라운드 ${left}개`:"";
   const retry=left&&!wxFilling?`<button class="linkbtn acc" id="wxRetry" style="padding-left:0">다시 받기</button>`:"";
-  if(rs.length<3){ box.innerHTML=`<h2>날씨별 스코어</h2><p class="note" style="margin:0">날씨가 붙은 18홀 라운드가 3개 이상이면 보여요 (지금 ${rs.length}개). 위치를 아는 골프장만 들어가요.</p>${st?`<p class="note" style="margin:8px 0 0">${st}</p>`:""}${retry}`;
+  if(rs.length<3){ box.innerHTML=`<h2>날씨별 스코어</h2><p class="note" style="margin:0">이 기간에 날씨가 붙은 18홀 라운드가 3개 이상이면 보여요 (지금 ${rs.length}개). 위치를 아는 골프장만 들어가요.</p>${st?`<p class="note" style="margin:8px 0 0">${st}</p>`:""}${retry}`;
     if($("wxRetry")) $("wxRetry").onclick=()=>{ wxErrSet(null); fillWeather(true); renderWxStats() }; return }
   const sc=r=>scoreOf(r).tot, all=avgOf(rs.map(sc));
   const G=[["기온"],["cold","추움","5° 이하",r=>r.weather.t<=5,"temp","추위에","추운 날"],["cool","쌀쌀","5–15°",r=>r.weather.t>5&&r.weather.t<15,"temp","쌀쌀한 날에","쌀쌀한 날"],
@@ -2620,7 +2643,7 @@ function renderWxStats(){
   html=html.replace(/<div class="wsec">[^<]*<\/div>(?=<div class="wsec">|$)/g,"");
   const ins=worst&&worst.d>=1?`${worst.g[5]} 가장 약해요 — ${worst.g[6]} 평균 <b>+${worst.d.toFixed(1)}타</b>`:"날씨를 크게 타지 않아요 — 어느 날씨든 평균과 1타 안쪽";
   box.innerHTML=`<h2>날씨별 스코어 <small>내 평균 ${all.toFixed(1)} · ${rs.length}라운드</small></h2>${html}
-    <p class="wins">${ins}</p><p class="note" style="margin:8px 0 0">티오프부터 5시간 날씨 기준 (시각을 모르면 오전 7시) · 위치를 아는 골프장만 · 전체 기록 · Open-Meteo</p>${st?`<p class="note" style="margin:6px 0 0">${st}</p>`:""}${retry}`;
+    <p class="wins">${ins}</p><p class="note" style="margin:8px 0 0">티오프부터 5시간 날씨 기준 (시각을 모르면 오전 7시) · 위치를 아는 골프장만 · 고른 기간 · Open-Meteo</p>${st?`<p class="note" style="margin:6px 0 0">${st}</p>`:""}${retry}`;
   if($("wxRetry")) $("wxRetry").onclick=()=>{ wxErrSet(null); fillWeather(true); renderWxStats() };
 }
 
@@ -3872,7 +3895,7 @@ function renderLoss(full){
 }
 // 구질 추이: 구질을 기록한 최근 10라운드의 슬라이스·훅·스트레이트+드로우 비율 (스윙 교정 효과 확인용)
 function renderShapeTrend(){
-  const box=$("shapeTrend"), rs=statRounds().filter(r=>hasDetail(r)&&touchedShape(r)).slice(0,10).reverse();
+  const box=$("shapeTrend"), rs=inRange(statRounds(),range).filter(r=>hasDetail(r)&&touchedShape(r)).slice(0,30).reverse();
   if(rs.length<2){ box.innerHTML=`<p class="note" style="margin:0">티샷 구질을 기록한 라운드가 2개 이상이면 라운드별 구질 비율 변화가 그려집니다.</p>`; return }
   const S=[["str","스트레이트+드로우","var(--s1)",h=>h.shape==="straight"||h.shape==="draw"],["slice","슬라이스","var(--s2)",h=>h.shape==="slice"],["hook","훅","var(--s3)",h=>h.shape==="hook"]];
   const val=rs.map(r=>S.map(s=>Math.round(r.holes.filter(s[3]).length/r.holes.length*100)));
