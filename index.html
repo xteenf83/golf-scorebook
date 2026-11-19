@@ -856,6 +856,11 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .rchips{display:flex;gap:8px;padding:0 2px 6px;overflow-x:auto;scrollbar-width:none}
 .rchips button{flex:none;height:38px;min-height:38px;padding:0 16px;border-radius:19px;background:var(--card);color:var(--t2);font-size:14.5px;font-weight:600}
 .rchips button.on{background:var(--t1);color:var(--card);font-weight:700}
+/* 티샷 방향 카드 안 기간 고르기 (옆으로 넘김) */
+.tchips{display:flex;gap:6px;margin:10px -2px 12px;padding:0 2px;overflow-x:auto;scrollbar-width:none}
+.tchips::-webkit-scrollbar{display:none}
+.tchips button{flex:none;height:44px;min-height:44px;padding:0 14px;border-radius:22px;background:var(--fill);color:var(--t3);font-size:14px;font-weight:600}
+.tchips button.on{background:var(--t1);color:var(--card);font-weight:700}
 #insBox{display:flex;flex-direction:column;gap:12px}
 .ic{display:flex;flex-direction:column;gap:4px}
 .ic small.lab{font-size:14.5px;color:var(--t3);font-weight:600}
@@ -2049,18 +2054,10 @@ function renderInsights(all,rs){
     cards.push(`<section class="sstack" aria-label="평균 스코어와 숫자 요약 (옆으로 넘기기)"><div class="sscroll" id="sscroll">
       <div class="panel ic sslide" aria-label="1/2 평균 스코어">${graph}</div><div class="panel sslide sstats" aria-label="2/2 숫자 요약">${stats}</div></div>
       <div class="sdots" id="sdots"><i class="on"></i><i></i></div></section>`) }
-  // 3) 티샷 방향 + 구질 분포 + 변화 한 줄
-  const det=rs.filter(hasDetail);
-  if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
-    const sent=!t.length?"파4·5 티샷 기록이 없어요":L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
-    const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(h=>h.fw==="H").length/a.length*100)+"%":"–"};
-    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
-    const pdet=prev.filter(hasDetail), slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
-    const s0=slp(pdet), s1=slp(det);
-    cards.push(`<section class="panel ic"><small class="lab">티샷 방향 · 좌타 기준</small><div class="ttl">${sent}</div>
-      ${teeShotView(pc(L),pc(H),pc(R),sh)}
-      ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
+  // 3) 티샷 방향 + 구질 분포 + 변화 한 줄 — 위 기간 선택과 따로, 카드 안에서 기간을 고른다 (renderTee)
+  if(all.some(hasDetail)) cards.push(`<section class="panel ic" id="teeDir"></section>`);
   box.innerHTML=cards.join("");
+  if($("teeDir")) renderTee(all);
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
   const sc2=$("sscroll"); if(sc2){ const dots=[...$("sdots").children];
     // 보고 있는 카드 높이에 맞춤 — 짧은 그래프 카드 아래에 빈 공간이 남지 않게
@@ -2068,6 +2065,34 @@ function renderInsights(all,rs){
     sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd(); }
 }
 let statSlide=0;
+/* 티샷 방향 카드의 기간: "10"(최근 10라운드) · "2026" 같은 연도 · "0"(전체). 기기에만 기억 */
+let teeRange="10"; try{ teeRange=localStorage.getItem("gsb.teeRange")||"10" }catch(e){}
+function renderTee(all){
+  const box=$("teeDir"), det=all.filter(hasDetail), years=[...new Set(det.map(r=>r.date.slice(0,4)))].sort().reverse();
+  if(teeRange!=="10"&&teeRange!=="0"&&!years.includes(teeRange)) teeRange="10";
+  const opts=[["10","최근 10라운드"],...years.map(y=>[y,`${y}년`]),["0","전체"]];
+  // 고른 기간 / 비교할 직전 기간 (최근 10 → 그 앞 10라운드, 연도 → 전년도, 전체 → 비교 없음)
+  let cur, prev;
+  if(teeRange==="10"){ cur=det.slice(0,10); prev=det.slice(10,20) }
+  else if(teeRange==="0"){ cur=det; prev=[] }
+  else { cur=det.filter(r=>r.date.startsWith(teeRange)); prev=det.filter(r=>r.date.startsWith(String(+teeRange-1))) }
+  const chips=`<div class="tchips" role="group" aria-label="티샷 방향 기간">${opts.map(([k,n])=>`<button data-t="${k}" class="${k===teeRange?"on":""}" aria-pressed="${k===teeRange}">${n}</button>`).join("")}</div>`;
+  const hs=cur.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
+  let body;
+  if(!t.length) body=`<div class="ttl">파4·5 티샷 기록이 없어요</div><p class="note" style="margin:0">다른 기간을 골라 보세요.</p>`;
+  else {
+    const sent=L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
+    const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(h=>h.fw==="H").length/a.length*100)+"%":"–"};
+    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
+    const slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
+    const s0=slp(prev), s1=slp(cur), pl=teeRange==="10"?"이전 10라운드보다":`${+teeRange-1}년보다`;
+    body=`<div class="ttl">${sent}</div>
+      ${teeShotView(pc(L),pc(H),pc(R),sh)}
+      ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>${pl} 슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}`;
+  }
+  box.innerHTML=`<small class="lab">티샷 방향 · 좌타 기준${t.length?` · ${cur.length}라운드`:""}</small>${chips}${body}`;
+  box.querySelector(".tchips").onclick=e=>{const b=e.target.closest("[data-t]"); if(!b||b.dataset.t===teeRange) return; teeRange=b.dataset.t; try{localStorage.setItem("gsb.teeRange",teeRange)}catch(_){} renderTee(all)};
+}
 /* 연도별 집계: 위 '최근 5/10/전체' 선택과 상관없이 모든 연도. 9홀 라운드는 제외(따로 개수만 표시). */
 function renderYearly(){
   const box=$("yearBox"), all=doneRounds();
