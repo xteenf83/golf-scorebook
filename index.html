@@ -1443,7 +1443,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 17;
-const APP_VERSION = "v104";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v105";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -3278,6 +3278,8 @@ function renderVisitMap(){
     <svg viewBox="19 1.5 62 ${f(108.5-JEJU_UP-1.5)}" role="img" aria-label="가 본 골프장 지도: ${seen.length}곳">${provs}${dots}</svg>`;
 }
 const parSum=c=>c.pars.reduce((a,b)=>a+b,0);
+// 파 합계가 36이 아니면 "확인 필요". 단, 기본 코스(스코어카드로 확인한 값)와 홀별 파가 같으면 35·37이어도 정상
+const parOdd=c=>parSum(c)!==36&&!DEFAULT_COURSES.some(d=>d.club===c.club&&d.name===c.name&&d.pars.join()===c.pars.join());
 function renderCourses(){
   fillClubList();
   const cs=clubSel?courses.filter(c=>c.club===clubSel):[];
@@ -3290,7 +3292,7 @@ function renderCourses(){
   const all=clubs().sort((a,b)=>a.localeCompare(b,"ko"));
   const ks=q?all.filter(k=>norm(k).includes(q)):all;
   if(q&&all.length&&!ks.length){ $("courseList").innerHTML=`<div class="empty"><b>검색 결과가 없습니다</b>다른 이름으로 찾아보거나 아래에서 직접 추가하세요.</div>`; return }
-  $("courseList").innerHTML = ks.length ? ks.map(k=>{const list=courses.filter(c=>c.club===k), warn=list.some(c=>parSum(c)!==36);
+  $("courseList").innerHTML = ks.length ? ks.map(k=>{const list=courses.filter(c=>c.club===k), warn=list.some(parOdd);
     return `<button class="crow" data-club="${esc(k)}"><span class="nm"><b>${esc(k)}</b></span>
       <span class="rt ${warn?"warn":""}">${list.length}개 코스${warn?" · 확인 필요":""}<span class="chev">›</span></span></button>`}).join("")
     : `<div class="empty"><b>등록된 골프장이 없습니다</b>아래에서 추가하거나 Claude에게 골프장 이름을 알려주세요.</div>`;
@@ -3306,7 +3308,7 @@ function renderClubDetail(cs){
   $("cdClub").textContent=clubSel;
   $("cdCourses").innerHTML=cs.sort((a,b)=>a.name.localeCompare(b.name,"ko")).map(c=>{
     const ed=parEdit&&parEdit.cid===c.id, ps=ed?parEdit.pars:c.pars, t=ps.reduce((a,b)=>a+b,0);
-    return `<div class="course ${ed?"editing":""}"><div class="chead"><span class="cname ${t!==36?"warn":""}">${esc(c.name)} · 파${t}${t!==36?" ⚠ 36이 아님":""}${c.unverified?' <span class="tag">확인 필요</span>':''}</span>
+    return `<div class="course ${ed?"editing":""}"><div class="chead"><span class="cname ${parOdd(c)?"warn":""}">${esc(c.name)} · 파${t}${parOdd(c)?" ⚠ 36이 아님":""}${c.unverified?' <span class="tag">확인 필요</span>':''}</span>
       ${ed?`<span class="row"><button class="ghost" data-act="cancel">취소</button><button class="primary" data-act="save" data-cid="${c.id}">저장</button></span>`
           :`<button class="ghost" data-act="edit" data-cid="${c.id}" ${parEdit?"disabled":""}>수정</button>`}</div>
       <div class="pars ${ed?"":"locked"}" data-cid="${c.id}">${ps.map((p,i)=>`<button class="p${p}" data-i="${i}" ${ed?"":"disabled"} aria-label="${i+1}번 홀 파${p}"><small>${i+1}</small>${p}</button>`).join("")}</div>
