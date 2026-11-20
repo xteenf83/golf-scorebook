@@ -41,6 +41,9 @@
   --gold:#FFC800; --gold-num:#F5C451; --gold-soft:#FFF6D6; --gold-text:#B38600;
   --notice-bg:#EEEBFF; --notice-bg2:#F3F1FF; --notice-text:#5B4FD6; --notice-icon:#6E5BFF;
   --tab:rgba(255,255,255,.96); --tab-shadow:0 8px 28px rgba(0,0,0,.10),0 0 0 .5px rgba(0,0,0,.05);
+  --glass:rgba(255,255,255,.52); --glass-on:rgba(25,31,40,.86); --glass-ink-on:#fff; --glass-pill:rgba(0,0,0,.06);
+  --glass-edge:inset 0 1px 0 rgba(255,255,255,.85),inset 0 0 0 .5px rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.04);
+  --glass-shadow:0 8px 28px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.06);
   --knob:#FFFFFF; --knob-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04);
   --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo",sans-serif;
   --paper:var(--card); --ink:var(--t1); --muted:var(--t3); --accent:var(--brand); --accent-ink:#FFFFFF; --accent-soft:var(--brand-soft);
@@ -58,6 +61,9 @@
   --gold-soft:rgba(245,196,81,.16); --gold-text:#F5C451;
   --notice-bg:rgba(124,108,255,.16); --notice-bg2:rgba(124,108,255,.16); --notice-text:#B8AEFF; --notice-icon:#9A8CFF;
   --tab:rgba(36,36,42,.94); --tab-shadow:0 8px 28px rgba(0,0,0,.5),0 0 0 .5px rgba(255,255,255,.06);
+  --glass:rgba(44,44,52,.48); --glass-on:rgba(255,255,255,.88); --glass-ink-on:#111; --glass-pill:rgba(255,255,255,.12);
+  --glass-edge:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 0 .5px rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.2);
+  --glass-shadow:0 8px 28px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.3);
   --knob:#3A3A42; --knob-shadow:0 1px 3px rgba(0,0,0,.4);
   --hero1:#1d5a3d; --hero2:#0f2e1f; color-scheme:dark}}
 :root[data-theme="dark"]{
@@ -70,6 +76,9 @@
   --gold-soft:rgba(245,196,81,.16); --gold-text:#F5C451;
   --notice-bg:rgba(124,108,255,.16); --notice-bg2:rgba(124,108,255,.16); --notice-text:#B8AEFF; --notice-icon:#9A8CFF;
   --tab:rgba(36,36,42,.94); --tab-shadow:0 8px 28px rgba(0,0,0,.5),0 0 0 .5px rgba(255,255,255,.06);
+  --glass:rgba(44,44,52,.48); --glass-on:rgba(255,255,255,.88); --glass-ink-on:#111; --glass-pill:rgba(255,255,255,.12);
+  --glass-edge:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 0 .5px rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.2);
+  --glass-shadow:0 8px 28px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.3);
   --knob:#3A3A42; --knob-shadow:0 1px 3px rgba(0,0,0,.4);
   --hero1:#1d5a3d; --hero2:#0f2e1f; color-scheme:dark}
 *{box-sizing:border-box}
@@ -512,15 +521,15 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 .tabbar{position:fixed;left:12px;right:12px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:10;pointer-events:none}
 @media (display-mode:standalone){.tabbar{bottom:max(14px, env(safe-area-inset-bottom,0px))}}
 .tabbar .in{max-width:536px;margin:0 auto;display:flex;gap:10px;align-items:center}
-.tabcap{flex:1;height:68px;border-radius:34px;background:var(--tab);box-shadow:var(--tab-shadow);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;pointer-events:auto}
-.tab{border:0;background:none;padding:0;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--t2);border-radius:30px}
+.tabcap{flex:1;height:68px;border-radius:34px;padding:0 4px;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;pointer-events:auto}
+.tab{border:0;background:none;padding:0;min-height:60px;height:60px;margin:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--t2);border-radius:30px}
 .tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .tab svg .f{fill:currentColor;stroke:none}
 .tab svg .k{stroke:var(--card);stroke-width:2}
 .tab svg.on,.tab.on svg.off{display:none}
 .tab.on svg.on{display:block}
-.tab.on{color:var(--t1);font-weight:700}
-.fab{flex:none;width:68px;height:68px;border-radius:34px;padding:0;background:var(--brand);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(14,154,90,.35);pointer-events:auto}
+.tab.on{color:var(--t1);font-weight:700;background:var(--glass-pill)}
+.fab{flex:none;width:68px;height:68px;border-radius:34px;padding:0;background:color-mix(in srgb,var(--brand) 82%,transparent);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);color:#fff;display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 0 0 .5px rgba(255,255,255,.3),0 8px 24px rgba(14,154,90,.35);pointer-events:auto}
 .fab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .fab svg path.fill{fill:currentColor;stroke:none}
 
@@ -857,20 +866,20 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .rchips button{flex:none;height:38px;min-height:38px;padding:0 16px;border-radius:19px;background:var(--card);color:var(--t2);font-size:14.5px;font-weight:600}
 .rchips button.on{background:var(--t1);color:var(--card);font-weight:700}
 /* 분석 기간: 최근▾ · 시즌▾ · 전체. 스크롤해도 위에 붙어 있고, 고르면 아래 분석이 모두 그 기간으로 */
-.rbar{position:sticky;top:0;z-index:8;background:var(--bg);margin:-6px -16px -6px;padding:6px 16px 10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.rbar>button{height:44px;min-height:44px;border-radius:22px;padding:0 10px;background:var(--card);color:var(--t2);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;min-width:0}
-.rbar>button span{overflow:hidden;text-overflow:ellipsis}
-.rbar>button svg{flex:none;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
-.rbar>button.on{background:var(--t1);color:var(--card);font-weight:700}
-.rbar>button.open svg{transform:rotate(180deg)}
-.rmenu{position:absolute;top:54px;min-width:170px;background:var(--card);border-radius:18px;padding:6px;box-shadow:0 12px 32px rgba(0,0,0,.18),0 0 0 1px var(--line);display:flex;flex-direction:column;transform-origin:top center;animation:rmIn .16s ease-out}
+.pbar{position:sticky;top:0;z-index:8;margin:-6px -16px -6px;padding:6px 16px 10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pbar>button{height:44px;min-height:44px;border-radius:22px;padding:0 10px;background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow);color:var(--t1);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;min-width:0}
+.pbar>button span{overflow:hidden;text-overflow:ellipsis}
+.pbar>button svg{flex:none;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+.pbar>button.on{background:var(--glass-on);color:var(--glass-ink-on);font-weight:700}
+.pbar>button.open svg{transform:rotate(180deg)}
+.rmenu{position:absolute;top:54px;min-width:170px;background:color-mix(in srgb,var(--card) 80%,transparent);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border-radius:18px;padding:6px;box-shadow:var(--glass-edge),var(--glass-shadow);display:flex;flex-direction:column;transform-origin:top center;animation:rmIn .16s ease-out}
 .rmenu button{height:44px;min-height:44px;border-radius:12px;padding:0 12px;background:transparent;color:var(--t1);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}
 .rmenu button small{color:var(--t4);font-size:13px;font-weight:500}
-.rmenu button.on{background:var(--fill)}
+.rmenu button.on{background:var(--glass-pill)}
 .rmenu button.on::after{content:"";width:16px;height:16px;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
 .rmenu button span{display:flex;align-items:baseline;gap:8px}
 @keyframes rmIn{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.rmenu{animation:none}.rbar>button svg{transition:none}}
+@media (prefers-reduced-motion:reduce){.rmenu{animation:none}.pbar>button svg{transition:none}}
 #insBox{display:flex;flex-direction:column;gap:12px}
 .ic{display:flex;flex-direction:column;gap:4px}
 .ic small.lab{font-size:14.5px;color:var(--t3);font-weight:600}
@@ -1220,7 +1229,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
   <!-- STATS (분석) -->
   <section class="screen" id="scrStats" hidden>
     <div class="phead"><img src="images/insights-header-bunker.jpg" alt="" onerror="this.remove()"><div><h1>분석</h1></div></div>
-    <div class="rbar" id="rangeBar" role="group" aria-label="분석 기간">
+    <div class="pbar" id="rangeBar" role="group" aria-label="분석 기간">
       <button data-k="recent" aria-haspopup="menu"><span id="rRecent">최근 5라운드</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
       <button data-k="season" aria-haspopup="menu"><span id="rSeason">시즌</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
       <button data-k="all"><span>전체</span></button>
