@@ -21,7 +21,7 @@
 | `reference/golf-scorebook-v5.html` | 이전(claude.ai 아티팩트) 버전 원본 |
 
 ## 기본 코스
-`index.html`의 `DEFAULT_COURSES`(현재 71개)가 기본 코스 목록입니다. 앱이 열릴 때 계정에 저장된 `coursesSeedVersion`이 `COURSES_SEED_VERSION`보다 낮으면 한 번 맞춥니다: 같은 골프장+코스명이 있으면 홀별 파(와 `dist`의 티별 거리)만 덮어쓰고, 없으면 새로 만듭니다. 목록을 바꾸면 `COURSES_SEED_VERSION`을 1 올리세요. 더보기 → "기본 코스 다시 맞추기"로 수동 실행도 됩니다.
+`index.html`의 `DEFAULT_COURSES`(현재 78개)가 기본 코스 목록입니다. 앱이 열릴 때 계정에 저장된 `coursesSeedVersion`이 `COURSES_SEED_VERSION`보다 낮으면 한 번 맞춥니다: 같은 골프장+코스명이 있으면 홀별 파(와 `dist`의 티별 거리)만 덮어쓰고, 없으면 새로 만듭니다. 목록을 바꾸면 `COURSES_SEED_VERSION`을 1 올리세요. 더보기 → "기본 코스 다시 맞추기"로 수동 실행도 됩니다.
 
 골프장 위치는 `CLUB_LOC`(시도·시군·좌표)에 있습니다. **기본 코스에 골프장을 추가하면 반드시 여기에도 좌표를 넣으세요** — 내 골프 지도와 날씨(일정 예보·라운드 날씨·날씨별 스코어)가 이 좌표를 씁니다. 좌표가 없는 골프장은 날씨가 숨겨집니다. 해외 골프장은 첫 칸에 나라 이름을 넣습니다(예: `["일본","홋카이도",위도,경도]`). 한국 시·도 이름이 아니면 그 칸을 나라로 보고, 한국 지도 대신 세계 지도에만 찍힙니다. 나라 이름 → ISO 코드·국기 표는 `COUNTRY`에 있고, 없는 나라는 추가합니다. `CLUB_LOC`에 없는 골프장(직접 입력한 이름 등)은 앱이 스스로 찾습니다: 띄어쓰기·CC/GC를 뺀 이름이 `CLUB_LOC`와 같으면 그 좌표, 아니면 Photon(OpenStreetMap) 골프장 검색 첫 결과. 찾은 값은 기기 `localStorage`(`gsb.clubLoc`)에만 저장되고, 못 찾으면 7일 뒤 다시 시도합니다(`fillClubLoc`).
 
