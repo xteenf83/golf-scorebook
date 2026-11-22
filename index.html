@@ -614,6 +614,18 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 .shapes button.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-text)}
 .shapes svg{width:26px;height:30px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .shapes svg circle{fill:currentColor;stroke:none}
+/* 미스샷: 구질 줄 아래 작은 토글 → 토·아래·힐 */
+.shapes.dim button,.seg.dim button{opacity:.45}
+.missrow{display:flex;gap:6px;margin-top:8px;align-items:stretch}
+.mtgl{flex:none;height:44px;min-height:44px;border-radius:14px;padding:0 14px;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.mtgl small{font-size:11.5px;font-weight:500;color:var(--t4)}
+.mtgl.on{border-color:var(--over);color:var(--over);background:transparent}
+.mtgl.on small{display:none}
+.mparts{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0}
+.mparts button{height:44px;min-height:44px;border-radius:14px;padding:0;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14.5px;font-weight:700}
+.mparts button.on{border-color:var(--over);background:color-mix(in srgb,var(--over) 14%,transparent);color:var(--over)}
+.missline{margin:12px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:14px}
+.missline b{color:var(--over)} .missline span{color:var(--t2)} .missline small{flex-basis:100%;color:var(--t4);font-size:12.5px}
 .shapes span{font-size:11.5px;font-weight:600;letter-spacing:-0.04em;white-space:nowrap}
 .chip{font-size:13px;font-weight:700;border-radius:8px;padding:5px 9px;background:var(--fill);color:var(--t3)}
 .chip.on{background:var(--brand-soft);color:var(--brand-text)}
@@ -1315,6 +1327,8 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
         <div class="dirlab"><span>← 공이 간 방향</span><span>좌타 기준</span><span>→</span></div>
         <div class="shapes" id="shapeBtns"></div>
       </div>
+      <div class="missrow"><button type="button" class="mtgl" id="missTgl" aria-expanded="false">미스샷<small>토핑·뱀샷</small></button>
+        <div class="field mparts" data-step="shape" id="missBtns" hidden></div></div>
     </section>
     <section class="panel icard pencard field" data-step="pen">
       <div class="ihead pen-h"><span class="ititle">벌타</span></div>
@@ -1802,7 +1816,13 @@ const $ = id => document.getElementById(id);
 const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5];
 const SCORE_OPTS = [[-2,"이글"],[-1,"버디"],[0,"파"],[1,"보기"],[2,"더블"],[3,"트리플"],[4,"쿼드"],[5,"+5"]];
 const SHAPES = [["hook","훅","↷ 크게 우"],["draw","드로우","↗ 살짝 우"],["straight","스트레이트","↑ 직진"],["fade","페이드","↖ 살짝 좌"],["slice","슬라이스","↶ 크게 좌"],["push","푸시","← 좌로 직진"],["pull","풀","→ 우로 직진"]];
+/* 미스샷(토핑·뱀샷·쪼루 등): 헤드 어디에 맞았는지만 기록. 구질 칸(shape)에 새 값으로 저장 → 저장 형식 그대로.
+   통계: 구질·방향(왼쪽/오른쪽)에서 빼고, 페어웨이 안착률에서는 공이 페어웨이에 멈췄어도 '미스'로 센다 */
+const MISS_SHOTS = [["mtoe","토","토 미스"],["mlow","아래","아래 맞음"],["mheel","힐","힐 미스"]];
+SHAPES.push(...MISS_SHOTS.map(([k,,n])=>[k,n,"미스샷"]));
 const SHAPE_NAME = Object.fromEntries(SHAPES.map(s=>[s[0],s[1]]));
+const isMis=h=>!!h&&MISS_SHOTS.some(m=>m[0]===h.shape);
+const fwHit=h=>h.fw==="H"&&!isMis(h), fwSide=(h,k)=>h.fw===k&&!isMis(h);
 // 홀 화면 구질 버튼: 공이 가는 방향대로 왼쪽→오른쪽 한 줄 (좌타 기준). 가운데 셋은 곧게 가는 공, 바깥은 휘는 공
 // [키, 짧은 이름, 공 궤적(아래 가운데에서 출발)]
 const SHAPE_ROW = [
@@ -1896,7 +1916,7 @@ function roundCalc(r){
   let tot=0,par=0,front=0,back=0,putts=0,three=0,ob=0,hz=0,fwN=0,fwH=0,fwL=0,fwR=0,gir=0;
   hs.forEach((h,i)=>{const c=holeCalc(h);tot+=c.strokes;par+=h.par;if(i<9)front+=c.strokes;else back+=c.strokes;
     putts+=h.putts;if(h.putts>=3)three++;ob+=h.ob||0;hz+=h.hz||0;if(c.gir)gir++;
-    if(h.par>=4&&h.fw){fwN++;if(h.fw==="H")fwH++;if(h.fw==="L")fwL++;if(h.fw==="R")fwR++;}});
+    if(h.par>=4&&h.fw){fwN++;if(fwHit(h))fwH++;if(fwSide(h,"L"))fwL++;if(fwSide(h,"R"))fwR++;}});
   return {tot,par,rel:tot-par,front,back,putts,three,ob,hz,fwN,fwH,fwL,fwR,gir,n:hs.length};
 }
 const isTotal=r=>r.type==="total";
@@ -2173,14 +2193,15 @@ function renderInsights(all,rs){
       <div class="sdots" id="sdots"><i class="on"></i><i></i></div></section>`) }
   // 3) 티샷 방향 + 구질 분포 + 변화 한 줄
   const det=rs.filter(hasDetail);
-  if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length, pc=v=>t.length?Math.round(v/t.length*100):0;
+  if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>fwSide(h,"L")).length, H=t.filter(fwHit).length, R=t.filter(h=>fwSide(h,"R")).length, pc=v=>t.length?Math.round(v/t.length*100):0;
     const sent=!t.length?"파4·5 티샷 기록이 없어요":L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
-    const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(h=>h.fw==="H").length/a.length*100)+"%":"–"};
+    const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(fwHit).length/a.length*100)+"%":"–"};
     const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
     const pdet=prev.filter(hasDetail), slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
     const s0=slp(pdet), s1=slp(det);
     cards.push(`<section class="panel ic"><small class="lab">티샷 방향 · 좌타 기준</small><div class="ttl">${sent}</div>
       ${teeShotView(pc(L),pc(H),pc(R),sh)}
+      ${missLine(hs)}
       ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
   box.innerHTML=cards.join("");
   // 카드 묶음: 넘길 때 아래 점 표시, 보던 카드 기억
@@ -2189,7 +2210,7 @@ function renderInsights(all,rs){
     const upd=()=>{const i=Math.round(sc2.scrollLeft/Math.max(1,sc2.clientWidth)); dots.forEach((d,k)=>d.classList.toggle("on",k===i)); statSlide=i};
     sc2.scrollLeft=statSlide*sc2.clientWidth; sc2.onscroll=upd; upd(); }
 }
-let statSlide=0;
+let statSlide=0, missOpen=-1;   // missOpen: 미스샷 버튼을 펼친 홀 번호
 /* 연도별 집계: 위 '최근 5/10/전체' 선택과 상관없이 모든 연도. 9홀 라운드는 제외(따로 개수만 표시). */
 function renderYearly(){
   const box=$("yearBox"), all=doneRounds();
@@ -2777,7 +2798,13 @@ function renderPlay(){
   $("fwField").hidden=h.par<4;
   $("fwBtns").innerHTML=FW.map(([k,n])=>`<button class="${h.fw===k?"on":""}" data-fw="${k}">${n}</button>`).join("");
   $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="25" r="2.2"/></svg><span>${n}</span></button>`).join("");
-  $("teeSum").textContent=[h.par>=4?(FW.find(f=>f[0]===h.fw)||["",""])[1]:"",(SHAPE_ROW.find(x=>x[0]===h.shape)||["","",""])[1]].filter(Boolean).join(" · ");
+  // 미스샷: 누르면 헤드 맞은 곳(토·아래·힐) 세 버튼이 열림. 미스샷이 기록돼 있으면 열린 채로
+  const mis=isMis(h), mOpen=mis||missOpen===hole;
+  $("shapeBtns").classList.toggle("dim",mis); $("fwBtns").classList.toggle("dim",mis);   // 미스샷이면 페어웨이에 멈춰도 통계는 미스
+  $("missTgl").classList.toggle("on",mOpen); $("missTgl").setAttribute("aria-expanded",mOpen);
+  $("missBtns").hidden=!mOpen;
+  $("missBtns").innerHTML=MISS_SHOTS.map(([k,n,nm])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${nm}">${n}</button>`).join("");
+  $("teeSum").textContent=[h.par>=4?(mis?"미스샷":(FW.find(f=>f[0]===h.fw)||["",""])[1]):"",mis?SHAPE_NAME[h.shape]:(SHAPE_ROW.find(x=>x[0]===h.shape)||["","",""])[1]].filter(Boolean).join(" · ");
   // 벌타
   [["obV",h.ob],["hzV",h.hz]].forEach(([id,v])=>{ $(id).textContent=v||0; $(id).classList.toggle("on",(v||0)>0) });
   // 퍼팅 + 그린 적중 자동 표시
@@ -2849,7 +2876,8 @@ $("scrPlay").addEventListener("click",e=>{
   if(b.dataset.d!==undefined){h.d=+b.dataset.d;clampPutts(h);touch();return}
   if(b.dataset.p!==undefined){h.putts=+b.dataset.p; if(h.par+h.d<h.putts+1) h.d=h.putts+1-h.par; touch();return}
   if(b.dataset.fw){h.fw=b.dataset.fw;touch();return}
-  if(b.dataset.sh){h.shape=b.dataset.sh;touch();return}
+  if(b.id==="missTgl"){ if(isMis(h)){ h.shape="straight"; missOpen=-1; touch(); } else { missOpen=missOpen===hole?-1:hole; renderPlay(); } return }
+  if(b.dataset.sh){h.shape=b.dataset.sh; if(!isMis(h)) missOpen=-1; touch();return}
   if(b.dataset.pen){const k=b.dataset.pen;h[k]=Math.max(0,(h[k]||0)+(+b.dataset.v));touch();return}
 });
 function goNext(){
@@ -3125,7 +3153,7 @@ function flowChart(r){
 }
 // ---- 스코어 탭 ----
 const markCls=d=>d<=-2?"e":d===-1?"b":d===1?"k":d===2?"d":d>=3?"t":"";
-const SHAPE_1={slice:"슬",fade:"페",push:"푸",straight:"직",pull:"풀",draw:"드",hook:"훅"};
+const SHAPE_1={slice:"슬",fade:"페",push:"푸",straight:"직",pull:"풀",draw:"드",hook:"훅",mtoe:"토",mlow:"아",mheel:"힐"};
 function roundScore(r,c){
   const hs=r.holes, N=hs.length, pk=parKnown(r), det=hasDetail(r);
   const nineCard=(a,title)=>{
@@ -3141,8 +3169,8 @@ function roundScore(r,c){
     if(det){
       o+=row("pt","퍼트",h9.map(h=>`<em class="${h.putts>=3?"bad":h.putts<=1?"good":""}">${h.putts}</em>`),h9.reduce((x,h)=>x+h.putts,0));
       const t=h9.filter(h=>h.par>=4&&h.fw);
-      o+=row("fw","티샷",h9.map(h=>h.par<4||!h.fw?`<em class="na">–</em>`:h.fw==="H"?`<em class="hit">●</em>`:`<em class="miss">${h.fw==="L"?"←":"→"}</em>`),`<small>${t.filter(h=>h.fw==="H").length}/${t.length}</small>`);
-      o+=row("sh","구질",h9.map(h=>`<em class="${h.shape==="slice"?"miss":h.shape==="straight"?"hit":""}">${SHAPE_1[h.shape]||""}</em>`),"");
+      o+=row("fw","티샷",h9.map(h=>h.par<4||!h.fw?`<em class="na">–</em>`:isMis(h)?`<em class="miss">✕</em>`:h.fw==="H"?`<em class="hit">●</em>`:`<em class="miss">${h.fw==="L"?"←":"→"}</em>`),`<small>${t.filter(fwHit).length}/${t.length}</small>`);
+      o+=row("sh","구질",h9.map(h=>`<em class="${h.shape==="slice"||isMis(h)?"miss":h.shape==="straight"?"hit":""}">${SHAPE_1[h.shape]||""}</em>`),"");
       o+=row("pn","벌타",h9.map(h=>`<em>${"O".repeat(h.ob||0)}${"H".repeat(h.hz||0)}</em>`),"");
     }
     return o+`</div>`;
@@ -3157,7 +3185,7 @@ function roundScore(r,c){
   // 가장 크게 잃은 홀 3개 (동점은 홀 순서)
   const worst=hs.map((h,i)=>({h,i})).filter(x=>(+x.h.d||0)>0).sort((a,b)=>b.h.d-a.h.d||a.i-b.i).slice(0,3);
   const cause=h=>{ if(!det) return `파 대비 ${relTxt(h.d)}`;
-    const p=[]; if(h.par>=4&&h.fw&&h.fw!=="H") p.push(`티샷 ${h.fw==="L"?"왼쪽":"오른쪽"} 미스${h.shape&&h.shape!=="straight"?`(${SHAPE_NAME[h.shape]})`:""}`);
+    const p=[]; if(isMis(h)) p.push(`티샷 미스샷(${SHAPE_NAME[h.shape]})`); else if(h.par>=4&&h.fw&&h.fw!=="H") p.push(`티샷 ${h.fw==="L"?"왼쪽":"오른쪽"} 미스${h.shape&&h.shape!=="straight"?`(${SHAPE_NAME[h.shape]})`:""}`);
     if(h.ob) p.push(`OB ${h.ob}`); if(h.hz) p.push(`해저드 ${h.hz}`);
     if(h.putts>=3) p.push(`${h.putts}퍼트`); else if(!holeCalc(h).gir) p.push(`그린 미스 · ${h.putts}퍼트`);
     return p.join(" · ")||`${h.putts}퍼트` };
@@ -3167,7 +3195,7 @@ function roundScore(r,c){
 }
 // ---- 샷 탭 (홀별 기록 라운드) ----
 function roundShot(r,c){
-  const hs=r.holes, t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>h.fw==="L").length, H=t.filter(h=>h.fw==="H").length, R=t.filter(h=>h.fw==="R").length;
+  const hs=r.holes, t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>fwSide(h,"L")).length, H=t.filter(fwHit).length, R=t.filter(h=>fwSide(h,"R")).length;
   const head = !t.length?"파4·5 티샷 기록이 없어요" : H>=Math.max(L,R)*2?"페어웨이를 잘 지켰어요" : L>=H&&L>R?"왼쪽 미스가 페어웨이만큼 많았어요" : R>=H&&R>L?"오른쪽 미스가 페어웨이만큼 많았어요"
     : L>R?"미스는 왼쪽으로 더 많이 났어요" : R>L?"미스는 오른쪽으로 더 많이 났어요" : "왼쪽·오른쪽 미스가 비슷했어요";
   const sc=SHAPE_ROW.map(([k,n])=>[k,n,hs.filter(h=>h.shape===k).length]), smax=Math.max(1,...sc.map(x=>x[2]));
@@ -3190,6 +3218,7 @@ function roundShot(r,c){
     <div class="fwgrid pad"><div><b class="miss">${L}</b><span>왼쪽 미스</span></div><div class="mid"><b>${H}</b><span>페어웨이</span></div><div><b>${R}</b><span>오른쪽 미스</span></div></div>
     <div class="shh pad"><b>구질</b><small>← 공이 간 방향 (좌타) →</small></div>
     <div class="sbars pad">${sc.map(([k,nm,v])=>`<div><em class="${k==="straight"?"hit":k==="slice"?"miss":""}">${v}</em><i class="${k==="straight"?"hit":k==="slice"?"miss":""}" style="height:${Math.round(v/smax*68)}px"></i><span>${nm}</span></div>`).join("")}</div>
+    ${missLine(hs)?`<div class="pad">${missLine(hs)}</div>`:""}
     <div class="tipbox pad2">${line}</div>
     <div class="band"></div><h2 class="sec">그린 주변</h2>
     <div class="ptiles pad">${pc[0]?`<div><small>칩인</small><b class="under">${pc[0]}</b></div>`:""}<div><small>1퍼트</small><b class="under">${pc[1]}</b></div><div><small>2퍼트</small><b>${pc[2]}</b></div><div><small>3퍼트+</small><b class="${pc[3]?"bogeyt":""}">${pc[3]}</b></div></div>
@@ -3248,6 +3277,12 @@ function tsTrail([ox,oy],[x,y],k,id,tone){
   const c=TS_TONE[tone];
   return [`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${ox}" y1="${oy}" x2="${x}" y2="${y}"><stop offset="0" stop-color="${c[0]}" stop-opacity="0"/><stop offset=".35" stop-color="${c[0]}" stop-opacity=".55"/><stop offset="1" stop-color="${c[1]}"/></linearGradient>`,
     `<path d="M${poly.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L")}Z" fill="url(#${id})"/>`];
+}
+// 미스샷 요약: 몇 번·몇 %, 헤드 어디에 맞았는지. 없으면 빈 문자열
+function missLine(hs){
+  const m=hs.filter(isMis); if(!m.length) return "";
+  const by=MISS_SHOTS.map(([k,n])=>[n,m.filter(h=>h.shape===k).length]).filter(x=>x[1]);
+  return `<p class="missline"><b>미스샷 ${m.length}번 · ${Math.round(m.length/hs.length*100)}%</b><span>${by.map(([n,c])=>`${n} ${c}`).join(" · ")}</span><small>구질·방향에서 빼고, 페어웨이는 미스로 셌어요</small></p>`;
 }
 function teeShotView(L,H,R,sh){
   const by=Object.fromEntries(sh.map(x=>[x[0],x]));
@@ -3598,7 +3633,7 @@ function scoreRounds(list=rounds){return list.filter(isScoreR).sort(byDate).reve
 const withRound=r=>[...rounds.filter(x=>x.id!==r.id),r];
 // 기본값(2퍼트·적중·스트레이트)을 바꾼 적이 있는 항목인지: "다음 홀"만 눌러 기본값이 그대로 남은 라운드는 그 항목의 배지에서 뺀다
 const touchedPutt=r=>r.holes.some(h=>h.putts!==2&&h.par+h.d>2);   // 2타 이하 홀은 퍼팅 수가 저절로 줄어드니 제외
-const touchedFw=r=>r.holes.some(h=>h.par>=4&&h.fw&&h.fw!=="H");
+const touchedFw=r=>r.holes.some(h=>h.par>=4&&h.fw&&(h.fw!=="H"||isMis(h)));
 const touchedShape=r=>r.holes.some(h=>h.shape&&h.shape!=="straight");
 const touchedAny=r=>touchedPutt(r)||touchedFw(r)||touchedShape(r)||r.holes.some(h=>(h.ob||0)+(h.hz||0)>0);
 const sg1=v=>v==null?"–":(v>0?"+":"")+v.toFixed(1);
@@ -3667,7 +3702,7 @@ function briefFor(r,i){
     const ob=det.filter(h=>(h.ob||0)>0).length, three=det.filter(h=>h.putts>=3).length;
     if(ob) parts.push(`OB ${ob}회/${m}번`);
     if(par>=4){
-      const L=det.filter(h=>h.fw==="L").length, R=det.filter(h=>h.fw==="R").length, side=L>=R?"L":"R", k=Math.max(L,R);
+      const L=det.filter(h=>fwSide(h,"L")).length, R=det.filter(h=>fwSide(h,"R")).length, side=L>=R?"L":"R", k=Math.max(L,R);
       if(k) parts.push(`티샷 ${side==="L"?"좌측":"우측"} 미스 ${k}/${m}`);
       if(k>=2&&k/m>=.5) tip = side==="L" ? "좌측 미스가 잦은 홀: 티를 티박스 왼쪽에 꽂고 페어웨이 오른쪽을 겨냥"
                                          : "우측 미스가 잦은 홀: 티를 티박스 오른쪽에 꽂고 페어웨이 왼쪽을 겨냥";
@@ -3926,7 +3961,7 @@ function missionState(r){
     case "slice": case "hook": return cap(dn.filter(h=>h.shape===m.type).length);
     case "three": return cap(dn.filter(h=>h.putts>=3).length);
     case "dbl": return cap(dn.filter(h=>h.d>=2).length);
-    case "fw": { const t=hs.filter(h=>h.par>=4), a=t.filter(h=>h.done||fin), hit=a.filter(h=>h.fw==="H").length;
+    case "fw": { const t=hs.filter(h=>h.par>=4), a=t.filter(h=>h.done||fin), hit=a.filter(fwHit).length;
       return {txt:a.length?`현재 ${hit}/${a.length} (${Math.round(hit/a.length*100)}%)`:"현재 –",fail:(hit+t.length-a.length)/t.length<.5,ok:hit/t.length>=.5}; }
     case "score": { const s=dn.reduce((a,h)=>a+h.par+h.d,0), rest=hs.filter(h=>!(h.done||fin)).reduce((a,h)=>a+Math.max(1,h.par-1),0);
       return {txt:`현재 ${s}타`,fail:s+rest>m.target,ok:fin&&s<=m.target}; }
@@ -3946,7 +3981,7 @@ function lossCauses(rs){   // rs: 퍼팅까지 기록한 정식 라운드
   const n=rs.length; if(!n) return null;
   const hs=rs.flatMap(r=>r.holes), per=v=>v/n, avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
   // 티샷 미스: 파4·5에서 OB 난 홀은 빼고(OB와 중복 방지) 미스 홀이 적중 홀보다 평균 몇 타 더 나왔는지 × 라운드당 미스 수
-  const t45=hs.filter(h=>h.par>=4&&h.fw&&!((h.ob||0)>0)), miss=t45.filter(h=>h.fw!=="H"), hitH=t45.filter(h=>h.fw==="H");
+  const t45=hs.filter(h=>h.par>=4&&h.fw&&!((h.ob||0)>0)), miss=t45.filter(h=>!fwHit(h)), hitH=t45.filter(fwHit);
   const p3=hs.filter(h=>h.par===3);
   const items=[
     ["ob","OB",per(hs.reduce((a,h)=>a+(h.ob||0)*2,0))],
