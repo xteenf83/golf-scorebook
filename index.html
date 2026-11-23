@@ -636,10 +636,10 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 .shapes svg circle{fill:currentColor;stroke:none}
 /* 미스샷: 구질 줄 아래 작은 토글 → 토·아래·힐 */
 .shapes.dim button,.seg.dim button{opacity:.4;pointer-events:none}
-.startrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) calc((100% - 6px)/4);gap:6px;margin-bottom:10px}
-.startrow.open{grid-template-columns:minmax(0,1fr) calc((100% - 6px)/4)}
+.startrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.startrow .mparts{grid-column:span 3}
 .startrow .mparts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0}
-.startrow button{height:44px;min-height:44px;border-radius:14px;padding:0 6px;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14.5px;font-weight:700;white-space:nowrap}
+.startrow button{height:44px;min-height:44px;border-radius:14px;padding:0 4px;letter-spacing:-0.03em;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14.5px;font-weight:700;white-space:nowrap}
 .startrow .st.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-text)}
 .startrow .mtgl.on{border-color:var(--over);color:var(--over);background:transparent}
 .startrow .part.on{border-color:var(--over);background:color-mix(in srgb,var(--over) 14%,transparent);color:var(--over)}
@@ -2821,13 +2821,13 @@ function renderPlay(){
   const mis=isMis(h), mOpen=mis||missOpen===hole;
   $("shapeBtns").classList.toggle("dim",mOpen); $("fwBtns").classList.toggle("dim",mOpen);   // 미스샷 버튼을 누르면 바로 페어웨이·구질 회색(입력 필요 없음, 통계는 페어웨이 미스)
   // 출발 방향·미스샷 줄: 설정에서 켠 계정만 (꺼져 있어도 이미 기록된 홀은 보여 줌)
-  $("startRow").hidden=!(teeDetailOn()||mis||h.start);
+  $("startRow").hidden=!((teeDetailOn()&&h.par>=4)||mis||h.start);   // 파3은 없음 (이미 기록된 홀은 고칠 수 있게 보임)
   $("startRow").classList.toggle("open",mOpen);
   $("startRow").innerHTML=(mOpen
       ? `<div class="field mparts" data-step="shape">${MISS_SHOTS.map(([k,n,nm])=>`<button class="part ${h.shape===k?"on":""}" data-sh="${k}" aria-label="${nm}">${n}</button>`).join("")}</div>`
-      : [["L","왼쪽 출발"],["R","오른쪽 출발"]].map(([k,n])=>`<button class="st ${h.start===k?"on":""}" data-st="${k}" aria-pressed="${h.start===k}">${n}</button>`).join(""))
+      : [["L","왼쪽 출발"],["C","가운데"],["R","오른쪽 출발"]].map(([k,n])=>`<button class="st ${h.start===k?"on":""}" data-st="${k}" aria-pressed="${h.start===k}">${n}</button>`).join(""))
     +`<button class="mtgl ${mOpen?"on":""}" id="missTgl" aria-expanded="${mOpen}">미스샷</button>`;
-  $("teeSum").textContent=mis?`미스샷 · ${SHAPE_NAME[h.shape]}`:[h.start?(h.start==="L"?"왼쪽 출발":"오른쪽 출발"):"",h.par>=4?(FW.find(f=>f[0]===h.fw)||["",""])[1]:"",(SHAPE_ROW.find(x=>x[0]===h.shape)||["","",""])[1]].filter(Boolean).join(" · ");
+  $("teeSum").textContent=mis?`미스샷 · ${SHAPE_NAME[h.shape]}`:[h.start?{L:"왼쪽 출발",C:"가운데 출발",R:"오른쪽 출발"}[h.start]||"":"",h.par>=4?(FW.find(f=>f[0]===h.fw)||["",""])[1]:"",(SHAPE_ROW.find(x=>x[0]===h.shape)||["","",""])[1]].filter(Boolean).join(" · ");
   // 벌타
   [["obV",h.ob],["hzV",h.hz]].forEach(([id,v])=>{ $(id).textContent=v||0; $(id).classList.toggle("on",(v||0)>0) });
   // 퍼팅 + 그린 적중 자동 표시
@@ -3308,9 +3308,9 @@ function missLine(hs){
 }
 // 출발 방향(기록한 티샷만): 왼쪽·오른쪽 비율 + 그때 페어웨이 안착률
 function startLine(hs){
-  const st=hs.filter(h=>!isMis(h)&&(h.start==="L"||h.start==="R")); if(!st.length) return "";
-  const part=k=>{const a=st.filter(h=>h.start===k), t=a.filter(h=>h.par>=4&&h.fw); return a.length?`${k==="L"?"왼쪽":"오른쪽"} ${Math.round(a.length/st.length*100)}%${t.length?` <i>(페어웨이 ${Math.round(t.filter(fwHit).length/t.length*100)}%)</i>`:""}`:""};
-  return `<p class="missline st"><b>출발 방향 ${st.length}번</b><span>${["L","R"].map(part).filter(Boolean).join(" · ")}</span></p>`;
+  const st=hs.filter(h=>!isMis(h)&&["L","C","R"].includes(h.start)); if(!st.length) return "";
+  const part=k=>{const a=st.filter(h=>h.start===k), t=a.filter(h=>h.par>=4&&h.fw); return a.length?`${{L:"왼쪽",C:"가운데",R:"오른쪽"}[k]} ${Math.round(a.length/st.length*100)}%${t.length?` <i>(페어웨이 ${Math.round(t.filter(fwHit).length/t.length*100)}%)</i>`:""}`:""};
+  return `<p class="missline st"><b>출발 방향 ${st.length}번</b><span>${["L","C","R"].map(part).filter(Boolean).join(" · ")}</span></p>`;
 }
 function missOnly(hs){
   const m=hs.filter(isMis); if(!m.length) return "";
@@ -3582,7 +3582,7 @@ function importRound(x){
       if(num(h.putts)!==null) o.putts=h.putts;
       if(["L","H","R"].includes(h.fw)) o.fw=h.fw;
       if(SHAPE_NAME[h.shape]) o.shape=h.shape;
-      if(h.start==="L"||h.start==="R") o.start=h.start;
+      if(["L","C","R"].includes(h.start)) o.start=h.start;
       if(num(h.ob)!==null) o.ob=h.ob;
       if(num(h.hz)!==null) o.hz=h.hz;
       holes.push(o);
