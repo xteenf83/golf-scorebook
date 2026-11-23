@@ -6,6 +6,26 @@
 <title>나의 골프 스코어북</title>
 <meta name="theme-color" content="#F2F4F6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#101013" media="(prefers-color-scheme: dark)">
+<script>
+/* 상태 표시줄 색: iOS 홈 화면 앱은 라이트·다크가 바뀐 뒤(밤↔아침 자동 전환 등) 앱으로 돌아와도
+   상태 표시줄 칸 색을 다시 읽지 않아, 앱은 다크인데 위 칸만 밝게 남는 일이 있다.
+   → 지금 화면 모드에 맞는 색 하나만 남기고, 모드가 바뀌거나 앱으로 돌아올 때마다 태그를 새로 넣어 다시 읽게 한다 */
+(function(){
+  var mq=matchMedia("(prefers-color-scheme: dark)");
+  function sync(){
+    var c=mq.matches?"#101013":"#F2F4F6", n=document.createElement("meta");
+    n.name="theme-color"; n.content=c;
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.remove()});
+    document.head.appendChild(n);
+    var sb=document.querySelector(".statusbar");   // 위쪽 단색 띠도 다시 붙여 iOS가 색을 다시 보게
+    if(sb){ var at=sb.nextSibling, host=sb.parentNode; sb.remove(); requestAnimationFrame(function(){host.insertBefore(sb,at)}) }
+  }
+  sync();
+  if(mq.addEventListener) mq.addEventListener("change",sync); else if(mq.addListener) mq.addListener(sync);
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") sync() });
+  window.addEventListener("pageshow",sync);
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <!-- default(불투명) 상태바: black-translucent는 iOS 26+ 홈 화면 앱에서 화면 아래가 상태바 높이만큼 비는 WebKit 버그가 있음 -->
