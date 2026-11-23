@@ -542,7 +542,7 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 .tabbar{position:fixed;left:12px;right:12px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:10;pointer-events:none}
 @media (display-mode:standalone){.tabbar{bottom:max(14px, env(safe-area-inset-bottom,0px))}}
 .tabbar .in{max-width:536px;margin:0 auto;display:flex;gap:10px;align-items:center}
-.tabcap{flex:1;height:68px;border-radius:34px;padding:0 4px;background:var(--glass);-webkit-backdrop-filter:blur(6px) saturate(180%);backdrop-filter:blur(6px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;pointer-events:auto}
+.tabcap{flex:1;height:68px;border-radius:34px;padding:0 4px;background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;pointer-events:auto}
 .tab{border:0;background:none;padding:0;min-height:60px;height:60px;margin:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--t2);border-radius:30px}
 .tab svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .tab svg .f{fill:currentColor;stroke:none}
@@ -550,7 +550,7 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 .tab svg.on,.tab.on svg.off{display:none}
 .tab.on svg.on{display:block}
 .tab.on{color:var(--t1);font-weight:700;background:var(--glass-pill)}
-.fab{flex:none;width:68px;height:68px;border-radius:34px;padding:0;background:color-mix(in srgb,var(--brand) 72%,transparent);-webkit-backdrop-filter:blur(6px) saturate(180%);backdrop-filter:blur(6px) saturate(180%);color:#fff;display:grid;place-items:center;box-shadow:inset 0 2px 6px rgba(255,255,255,.4),inset 0 -4px 10px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.1),0 12px 18px rgba(14,154,90,.32);pointer-events:auto}
+.fab{flex:none;width:68px;height:68px;border-radius:34px;padding:0;background:color-mix(in srgb,var(--brand) 72%,transparent);-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);color:#fff;display:grid;place-items:center;box-shadow:inset 0 2px 6px rgba(255,255,255,.4),inset 0 -4px 10px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.1),0 12px 18px rgba(14,154,90,.32);pointer-events:auto}
 .fab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
 .fab svg path.fill{fill:currentColor;stroke:none}
 
@@ -560,7 +560,7 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 .pbar>button.on::before{opacity:.6}
 /* 아래 버튼(홀 입력·라운드 기록): 분석 화면과 같은 유리 */
-.bottomnav .pill,.bottomnav .memobtn{position:relative;-webkit-backdrop-filter:blur(6px) saturate(180%);backdrop-filter:blur(6px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow)}
+.bottomnav .pill,.bottomnav .memobtn{position:relative;-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow)}
 .bottomnav .pill.gray,.bottomnav .memobtn{background:var(--glass);color:var(--t1)}
 .bottomnav .pill.soft{background:var(--glass);color:var(--brand-text)}
 .bottomnav .pill.solid{background:color-mix(in srgb,var(--brand) 72%,transparent);box-shadow:inset 0 2px 6px rgba(255,255,255,.4),inset 0 -4px 10px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.1),0 12px 18px rgba(14,154,90,.32)}
@@ -592,7 +592,7 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 .play{padding-bottom:110px}
 .play.screen{gap:12px}
 .strip{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:6px 18px 12px}   /* 위 6px: 상태 표시줄 아래 단색 띠(6px) 바로 아래에서 시작 → 가리지도, 틈도 없게 */
-.strip button{flex:none;width:40px;height:40px;min-height:0;border-radius:20px;padding:0;font-size:15px;font-weight:700;background:var(--glass);-webkit-backdrop-filter:blur(6px) saturate(180%);backdrop-filter:blur(6px) saturate(180%);box-shadow:var(--glass-edge),0 2px 4px rgba(0,0,0,.08),0 6px 10px rgba(0,0,0,.08);color:var(--t2);position:relative;line-height:40px}
+.strip button{flex:none;width:40px;height:40px;min-height:0;border-radius:20px;padding:0;font-size:15px;font-weight:700;background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);box-shadow:var(--glass-edge),0 2px 4px rgba(0,0,0,.08),0 6px 10px rgba(0,0,0,.08);color:var(--t2);position:relative;line-height:40px}
 .strip button.rp{background:var(--line);color:var(--t2)}
 .strip button.rk{background:var(--bogey-chip);color:var(--bogey-text)}
 .strip button.ru{background:var(--under-soft);color:var(--under)}
@@ -913,7 +913,7 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .rchips button.on{background:var(--t1);color:var(--card);font-weight:700}
 /* 분석 기간: 최근▾ · 시즌▾ · 전체. 스크롤해도 위에 붙어 있고, 고르면 아래 분석이 모두 그 기간으로 */
 .pbar{position:sticky;top:0;z-index:8;margin:-6px -16px -6px;padding:6px 16px 10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.pbar>button{height:44px;min-height:44px;border-radius:22px;padding:0 10px;background:var(--glass);-webkit-backdrop-filter:blur(6px) saturate(180%);backdrop-filter:blur(6px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow);color:var(--t1);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;min-width:0}
+.pbar>button{height:44px;min-height:44px;border-radius:22px;padding:0 10px;background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow);color:var(--t1);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;min-width:0}
 .pbar>button span{overflow:hidden;text-overflow:ellipsis}
 .pbar>button svg{flex:none;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
 .pbar>button.on{background:var(--glass-on);box-shadow:var(--glass-edge),var(--glass-shadow);color:var(--glass-ink-on);font-weight:700}
@@ -1500,7 +1500,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 17;
-const APP_VERSION = "v111";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v112";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
