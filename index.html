@@ -616,8 +616,8 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 .shapes svg circle{fill:currentColor;stroke:none}
 /* 미스샷: 구질 줄 아래 작은 토글 → 토·아래·힐 */
 .shapes.dim button,.seg.dim button{opacity:.4;pointer-events:none}
-.startrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}
-.startrow.open{grid-template-columns:3fr 1fr}
+.startrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) calc((100% - 6px)/4);gap:6px;margin-bottom:10px}
+.startrow.open{grid-template-columns:minmax(0,1fr) calc((100% - 6px)/4)}
 .startrow .mparts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0}
 .startrow button{height:44px;min-height:44px;border-radius:14px;padding:0 6px;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14.5px;font-weight:700;white-space:nowrap}
 .startrow .st.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-text)}
@@ -2799,7 +2799,7 @@ function renderPlay(){
   $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="25" r="2.2"/></svg><span>${n}</span></button>`).join("");
   // 티샷 첫 줄: 왼쪽 출발 · 오른쪽 출발 · 미스샷. 미스샷을 누르면 출발 버튼 자리에 토·아래·힐
   const mis=isMis(h), mOpen=mis||missOpen===hole;
-  $("shapeBtns").classList.toggle("dim",mis); $("fwBtns").classList.toggle("dim",mis);   // 미스샷이면 페어웨이·구질은 회색(입력 필요 없음, 통계는 페어웨이 미스)
+  $("shapeBtns").classList.toggle("dim",mOpen); $("fwBtns").classList.toggle("dim",mOpen);   // 미스샷 버튼을 누르면 바로 페어웨이·구질 회색(입력 필요 없음, 통계는 페어웨이 미스)
   // 출발 방향·미스샷 줄: 설정에서 켠 계정만 (꺼져 있어도 이미 기록된 홀은 보여 줌)
   $("startRow").hidden=!(teeDetailOn()||mis||h.start);
   $("startRow").classList.toggle("open",mOpen);
