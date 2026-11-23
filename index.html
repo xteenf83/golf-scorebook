@@ -1209,6 +1209,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <label class="tgl"><span>고스트 매치<small>같은 코스의 과거 내 기록과 홀마다 대결</small></span><input type="checkbox" data-set="ghost"></label>
       <label class="tgl"><span>홀 브리핑<small>티샷 전에 그 홀의 내 과거 기록과 코치 팁</small></span><input type="checkbox" data-set="brief"></label>
       <label class="tgl"><span>축하 연출<small>새 배지·개인 베스트 때 꽃가루와 배지 카드</small></span><input type="checkbox" data-set="celebrate"></label>
+      <label class="tgl"><span>티샷 자세히 기록<small>출발 방향(왼쪽·오른쪽)과 미스샷(토·아래·힐)을 따로 기록 · 이 계정에만 적용</small></span><input type="checkbox" data-set="teeDetail" data-def="off"></label>
     </section>
     <section class="panel">
       <h2>백업</h2>
@@ -2799,6 +2800,8 @@ function renderPlay(){
   // 티샷 첫 줄: 왼쪽 출발 · 오른쪽 출발 · 미스샷. 미스샷을 누르면 출발 버튼 자리에 토·아래·힐
   const mis=isMis(h), mOpen=mis||missOpen===hole;
   $("shapeBtns").classList.toggle("dim",mis); $("fwBtns").classList.toggle("dim",mis);   // 미스샷이면 페어웨이·구질은 회색(입력 필요 없음, 통계는 페어웨이 미스)
+  // 출발 방향·미스샷 줄: 설정에서 켠 계정만 (꺼져 있어도 이미 기록된 홀은 보여 줌)
+  $("startRow").hidden=!(teeDetailOn()||mis||h.start);
   $("startRow").classList.toggle("open",mOpen);
   $("startRow").innerHTML=(mOpen
       ? `<div class="field mparts" data-step="shape">${MISS_SHOTS.map(([k,n,nm])=>`<button class="part ${h.shape===k?"on":""}" data-sh="${k}" aria-label="${nm}">${n}</button>`).join("")}</div>`
@@ -3629,7 +3632,10 @@ $("importFile").onchange=async e=>{
 // 설정(users/{uid}/settings/app). 값이 없으면 켬
 let settings={};
 const setOn=k=>settings[k]!==false;
-function renderSettings(){ document.querySelectorAll("[data-set]").forEach(i=>i.checked=setOn(i.dataset.set)) }
+// data-def="off"인 설정은 켠 계정에서만 켜짐 (기본 꺼짐)
+const setOnOff=i=>i.dataset.def==="off"?settings[i.dataset.set]===true:setOn(i.dataset.set);
+const teeDetailOn=()=>settings.teeDetail===true;
+function renderSettings(){ document.querySelectorAll("[data-set]").forEach(i=>i.checked=setOnOff(i)) }
 document.querySelectorAll("[data-set]").forEach(i=>i.onchange=()=>{
   settings[i.dataset.set]=i.checked;
   if(curUid) bg(()=>setDoc(doc(fs,"users",curUid,"settings","app"),{[i.dataset.set]:i.checked},{merge:true}));
