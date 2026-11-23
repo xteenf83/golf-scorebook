@@ -559,6 +559,14 @@ input,select,textarea,.panel input,.panel select{font-size:16px;background:var(-
 .pbar>button::before,.tabcap::before,.fab::before,.rmenu::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:var(--glass-rim);pointer-events:none;
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 .pbar>button.on::before{opacity:.6}
+/* 아래 버튼(홀 입력·라운드 기록): 분석 화면과 같은 유리 */
+.bottomnav .pill,.bottomnav .memobtn{position:relative;-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);box-shadow:var(--glass-edge),var(--glass-shadow)}
+.bottomnav .pill.gray,.bottomnav .memobtn{background:var(--glass);color:var(--t1)}
+.bottomnav .pill.soft{background:var(--glass);color:var(--brand-text)}
+.bottomnav .pill.solid{background:color-mix(in srgb,var(--brand) 82%,transparent);box-shadow:inset 0 2px 6px rgba(255,255,255,.4),inset 0 -4px 10px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.1),0 12px 18px rgba(14,154,90,.32)}
+.bottomnav .memobtn.has{background:color-mix(in srgb,var(--notice-bg) 80%,transparent)}
+.bottomnav .pill::before,.bottomnav .memobtn::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:var(--glass-rim);pointer-events:none;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 /* 새 라운드 → 홀별 타수만: 점수 버튼 4칸 */
 .btns.s8{grid-template-columns:repeat(4,1fr)}
 /* 저장 상태 구름 · 지우기(×) 입력칸 */
@@ -583,14 +591,14 @@ header.top.nav .cloud{color:var(--t4)}
 header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{width:44px;padding:0} header.top.nav .cloud .ctx{display:none}
 .play{padding-bottom:110px}
 .play.screen{gap:12px}
-.strip{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:4px 18px 10px}
-.strip button{flex:none;width:40px;height:40px;min-height:0;border-radius:20px;padding:0;font-size:15px;font-weight:700;background:var(--card);color:var(--t5);position:relative;line-height:40px}
+.strip{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:6px 18px 12px}   /* 위 6px: 상태 표시줄 아래 단색 띠(6px) 바로 아래에서 시작 → 가리지도, 틈도 없게 */
+.strip button{flex:none;width:40px;height:40px;min-height:0;border-radius:20px;padding:0;font-size:15px;font-weight:700;background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);box-shadow:var(--glass-edge),0 2px 4px rgba(0,0,0,.08),0 6px 10px rgba(0,0,0,.08);color:var(--t2);position:relative;line-height:40px}
 .strip button.rp{background:var(--line);color:var(--t2)}
 .strip button.rk{background:var(--bogey-chip);color:var(--bogey-text)}
 .strip button.ru{background:var(--under-soft);color:var(--under)}
 .strip button.rd{background:var(--double);color:#fff}
 .strip button.rt{background:var(--triple);color:#fff}
-.strip button.cur{background:var(--t1);color:var(--card)}
+.strip button.cur{background:var(--glass-on);color:var(--glass-ink-on)}
 .strip button.memo::after{content:"";position:absolute;top:1px;right:1px;width:7px;height:7px;border-radius:50%;background:var(--notice-icon);border:1.5px solid var(--bg)}
 .strip button.gw::before,.strip button.gl::before{content:"";position:absolute;bottom:-7px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%}
 .strip button.gw::before{background:var(--under)} .strip button.gl::before{background:var(--over)}
@@ -677,7 +685,8 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 .playlinks{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
 .playlinks .linkbtn{font-size:14px;color:var(--t3)}
 .deftip{text-align:center;margin:-8px 0 0;font-size:12.5px;color:var(--t4)}
-.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:linear-gradient(180deg,transparent,var(--bg) 30%);border:0;padding:24px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:10;border:0;padding:24px 16px calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.bottomnav button{pointer-events:auto}
 @media (display-mode:standalone){.bottomnav{padding-bottom:max(14px, env(safe-area-inset-bottom,0px))}}
 .bottomnav .in{max-width:560px;margin:0 auto;display:flex;gap:8px;grid-template-columns:none}
 .bottomnav .in.edit{grid-template-columns:none}
@@ -860,7 +869,7 @@ h3.sub3{padding:22px 20px 0;margin:0;font-size:17px;font-weight:700}
 .mpick i{width:22px;height:22px;border-radius:11px;box-sizing:border-box;flex:none;border:2px solid var(--line2)}
 .mpick button.on i{border:6px solid var(--brand);background:var(--card)}
 .mpick b{flex:1;font-size:16px;font-weight:600} .mpick small{font-size:13.5px;color:var(--t4);font-weight:500}
-.rbar{background:linear-gradient(180deg,transparent,var(--card) 28%);padding-top:14px}
+.rbar{padding-top:14px}
 .rbar .pills{max-width:560px;margin:0 auto;display:flex}
 .ovcard.sheet{text-align:left;gap:6px}
 .ovcard.sheet h3{font-size:17px;margin:0 0 6px}
