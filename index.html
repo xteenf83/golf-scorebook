@@ -615,17 +615,16 @@ header.top.nav .cloud.off,header.top.nav .cloud.err,header.top.nav .cloud.show{w
 .shapes svg{width:26px;height:30px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .shapes svg circle{fill:currentColor;stroke:none}
 /* 미스샷: 구질 줄 아래 작은 토글 → 토·아래·힐 */
-.shapes.dim button,.seg.dim button{opacity:.45}
-.missrow{display:flex;gap:6px;margin-top:8px;align-items:stretch}
-.mtgl{flex:none;height:44px;min-height:44px;border-radius:14px;padding:0 14px;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
-.mtgl small{font-size:11.5px;font-weight:500;color:var(--t4)}
-.mtgl.on{border-color:var(--over);color:var(--over);background:transparent}
-.mtgl.on small{display:none}
-.mparts{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0}
-.mparts button{height:44px;min-height:44px;border-radius:14px;padding:0;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14.5px;font-weight:700}
-.mparts button.on{border-color:var(--over);background:color-mix(in srgb,var(--over) 14%,transparent);color:var(--over)}
+.shapes.dim button,.seg.dim button{opacity:.4;pointer-events:none}
+.startrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.startrow.open{grid-template-columns:3fr 1fr}
+.startrow .mparts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0}
+.startrow button{height:44px;min-height:44px;border-radius:14px;padding:0 6px;border:1.5px solid transparent;background:var(--fill);color:var(--t2);font-size:14.5px;font-weight:700;white-space:nowrap}
+.startrow .st.on{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-text)}
+.startrow .mtgl.on{border-color:var(--over);color:var(--over);background:transparent}
+.startrow .part.on{border-color:var(--over);background:color-mix(in srgb,var(--over) 14%,transparent);color:var(--over)}
 .missline{margin:12px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:14px}
-.missline b{color:var(--over)} .missline span{color:var(--t2)} .missline small{flex-basis:100%;color:var(--t4);font-size:12.5px}
+.missline b{color:var(--over)} .missline.st b{color:var(--t1)} .missline i{font-style:normal;color:var(--t4)} .missline span{color:var(--t2)} .missline small{flex-basis:100%;color:var(--t4);font-size:12.5px}
 .shapes span{font-size:11.5px;font-weight:600;letter-spacing:-0.04em;white-space:nowrap}
 .chip{font-size:13px;font-weight:700;border-radius:8px;padding:5px 9px;background:var(--fill);color:var(--t3)}
 .chip.on{background:var(--brand-soft);color:var(--brand-text)}
@@ -1322,13 +1321,12 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 
     <section class="panel icard" id="teeCard">
       <div class="ihead"><span class="ititle">티샷</span><span class="isum" id="teeSum"></span></div>
+      <div class="startrow" id="startRow"></div>
       <div class="field" id="fwField" data-step="fw"><div class="seg full" id="fwBtns"></div></div>
       <div class="field" data-step="shape">
         <div class="dirlab"><span>← 공이 간 방향</span><span>좌타 기준</span><span>→</span></div>
         <div class="shapes" id="shapeBtns"></div>
       </div>
-      <div class="missrow"><button type="button" class="mtgl" id="missTgl" aria-expanded="false">미스샷<small>토핑·뱀샷</small></button>
-        <div class="field mparts" data-step="shape" id="missBtns" hidden></div></div>
     </section>
     <section class="panel icard pencard field" data-step="pen">
       <div class="ihead pen-h"><span class="ititle">벌타</span></div>
@@ -2798,13 +2796,15 @@ function renderPlay(){
   $("fwField").hidden=h.par<4;
   $("fwBtns").innerHTML=FW.map(([k,n])=>`<button class="${h.fw===k?"on":""}" data-fw="${k}">${n}</button>`).join("");
   $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="25" r="2.2"/></svg><span>${n}</span></button>`).join("");
-  // 미스샷: 누르면 헤드 맞은 곳(토·아래·힐) 세 버튼이 열림. 미스샷이 기록돼 있으면 열린 채로
+  // 티샷 첫 줄: 왼쪽 출발 · 오른쪽 출발 · 미스샷. 미스샷을 누르면 출발 버튼 자리에 토·아래·힐
   const mis=isMis(h), mOpen=mis||missOpen===hole;
-  $("shapeBtns").classList.toggle("dim",mis); $("fwBtns").classList.toggle("dim",mis);   // 미스샷이면 페어웨이에 멈춰도 통계는 미스
-  $("missTgl").classList.toggle("on",mOpen); $("missTgl").setAttribute("aria-expanded",mOpen);
-  $("missBtns").hidden=!mOpen;
-  $("missBtns").innerHTML=MISS_SHOTS.map(([k,n,nm])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${nm}">${n}</button>`).join("");
-  $("teeSum").textContent=[h.par>=4?(mis?"미스샷":(FW.find(f=>f[0]===h.fw)||["",""])[1]):"",mis?SHAPE_NAME[h.shape]:(SHAPE_ROW.find(x=>x[0]===h.shape)||["","",""])[1]].filter(Boolean).join(" · ");
+  $("shapeBtns").classList.toggle("dim",mis); $("fwBtns").classList.toggle("dim",mis);   // 미스샷이면 페어웨이·구질은 회색(입력 필요 없음, 통계는 페어웨이 미스)
+  $("startRow").classList.toggle("open",mOpen);
+  $("startRow").innerHTML=(mOpen
+      ? `<div class="field mparts" data-step="shape">${MISS_SHOTS.map(([k,n,nm])=>`<button class="part ${h.shape===k?"on":""}" data-sh="${k}" aria-label="${nm}">${n}</button>`).join("")}</div>`
+      : [["L","왼쪽 출발"],["R","오른쪽 출발"]].map(([k,n])=>`<button class="st ${h.start===k?"on":""}" data-st="${k}" aria-pressed="${h.start===k}">${n}</button>`).join(""))
+    +`<button class="mtgl ${mOpen?"on":""}" id="missTgl" aria-expanded="${mOpen}">미스샷</button>`;
+  $("teeSum").textContent=mis?`미스샷 · ${SHAPE_NAME[h.shape]}`:[h.start?(h.start==="L"?"왼쪽 출발":"오른쪽 출발"):"",h.par>=4?(FW.find(f=>f[0]===h.fw)||["",""])[1]:"",(SHAPE_ROW.find(x=>x[0]===h.shape)||["","",""])[1]].filter(Boolean).join(" · ");
   // 벌타
   [["obV",h.ob],["hzV",h.hz]].forEach(([id,v])=>{ $(id).textContent=v||0; $(id).classList.toggle("on",(v||0)>0) });
   // 퍼팅 + 그린 적중 자동 표시
@@ -2877,7 +2877,8 @@ $("scrPlay").addEventListener("click",e=>{
   if(b.dataset.p!==undefined){h.putts=+b.dataset.p; if(h.par+h.d<h.putts+1) h.d=h.putts+1-h.par; touch();return}
   if(b.dataset.fw){h.fw=b.dataset.fw;touch();return}
   if(b.id==="missTgl"){ if(isMis(h)){ h.shape="straight"; missOpen=-1; touch(); } else { missOpen=missOpen===hole?-1:hole; renderPlay(); } return }
-  if(b.dataset.sh){h.shape=b.dataset.sh; if(!isMis(h)) missOpen=-1; touch();return}
+  if(b.dataset.st){ h.start=h.start===b.dataset.st?null:b.dataset.st; if(!h.start) delete h.start; touch(); return }   // 다시 누르면 해제
+  if(b.dataset.sh){h.shape=b.dataset.sh; if(isMis(h)) delete h.start; else missOpen=-1; touch();return}
   if(b.dataset.pen){const k=b.dataset.pen;h[k]=Math.max(0,(h[k]||0)+(+b.dataset.v));touch();return}
 });
 function goNext(){
@@ -3280,6 +3281,15 @@ function tsTrail([ox,oy],[x,y],k,id,tone){
 }
 // 미스샷 요약: 몇 번·몇 %, 헤드 어디에 맞았는지. 없으면 빈 문자열
 function missLine(hs){
+  return startLine(hs)+missOnly(hs);
+}
+// 출발 방향(기록한 티샷만): 왼쪽·오른쪽 비율 + 그때 페어웨이 안착률
+function startLine(hs){
+  const st=hs.filter(h=>!isMis(h)&&(h.start==="L"||h.start==="R")); if(!st.length) return "";
+  const part=k=>{const a=st.filter(h=>h.start===k), t=a.filter(h=>h.par>=4&&h.fw); return a.length?`${k==="L"?"왼쪽":"오른쪽"} ${Math.round(a.length/st.length*100)}%${t.length?` <i>(페어웨이 ${Math.round(t.filter(fwHit).length/t.length*100)}%)</i>`:""}`:""};
+  return `<p class="missline st"><b>출발 방향 ${st.length}번</b><span>${["L","R"].map(part).filter(Boolean).join(" · ")}</span></p>`;
+}
+function missOnly(hs){
   const m=hs.filter(isMis); if(!m.length) return "";
   const by=MISS_SHOTS.map(([k,n])=>[n,m.filter(h=>h.shape===k).length]).filter(x=>x[1]);
   return `<p class="missline"><b>미스샷 ${m.length}번 · ${Math.round(m.length/hs.length*100)}%</b><span>${by.map(([n,c])=>`${n} ${c}`).join(" · ")}</span><small>구질·방향에서 빼고, 페어웨이는 미스로 셌어요</small></p>`;
@@ -3549,6 +3559,7 @@ function importRound(x){
       if(num(h.putts)!==null) o.putts=h.putts;
       if(["L","H","R"].includes(h.fw)) o.fw=h.fw;
       if(SHAPE_NAME[h.shape]) o.shape=h.shape;
+      if(h.start==="L"||h.start==="R") o.start=h.start;
       if(num(h.ob)!==null) o.ob=h.ob;
       if(num(h.hz)!==null) o.hz=h.hz;
       holes.push(o);
