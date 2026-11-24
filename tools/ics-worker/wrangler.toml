@@ -4,3 +4,6 @@ name = "golf-ics"
 main = "index.js"
 compatibility_date = "2025-01-01"
 # 주소: https://golf-ics.xteenf.workers.dev/
+
+# PR(main 외 브랜치) 빌드의 `npx wrangler preview`가 이 블록을 요구한다(비어 있어도 됨).
+[previews]
