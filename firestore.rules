@@ -1,11 +1,35 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 관리자: admins/{내 uid} 문서가 있는 계정 (Firebase 콘솔에서 직접 만듦, 앱에서는 못 씀)
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function shortStr(v, n) { return v is string && v.size() <= n; }
+
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
     match /users/{uid}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
+    // 요청함: 로그인한 사람은 자기 이름으로 새 요청만 보낼 수 있고, 자기 요청만 읽음. 관리자는 모두 읽고 답변·완료 표시
+    match /requests/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid','name','email','type','club','region','text','status','createdAt','appVer','device'])
+        && request.resource.data.type in ['course','bug','idea']
+        && request.resource.data.status == 'new'
+        && shortStr(request.resource.data.name, 40) && shortStr(request.resource.data.email, 100)
+        && shortStr(request.resource.data.club, 60) && shortStr(request.resource.data.region, 40)
+        && shortStr(request.resource.data.text, 1000)
+        && shortStr(request.resource.data.appVer, 10) && shortStr(request.resource.data.device, 10)
+        && request.resource.data.createdAt is number;
+      allow read: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
     }
   }
 }

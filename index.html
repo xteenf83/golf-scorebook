@@ -1001,6 +1001,29 @@ header.top.sub .tt{flex:1}
 header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 .logincard{position:relative;height:420px;border-radius:24px;overflow:hidden;background:#1F3A22;color:#fff}
 .logincard.short{height:300px}
+.reqbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.reqbtns button{min-height:52px}
+.rlist{display:grid;gap:0;margin-top:14px}
+.rq{display:grid;gap:4px;padding:12px 0;border-top:1px solid var(--line)}
+.rq .top{display:flex;align-items:center;gap:8px;min-width:0}
+.rq .top b{font-size:15px;font-weight:700;color:var(--t1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rq .meta{font-size:12.5px;color:var(--t4)}
+.rq p{margin:0;font-size:14px;line-height:1.5;color:var(--t2);white-space:pre-wrap;word-break:break-word}
+.rq .reply{background:var(--fill);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.5;color:var(--t1);white-space:pre-wrap}
+.rq .reply small{display:block;font-size:12px;font-weight:700;color:var(--brand-text);margin-bottom:2px}
+.rq .acts{display:flex;gap:8px;margin-top:4px}
+.rq .acts button{min-height:44px;padding:0 14px;font-size:14px}
+.rst{font-size:12px;font-weight:700;border-radius:7px;padding:3px 8px;flex:none;background:var(--fill);color:var(--t3)}
+.rst.new{background:rgba(255,106,26,.14);color:#E5671E}
+.rst.done{background:var(--notice-bg);color:var(--brand-text)}
+.rtype{font-size:12px;font-weight:700;color:var(--t3);flex:none}
+.adminh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.adminh h2{margin:0}
+.adminh .cnt{font-size:13px;font-weight:800;color:#fff;background:#E5671E;border-radius:999px;padding:3px 9px}
+.reqform{display:grid;gap:12px;margin-top:6px}
+.reqform label{display:grid;gap:6px;font-size:14px;font-weight:600;color:var(--t2)}
+.reqform textarea{min-height:110px;resize:vertical;line-height:1.5}
+.reqform .seg{width:100%}
 .gate h2{margin:0 0 6px;font-size:19px;font-weight:800;color:var(--t1);letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
 .gate h2 .gic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--notice-bg);color:var(--notice-text);flex:none}
 .gate h2 .gic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -1257,6 +1280,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <div class="meta"><b id="whoName"></b><span class="note" id="whoText"></span></div>
       <button class="ghost" id="logoutBtn">로그아웃</button>
     </section>
+    <section class="panel" id="adminPanel" hidden></section>
     <section class="panel">
       <h2>지난 기록 입력</h2>
       <p class="note" style="margin:0 0 12px">예전에 친 라운드를 홀별 타수만 빠르게 넣습니다. 퍼팅·페어웨이·구질 통계에는 들어가지 않아요.</p>
@@ -1299,6 +1323,12 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <p class="note" style="margin:0 0 12px">고스트·홀 브리핑·배지를 미리 보려면 서원힐스CC 웨스트·사우스로 예시 라운드 3개를 만듭니다. 예시 라운드도 통계·배지에 들어가니 확인한 뒤 꼭 지워 주세요. (목록에 ‘예시’ 표시)</p>
       <div class="row"><button id="demoAdd">예시 라운드 3개 만들기</button><button class="danger" id="demoDel">예시 라운드 모두 지우기</button></div>
       <p class="msg" id="demoMsg" role="status"></p>
+    </section>
+    <section class="panel" id="reqPanel">
+      <h2>요청 · 의견 보내기</h2>
+      <p class="note" style="margin:0 0 12px">찾는 골프장이 없거나, 불편한 점·바라는 기능이 있으면 보내 주세요. 관리자가 확인하고 답을 남겨요.</p>
+      <div class="reqbtns"><button id="reqCourseBtn">골프장 추가 요청</button><button id="reqIdeaBtn">의견 보내기</button></div>
+      <div id="myReqs"></div>
     </section>
     <section class="panel">
       <h2>저장 방식 · 앱 정보</h2>
@@ -1490,7 +1520,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
     <div class="phead"><img src="images/courses-header-fairways.jpg" alt="" onerror="this.remove()"><div><h1>코스</h1></div></div>
     <section class="panel vmap" id="visitMap"></section>
     <section class="panel">
-      <p class="note" style="margin-top:0">골프장을 누르면 코스별 홀 파를 확인하고 고칠 수 있습니다. 새 골프장은 Claude에게 이름만 알려주면 앱 업데이트로 자동 등록해 드립니다.</p>
+      <p class="note" style="margin-top:0">골프장을 누르면 코스별 홀 파를 확인하고 고칠 수 있습니다. 찾는 골프장이 없으면 <button class="linkbtn acc" id="reqCourseLink" style="min-height:0;padding:0">추가 요청 ›</button></p>
       <span class="clr" style="margin-bottom:10px"><input id="clSearch" type="search" placeholder="골프장 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
       <div class="clist" id="courseList"></div>
     </section>
@@ -1535,7 +1565,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
 import { firebaseConfig } from "./firebase-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, getDocsFromServer, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, query, where, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, getDocsFromServer, writeBatch, onSnapshot } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 /* 기본 코스 목록. 앱이 열릴 때 계정의 coursesSeedVersion이 이 값보다 낮으면 한 번 맞춘다:
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
@@ -4359,6 +4389,7 @@ function start(user){
     if(!$("scrSetup").hidden) updGhostNote();
   },()=>{}));
   seedCourses(user.uid).catch(()=>{});
+  startReqs(user);
 }
 
 function authErr(e){
@@ -4472,6 +4503,84 @@ $("shareAppBtn").onclick=async()=>{
   try{ await navigator.clipboard.writeText(url); msg.textContent="주소를 복사했어요. 카톡 등에 붙여 넣어 보내세요."; }
   catch(e){ msg.textContent=url; }
 };
+/* ---------- 요청함: 지인 → 관리자 (골프장 추가·의견·오류) ----------
+   requests/{id} = {uid,name,email,type:"course"|"bug"|"idea",club,region,text,status:"new"|"done",reply,createdAt,doneAt,appVer,device}
+   보낸 사람은 자기 요청만 읽고, admins/{uid} 문서가 있는 계정(관리자)만 모두 읽고 답을 단다 (firestore.rules) */
+const REQ_TYPE={course:"골프장 추가",bug:"불편·오류",idea:"기능 제안"};
+let myReqs=[], allReqs=null, isAdmin=false, reqUser=null;
+function startReqs(user){
+  reqUser=user; isAdmin=false; allReqs=null; myReqs=[]; renderReqs();
+  unsubs.push(onSnapshot(query(collection(fs,"requests"),where("uid","==",user.uid)),snap=>{
+    myReqs=snap.docs.map(d=>({id:d.id,...d.data()})); renderReqs();
+  },()=>{}));
+  getDoc(doc(fs,"admins",user.uid)).then(a=>{
+    if(!a.exists()) return; isAdmin=true;
+    unsubs.push(onSnapshot(collection(fs,"requests"),snap=>{ allReqs=snap.docs.map(d=>({id:d.id,...d.data()})); renderReqs(); },()=>{}));
+  }).catch(()=>{});
+}
+const reqDate=t=>{const d=new Date(t||0); return `${d.getMonth()+1}.${d.getDate()}`};
+const reqTitle=r=>r.type==="course"?(r.club||"골프장")+(r.region?` · ${r.region}`:""):(r.text||"").split("\n")[0];
+function reqRow(r,admin){
+  const st=r.status==="done"?`<span class="rst done">${r.reply?"답변 완료":"반영됨"}</span>`:`<span class="rst new">${admin?"새 요청":"확인 중"}</span>`;
+  const body=r.type==="course"?(r.text||""):(r.text||"").split("\n").slice(1).join("\n");
+  return `<div class="rq"><div class="top"><span class="rtype">${REQ_TYPE[r.type]||"요청"}</span><b>${esc(reqTitle(r))}</b>${st}</div>
+    <span class="meta">${reqDate(r.createdAt)}${admin?` · ${esc(r.name||"")}${r.email?` (${esc(r.email)})`:""}${r.appVer?` · ${esc(r.appVer)}`:""}`:""}</span>
+    ${body.trim()?`<p>${esc(body.trim())}</p>`:""}
+    ${r.reply?`<div class="reply"><small>관리자 답변</small>${esc(r.reply)}</div>`:""}
+    ${admin?`<div class="acts">${r.status==="done"?`<button class="ghost" data-rq-undo="${r.id}">다시 열기</button>`:`<button class="ghost" data-rq-done="${r.id}">완료 표시</button>`}<button class="ghost" data-rq-reply="${r.id}">${r.reply?"답변 고치기":"답변 달기"}</button></div>`:""}</div>`;
+}
+function renderReqs(){
+  const mine=[...myReqs].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  $("myReqs").innerHTML=mine.length?`<div class="rlist">${mine.slice(0,10).map(r=>reqRow(r,false)).join("")}</div>`:"";
+  const ap=$("adminPanel");
+  if(!isAdmin||!allReqs){ ap.hidden=true; return; }
+  const list=[...allReqs].sort((a,b)=>(a.status==="done")-(b.status==="done")||(b.createdAt||0)-(a.createdAt||0)), nNew=list.filter(r=>r.status!=="done").length;
+  ap.hidden=false;
+  ap.innerHTML=`<div class="adminh"><h2>받은 요청함</h2>${nNew?`<span class="cnt">새 요청 ${nNew}</span>`:""}</div>
+    <p class="note" style="margin:6px 0 0">관리자 계정에만 보여요.</p>
+    ${list.length?`<div class="rlist">${list.slice(0,30).map(r=>reqRow(r,true)).join("")}</div>`:`<p class="note" style="margin:12px 0 0">아직 받은 요청이 없어요.</p>`}`;
+  ap.querySelectorAll("[data-rq-done]").forEach(b=>b.onclick=()=>bg(()=>updateDoc(doc(fs,"requests",b.dataset.rqDone),{status:"done",doneAt:Date.now()})));
+  ap.querySelectorAll("[data-rq-undo]").forEach(b=>b.onclick=()=>bg(()=>updateDoc(doc(fs,"requests",b.dataset.rqUndo),{status:"new"})));
+  ap.querySelectorAll("[data-rq-reply]").forEach(b=>b.onclick=()=>reqReplyOv(allReqs.find(r=>r.id===b.dataset.rqReply)));
+}
+function reqReplyOv(r){
+  if(!r) return;
+  showOv(`<div class="ovcard sheet"><h2 style="margin:0">답변 달기</h2><p class="note" style="margin:0">${esc(REQ_TYPE[r.type]||"")} · ${esc(reqTitle(r))} · ${esc(r.name||"")}</p>
+    <div class="reqform"><textarea id="rqReply" maxlength="1000" placeholder="예: 추가했어요! 앱을 껐다 켜면 코스 목록에 보여요.">${esc(r.reply||"")}</textarea></div>
+    <div class="row" style="margin-top:14px"><button class="primary" id="rqSave">저장하고 완료 표시</button><button class="ghost" id="ovClose">닫기</button></div></div>`);
+  $("rqSave").onclick=()=>{ const t=$("rqReply").value.trim(); bg(()=>updateDoc(doc(fs,"requests",r.id),{reply:t,status:"done",doneAt:Date.now()})); closeOv(); };
+}
+function reqFormOv(type){
+  let tp=type;
+  const draw=()=>{
+    showOv(`<div class="ovcard sheet"><h2 style="margin:0">${tp==="course"?"골프장 추가 요청":"의견 보내기"}</h2>
+      <div class="reqform">
+        <div class="seg full" id="rqType">${Object.entries(REQ_TYPE).map(([k,n])=>`<button data-t="${k}" class="${k===tp?"on":""}">${n}</button>`).join("")}</div>
+        ${tp==="course"
+          ?`<label>골프장 이름<input id="rqClub" maxlength="60" placeholder="예: 리베라CC" autocomplete="off"></label>
+            <label><span>지역 <small style="font-weight:500;color:var(--t4)">(아는 만큼)</small></span><input id="rqRegion" maxlength="40" placeholder="예: 경기 화성" autocomplete="off"></label>
+            <label><span>메모 <small style="font-weight:500;color:var(--t4)">(코스 이름, 홈페이지 등)</small></span><textarea id="rqText" maxlength="1000" style="min-height:80px"></textarea></label>`
+          :`<label>${tp==="bug"?"어떤 점이 불편했나요?":"어떤 기능이 있으면 좋을까요?"}<textarea id="rqText" maxlength="1000" placeholder="${tp==="bug"?"예: 7번 홀에서 다음 홀을 눌렀는데 화면이 멈췄어요":"예: 동반자 스코어도 같이 적고 싶어요"}"></textarea></label>`}
+      </div>
+      <p class="msg err" id="rqMsg" role="status"></p>
+      <div class="row" style="margin-top:6px"><button class="primary" id="rqSend">보내기</button><button class="ghost" id="ovClose">닫기</button></div></div>`);
+    $("rqType").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{ tp=b.dataset.t; draw(); });
+    $("rqSend").onclick=send;
+  };
+  const send=async()=>{
+    const club=($("rqClub")?.value||"").trim(), region=($("rqRegion")?.value||"").trim(), text=($("rqText")?.value||"").trim();
+    if(tp==="course"?!club:!text){ $("rqMsg").textContent=tp==="course"?"골프장 이름을 적어 주세요.":"내용을 적어 주세요."; return; }
+    if(!reqUser) return;
+    const r={uid:reqUser.uid,name:(reqUser.displayName||"").slice(0,40),email:(reqUser.email||"").slice(0,100),type:tp,club,region,text,status:"new",createdAt:Date.now(),appVer:APP_VERSION,device:/iPhone|iPad/.test(navigator.userAgent)?"iPhone":/Android/.test(navigator.userAgent)?"Android":"기타"};
+    $("rqSend").disabled=true;
+    try{ await setDoc(doc(collection(fs,"requests")),r); closeOv(); $("reqPanel").scrollIntoView({block:"start",behavior:"smooth"}); }
+    catch(e){ $("rqSend").disabled=false; $("rqMsg").textContent="보내지 못했어요. 인터넷 연결을 확인해 주세요."; }
+  };
+  draw();
+}
+$("reqCourseBtn").onclick=()=>reqFormOv("course");
+$("reqIdeaBtn").onclick=()=>reqFormOv("idea");
+$("reqCourseLink").onclick=()=>reqFormOv("course");
 (function boot(){ try{ bootInner(); }catch(e){ setSync("err","시작 오류: "+(e.message||e)); show("Login"); splashDone(); $("loginMsg").textContent="앱을 시작하지 못했습니다: "+(e.message||e); } })();
 function bootInner(){
   if(!firebaseConfig || !firebaseConfig.apiKey){

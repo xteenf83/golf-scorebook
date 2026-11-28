@@ -7,6 +7,8 @@ const S = window.__MOCK || (window.__MOCK = (() => {
   (seed.rounds || []).forEach(r => { const {id, ...b} = r; data.set(base + "/rounds/" + id, b) });
   (seed.courses || []).forEach(c => { const {id, ...b} = c; data.set(base + "/courses/" + id, b) });
   data.set(base + "/settings/app", seed.settings || {});
+  (seed.requests || []).forEach(r => { const {id, ...b} = r; data.set("requests/" + id, b) });   // 요청함
+  if (seed.admin) data.set("admins/" + U, {});
   if (seed.user !== null) data.set(base, seed.user || {});   // user: null = 계정 문서 없는 새 계정
   let n = 0;
   return { data, subs, U, signedIn: seed.signedIn !== false, newId: () => "m" + (++n),
@@ -29,10 +31,13 @@ export const initializeFirestore = () => ({});
 export const persistentLocalCache = () => ({});
 export const persistentMultipleTabManager = () => ({});
 export function collection(fs, ...p){ return { type: "col", path: p.join("/") } }
+export function where(f, op, v){ return { f, v } }
+export function query(c, ...w){ return { ...c, where: w } }
 export function doc(a, ...p){ const path = a && a.type === "col" ? [a.path, ...(p.length ? p : [S.newId()])].join("/") : p.join("/");
   return { type: "doc", path, id: path.split("/").pop() } }
 const snapDoc = r => ({ id: r.id, ref: r, exists: () => S.data.has(r.path), data: () => S.data.has(r.path) ? JSON.parse(JSON.stringify(S.data.get(r.path))) : undefined });
-const kids = c => [...S.data.keys()].filter(k => k.startsWith(c.path + "/") && !k.slice(c.path.length + 1).includes("/")).map(k => snapDoc({ type: "doc", path: k, id: k.split("/").pop() }));
+const kids = c => [...S.data.keys()].filter(k => k.startsWith(c.path + "/") && !k.slice(c.path.length + 1).includes("/")).map(k => snapDoc({ type: "doc", path: k, id: k.split("/").pop() }))
+  .filter(d => !(c.where || []).some(w => d.data()[w.f] !== w.v));
 export async function setDoc(r, b, o){ S.data.set(r.path, o && o.merge ? { ...(S.data.get(r.path) || {}), ...b } : JSON.parse(JSON.stringify(b))); S.fire() }
 export async function updateDoc(r, b){ S.data.set(r.path, { ...(S.data.get(r.path) || {}), ...JSON.parse(JSON.stringify(b)) }); S.fire() }
 export async function deleteDoc(r){ S.data.delete(r.path); S.fire() }
