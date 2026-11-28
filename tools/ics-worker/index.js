@@ -47,12 +47,14 @@ const recent = new Map();   // uid → 최근 보낸 시각들 (같은 사람이
 async function notify(req, env) {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(req) });
   if (req.method !== "POST") return reply(req, 405);
-  if (!env.TG_TOKEN || !env.TG_CHAT) return reply(req, 503, "알림 설정 전");
+  const TG_TOKEN = String(env.TG_TOKEN || "").trim(), TG_CHAT = String(env.TG_CHAT || "").trim();
+  if (!TG_TOKEN || !TG_CHAT) return reply(req, 503, "알림 설정 전(TG_TOKEN·TG_CHAT 없음)");
   const tok = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-  const user = await verifyIdToken(tok).catch(() => null);
-  if (!user) return reply(req, 401);
+  let user = null, why = "";
+  try { user = await verifyIdToken(tok); } catch (e) { why = String(e.message || e).slice(0, 80); }
+  if (!user) return reply(req, 401, "로그인 확인 실패" + (why ? `: ${why}` : ""));
   const now = Date.now(), times = (recent.get(user.sub) || []).filter(t => now - t < 10 * 60e3);
-  if (times.length >= 5) return reply(req, 429);
+  if (times.length >= 5) return reply(req, 429, "너무 자주 보냄(10분에 5번)");
   recent.set(user.sub, [...times, now]);
   let b = {};
   try { b = await req.json(); } catch (e) {}
@@ -62,11 +64,14 @@ async function notify(req, env) {
   if (type === "course") lines.push(s(b.club, 60) + (s(b.region, 40) ? ` · ${s(b.region, 40)}` : ""));
   if (s(b.text, 1000)) lines.push(s(b.text, 1000));
   lines.push("", `— ${s(user.name, 40) || "이름 없음"}${user.email ? ` (${s(user.email, 100)})` : ""} · ${s(b.appVer, 10)} · ${s(b.device, 10)}`, "앱 더보기 → 받은 요청함에서 답변");
-  const r = await fetch(`https://api.telegram.org/bot${env.TG_TOKEN}/sendMessage`, {
+  const r = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: env.TG_CHAT, text: lines.join("\n"), disable_web_page_preview: true }),
+    body: JSON.stringify({ chat_id: TG_CHAT, text: lines.join("\n"), disable_web_page_preview: true }),
   });
-  return reply(req, r.ok ? 204 : 502);
+  if (r.ok) return reply(req, 204);
+  // 텔레그램이 거절한 이유(예: chat not found, bot can't initiate conversation, Unauthorized)를 그대로 돌려준다 — 비밀은 담기지 않음
+  let d = ""; try { d = (await r.json()).description || ""; } catch (e) {}
+  return reply(req, 502, "텔레그램 거절: " + String(d || r.status).slice(0, 120));
 }
 
 // Firebase ID token(RS256 JWT) 검사: 서명(구글 공개키) · 발급처 · 대상 프로젝트 · 만료
