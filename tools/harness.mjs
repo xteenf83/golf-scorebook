@@ -42,8 +42,8 @@ export async function routeAll(ctx) {
 
 export const wait = ms => new Promise(r => setTimeout(r, ms));
 // 예시 데이터로 앱을 열어 첫 화면이 뜰 때까지 기다린 page를 돌려준다
-export async function openApp(browser, { scenario = "full", scheme = "light", width = 390, height = 844, seed, early = false } = {}) {
-  const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, colorScheme: scheme, timezoneId: "Asia/Seoul", locale: "ko-KR", serviceWorkers: "block" });
+export async function openApp(browser, { scenario = "full", scheme = "light", width = 390, height = 844, seed, early = false, ua } = {}) {
+  const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, ...(ua ? { userAgent: ua, isMobile: true, hasTouch: true } : {}), colorScheme: scheme, timezoneId: "Asia/Seoul", locale: "ko-KR", serviceWorkers: "block" });
   await routeAll(ctx);
   const sd = seed || makeSeed(scenario === "login" ? "empty" : scenario); sd.signedIn = scenario !== "login";
   await ctx.addInitScript(s => { window.__SEED = s }, sd);

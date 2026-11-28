@@ -1000,6 +1000,29 @@ header.top.sub{justify-content:flex-start;gap:2px;margin-left:-10px}
 header.top.sub .tt{flex:1}
 header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 .logincard{position:relative;height:420px;border-radius:24px;overflow:hidden;background:#1F3A22;color:#fff}
+.logincard.short{height:300px}
+.gate h2{margin:0 0 6px;font-size:19px;font-weight:800;color:var(--t1);letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.gate h2 .gic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--notice-bg);color:var(--notice-text);flex:none}
+.gate h2 .gic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gate>p{margin:0 0 16px;font-size:14.5px;line-height:1.55;color:var(--t3)}
+.gate .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gate .row2 button{min-height:52px}
+.gate .tip{margin:14px 0 0;font-size:13.5px;line-height:1.5;color:var(--t3)}
+.gate .tip b{color:var(--t1)}
+.gate.warn h2 .gic{background:rgba(255,106,26,.14);color:#E5671E}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:st}
+.steps li{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:600;color:var(--t1);line-height:1.4;counter-increment:st}
+.steps li::before{content:counter(st);width:24px;height:24px;border-radius:50%;background:var(--fill);color:var(--t2);font-size:13px;font-weight:800;display:grid;place-items:center;flex:none}
+.steps li small{display:block;font-size:12.5px;font-weight:500;color:var(--t3)}
+.steps .ki{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--fill);color:#0A84FF;flex:none;margin-left:auto}
+.steps .ki svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#installNote{display:flex;align-items:center;gap:4px;background:var(--card);border-radius:20px;padding:6px 6px 6px 16px;margin:0 0 12px}
+#installNote[hidden]{display:none}
+#installNote .gic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--notice-bg);color:var(--notice-text);flex:none}
+#installNote .gic svg,#installNote .x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#installNote .go{flex:1;display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:none;border:0;padding:8px 8px;min-height:44px;font-size:15px;font-weight:700;color:var(--t1)}
+#installNote .go small{font-size:12.5px;font-weight:500;color:var(--t3);margin-top:2px}
+#installNote .x{width:44px;height:44px;border:0;background:none;color:var(--t4);display:grid;place-items:center;padding:0;min-height:0}
 .logincard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .logincard::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(4,20,10,.85) 100%)}
 .logincard>div{position:absolute;left:24px;right:24px;bottom:24px;z-index:1;display:flex;flex-direction:column;gap:12px}
@@ -1205,7 +1228,9 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <b>라운드마다 쌓이는<br>나만의 스코어 기록</b>
       <p>구글 계정으로 로그인하면 기록이 클라우드에 저장되어 폰을 바꿔도 그대로 남습니다.</p></div>
     </section>
-    <section class="panel">
+    <section class="panel gate" id="inappBox" hidden></section>
+    <section class="panel gate" id="installBox" hidden></section>
+    <section class="panel" id="loginPanel">
       <button class="primary big" id="loginBtn">구글로 로그인</button>
       <button class="linkbtn" id="loginRedirectBtn">로그인 창이 안 뜨거나 멈추면 여기를 누르세요</button>
       <p class="msg err" id="loginMsg" role="status"></p>
@@ -1218,6 +1243,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
     <div id="resumeBox"></div>
     <div id="schedBox"></div>
     <p class="msg err" id="homeMsg" role="status"></p>
+    <div id="installNote" hidden></div>
     <section class="panel avgcard" id="hero"></section>
     <button class="notice" id="missionNote" hidden></button>
     <div class="sechead"><h2>최근 라운드</h2><button class="linkbtn acc" id="allToggle" hidden>전체 보기 ›</button></div>
@@ -2061,6 +2087,7 @@ function homeHead(){
   const p=playingRound();
   $("homeTitle").textContent = userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북";
   $("homeSub").innerHTML = p ? `<i class="live"></i>라운드 진행 중 · ${esc(p.club)}` : `${handName()} · ${new Date().getFullYear()} 시즌`;
+  renderInstallNote();
 }
 function renderHome(){
   const playing = playingRound(); updFab(); homeHead();
@@ -4339,6 +4366,94 @@ function loginRedirect(){
   $("loginMsg").textContent="구글 로그인 화면으로 이동합니다…";
   signInWithRedirect(auth,new GoogleAuthProvider()).catch(e=>$("loginMsg").textContent=authErr(e));
 }
+
+/* ---------- 처음 들어온 사람 안내: 앱 속 브라우저(카톡 등) · 홈 화면 설치 ----------
+   - 카톡·인스타 같은 앱 안의 브라우저에서는 구글이 로그인을 막는다(disallowed_useragent) → 사파리/크롬으로 넘기기.
+     카톡은 kakaotalk://web/openExternal로 바로 넘길 수 있어 처음 한 번 자동으로 시도한다.
+   - 아이폰은 홈 화면 앱과 사파리가 로그인을 따로 기억하므로 '먼저 홈 화면에 추가 → 아이콘으로 열어 로그인'을 권한다.
+   - 갤럭시(크롬)는 설치 버튼(beforeinstallprompt)으로 한 번에. 안내를 닫은 것은 이 기기에만 기억(localStorage) */
+const GATE_UA=navigator.userAgent;
+const GATE_IOS=/iPhone|iPad|iPod/.test(GATE_UA)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const GATE_AND=/Android/i.test(GATE_UA);
+const GATE_STANDALONE=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches;
+const GATE_INAPP=(([[/KAKAOTALK/i,"카카오톡"],[/NAVER\(inapp|NAVER\//,"네이버"],[/Instagram/,"인스타그램"],[/FBAN|FBAV|FB_IAB/,"페이스북"],[/BAND\//,"밴드"],[/\bLine\//,"라인"],[/DaumApps/,"다음"],[/everytimeApp/,"에브리타임"]].find(([r])=>r.test(GATE_UA)))||[])[1]||null;
+const GATE_IC={
+  warn:'<svg viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19L12 3.5zM12 10v4.5M12 17.2v.3"/></svg>',
+  phone:'<svg viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 8v6M9 11h6"/></svg>',
+  share:'<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M7 11H5.5v9.5h13V11H17"/></svg>',
+  plus:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg>',
+  dots:'<svg viewBox="0 0 24 24"><path d="M12 5.5v.2M12 12v.2M12 18.5v.2" stroke-width="3"/></svg>',
+  x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>'};
+let installEvt=null;
+addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; renderGate(); renderInstallNote(); });
+addEventListener("appinstalled",()=>{ installEvt=null; try{localStorage.setItem("gsb.installHide","1")}catch(e){} renderInstallNote(); });
+function gateOpenExternal(){
+  const url=location.href.split("#")[0];
+  if(GATE_INAPP==="카카오톡") location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(url);
+  else if(GATE_IOS) location.href="x-safari-"+url;
+  else location.href="intent://"+url.replace(/^https?:\/\//,"")+"#Intent;scheme=https;package=com.android.chrome;end";
+}
+function gateCopy(msgEl){
+  const url=location.href.split("#")[0], done=()=>msgEl.textContent=`주소를 복사했어요. ${GATE_IOS?"사파리":"크롬"} 주소창에 붙여 넣으세요.`;
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(done).catch(()=>{ msgEl.textContent=url });
+}
+// 설치 방법 (아이폰 / 갤럭시)
+function installSteps(){
+  return GATE_IOS
+    ? `<ol class="steps"><li><span>화면 아래 공유 버튼<small>안 보이면 ⋯ 버튼 → 공유</small></span><span class="ki">${GATE_IC.share}</span></li>
+        <li><span>‘홈 화면에 추가’</span><span class="ki">${GATE_IC.plus}</span></li>
+        <li><span>오른쪽 위 ‘추가’ → 홈 화면의 스코어북 아이콘으로 열기</span></li></ol>`
+    : `<ol class="steps"><li><span>오른쪽 위 메뉴 버튼</span><span class="ki">${GATE_IC.dots}</span></li>
+        <li><span>‘홈 화면에 추가’ 또는 ‘앱 설치’</span><span class="ki">${GATE_IC.plus}</span></li>
+        <li><span>‘설치’ → 홈 화면의 스코어북 아이콘으로 열기</span></li></ol>`;
+}
+function installNow(){ if(!installEvt) return; installEvt.prompt(); installEvt.userChoice.finally(()=>{ installEvt=null; renderGate(); renderInstallNote(); }); }
+// 로그인 화면 안내
+function renderGate(){
+  const ib=$("inappBox"), sb=$("installBox"), card=document.querySelector(".logincard"), mobile=GATE_IOS||GATE_AND;
+  if(GATE_INAPP){
+    const br=GATE_IOS?"사파리":"크롬";
+    ib.hidden=false; ib.className="panel gate warn"; $("loginPanel").hidden=true; sb.hidden=true; card.classList.add("short");
+    ib.innerHTML=`<h2><span class="gic">${GATE_IC.warn}</span>${GATE_INAPP} 안에서는 로그인이 안 돼요</h2>
+      <p>구글 정책 때문에 앱 속 브라우저에서는 구글 로그인이 막혀 있어요. ${br}에서 열어 주세요.</p>
+      <div class="row2"><button class="primary" id="gateOpen">${br}로 열기</button><button class="ghost" id="gateCopy">주소 복사</button></div>
+      <p class="tip">버튼이 안 되면: 화면 구석의 <b>⋯</b> 메뉴 → <b>‘다른 브라우저로 열기’</b></p>
+      <p class="msg" id="gateMsg" role="status"></p>`;
+    $("gateOpen").onclick=gateOpenExternal; $("gateCopy").onclick=()=>gateCopy($("gateMsg"));
+    return;
+  }
+  ib.hidden=true; $("loginPanel").hidden=false;
+  if(!mobile||GATE_STANDALONE){ sb.hidden=true; card.classList.remove("short"); return; }
+  sb.hidden=false;
+  if(GATE_IOS){
+    // 아이폰: 설치를 먼저 (사파리에서 로그인해도 홈 화면 앱에서 다시 로그인해야 하므로)
+    card.classList.add("short"); $("loginPanel").before(sb);
+    sb.innerHTML=`<h2><span class="gic">${GATE_IC.phone}</span>홈 화면에 먼저 추가해 주세요</h2>
+      <p>아이폰은 홈 화면 앱과 사파리가 로그인을 따로 기억해요. 추가한 아이콘으로 열어서 로그인하면 앱처럼 쓸 수 있어요.</p>${installSteps()}`;
+  } else {
+    card.classList.add("short"); $("loginPanel").after(sb);
+    sb.innerHTML=installEvt
+      ? `<h2><span class="gic">${GATE_IC.phone}</span>앱으로 설치하기</h2><p>홈 화면에 아이콘이 생기고, 주소창 없이 앱처럼 열려요.</p><button class="ghost big" id="gateInstall">홈 화면에 설치</button>`
+      : `<h2><span class="gic">${GATE_IC.phone}</span>앱으로 설치하기</h2><p>홈 화면에 아이콘이 생기고, 주소창 없이 앱처럼 열려요.</p>${installSteps()}`;
+    const b=$("gateInstall"); if(b) b.onclick=installNow;
+  }
+}
+// 홈: 브라우저로 쓰는 중이면 설치 권하는 한 줄 (닫으면 이 기기에서 다시 안 보임)
+function renderInstallNote(){
+  const el=$("installNote"); if(!el) return;
+  let hide=false; try{ hide=localStorage.getItem("gsb.installHide")==="1" }catch(e){}
+  if(GATE_STANDALONE||hide||!(GATE_IOS||GATE_AND)){ el.hidden=true; return; }
+  el.hidden=false;
+  el.innerHTML=`<span class="gic">${GATE_IC.phone}</span><button class="go" id="instGo">홈 화면에 추가하기<small>주소창 없이 앱처럼 열려요 · ${installEvt?"눌러서 설치":"방법 보기"}</small></button><button class="x" id="instX" aria-label="설치 안내 닫기">${GATE_IC.x}</button>`;
+  $("instGo").onclick=()=>{ if(installEvt) return installNow();
+    showOv(`<div class="ovcard sheet gate"><h2><span class="gic">${GATE_IC.phone}</span>홈 화면에 추가하기</h2>
+      ${installSteps()}${GATE_IOS?`<p class="tip">홈 화면 아이콘으로 처음 열 때 <b>한 번 더 로그인</b>해 주세요. 기록은 그대로예요.</p>`:""}
+      <div class="row" style="margin-top:18px"><button class="ghost" id="ovClose">닫기</button></div></div>`) };
+  $("instX").onclick=()=>{ try{localStorage.setItem("gsb.installHide","1")}catch(e){} el.hidden=true; };
+}
+renderGate();
+// 카톡이면 처음 한 번 바로 외부 브라우저로 넘겨 본다 (안 되면 위 안내가 그대로 남음)
+if(GATE_INAPP==="카카오톡"){ try{ if(!sessionStorage.getItem("gsb.kakaoOut")){ sessionStorage.setItem("gsb.kakaoOut","1"); setTimeout(gateOpenExternal,300); } }catch(e){} }
 
 (function boot(){ try{ bootInner(); }catch(e){ setSync("err","시작 오류: "+(e.message||e)); show("Login"); splashDone(); $("loginMsg").textContent="앱을 시작하지 못했습니다: "+(e.message||e); } })();
 function bootInner(){
