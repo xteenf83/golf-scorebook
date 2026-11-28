@@ -1001,6 +1001,8 @@ header.top.sub .tt{flex:1}
 header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 .logincard{position:relative;height:420px;border-radius:24px;overflow:hidden;background:#1F3A22;color:#fff}
 .logincard.short{height:300px}
+#menuBtn{position:relative}
+#menuBtn.dot::after{content:"";position:absolute;top:9px;right:8px;width:9px;height:9px;border-radius:50%;background:#F04438;box-shadow:0 0 0 2px var(--card,#fff)}
 .reqbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .reqbtns button{min-height:52px}
 .rlist{display:grid;gap:0;margin-top:14px}
@@ -2671,6 +2673,7 @@ function schedIcs(x){
 // Cloudflare Worker(ICS_URL)가 ?d=(.ics를 base64url로)를 그대로 text/calendar로 돌려준다 — 저장은 하지 않음.
 // ICS_URL이 없으면 공유 시트로 .ics 파일을 넘기고 (파일에 저장 → 열기 → 추가), 공유를 못 하는 기기는 파일로 받는다
 const ICS_URL="https://golf-ics.xteenf.workers.dev/";
+const NOTIFY_URL="https://golf-ics.xteenf.workers.dev/notify";   // 새 요청 → 관리자 텔레그램 (tools/ics-worker)
 function calShareOv(file){
   showOv(`<div class="ovcard"><p style="margin:0">사파리를 열지 못했어요. 일정 파일을 공유 시트로 넘길게요 — '파일에 저장' 후 파일 앱에서 열고 '추가'를 누르면 캘린더에 들어가요.</p>
     <div class="row"><button class="primary" id="calShare">파일로 넘기기</button><button class="ghost" id="ovClose">닫기</button></div></div>`);
@@ -4533,9 +4536,10 @@ function renderReqs(){
   const mine=[...myReqs].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   $("myReqs").innerHTML=mine.length?`<div class="rlist">${mine.slice(0,10).map(r=>reqRow(r,false)).join("")}</div>`:"";
   const ap=$("adminPanel");
-  if(!isAdmin||!allReqs){ ap.hidden=true; return; }
+  if(!isAdmin||!allReqs){ ap.hidden=true; $("menuBtn").classList.remove("dot"); return; }
   const list=[...allReqs].sort((a,b)=>(a.status==="done")-(b.status==="done")||(b.createdAt||0)-(a.createdAt||0)), nNew=list.filter(r=>r.status!=="done").length;
-  ap.hidden=false;
+  ap.hidden=false; $("menuBtn").classList.toggle("dot",nNew>0);
+  $("menuBtn").setAttribute("aria-label",nNew?`메뉴 (더보기) · 새 요청 ${nNew}개`:"메뉴 (더보기)");
   ap.innerHTML=`<div class="adminh"><h2>받은 요청함</h2>${nNew?`<span class="cnt">새 요청 ${nNew}</span>`:""}</div>
     <p class="note" style="margin:6px 0 0">관리자 계정에만 보여요.</p>
     ${list.length?`<div class="rlist">${list.slice(0,30).map(r=>reqRow(r,true)).join("")}</div>`:`<p class="note" style="margin:12px 0 0">아직 받은 요청이 없어요.</p>`}`;
@@ -4573,10 +4577,16 @@ function reqFormOv(type){
     if(!reqUser) return;
     const r={uid:reqUser.uid,name:(reqUser.displayName||"").slice(0,40),email:(reqUser.email||"").slice(0,100),type:tp,club,region,text,status:"new",createdAt:Date.now(),appVer:APP_VERSION,device:/iPhone|iPad/.test(navigator.userAgent)?"iPhone":/Android/.test(navigator.userAgent)?"Android":"기타"};
     $("rqSend").disabled=true;
-    try{ await setDoc(doc(collection(fs,"requests")),r); closeOv(); $("reqPanel").scrollIntoView({block:"start",behavior:"smooth"}); }
+    try{ await setDoc(doc(collection(fs,"requests")),r); closeOv(); notifyAdmin(r); $("reqPanel").scrollIntoView({block:"start",behavior:"smooth"}); }
     catch(e){ $("rqSend").disabled=false; $("rqMsg").textContent="보내지 못했어요. 인터넷 연결을 확인해 주세요."; }
   };
   draw();
+}
+// 관리자 텔레그램 알림 (실패해도 요청은 이미 저장됨)
+function notifyAdmin(r){
+  const u=auth&&auth.currentUser; if(!u||!u.getIdToken) return;
+  u.getIdToken().then(t=>fetch(NOTIFY_URL,{method:"POST",headers:{"Authorization":"Bearer "+t,"Content-Type":"application/json"},
+    body:JSON.stringify({type:r.type,club:r.club,region:r.region,text:r.text,appVer:r.appVer,device:r.device})})).catch(()=>{});
 }
 $("reqCourseBtn").onclick=()=>reqFormOv("course");
 $("reqIdeaBtn").onclick=()=>reqFormOv("idea");
