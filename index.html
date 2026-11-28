@@ -1010,6 +1010,8 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
   .pbar{grid-template-columns:minmax(0,1.3fr) minmax(0,1.1fr) minmax(0,.8fr);gap:6px}
   .pbar>button{font-size:13.5px;padding:0 8px}
 }
+/* 아주 좁은 화면(갤럭시 폴드 접은 화면 ~344px): 페어웨이 버튼 글자가 두 줄로 꺾이지 않게 */
+@media (max-width:359px){ #fwBtns button{font-size:13.5px;padding:6px 4px;white-space:nowrap} }
 .calpick{display:grid;gap:10px;margin-top:4px}
 .calbtn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px 16px;border-radius:16px;background:var(--fill);color:var(--t1);text-decoration:none;min-height:44px;text-align:left}
 .calbtn b{font-size:16px;font-weight:700}
