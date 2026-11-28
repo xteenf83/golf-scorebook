@@ -17,7 +17,7 @@ export const MOCK = {
   "firebase-app.js": `export function initializeApp(c){ return {c} }`,
   "firebase-auth.js": `${store}
 export function getAuth(){ return {} }
-export class GoogleAuthProvider {}
+export class GoogleAuthProvider { setCustomParameters() {} }
 const user = { uid: S.U, displayName: "김현수", email: "golfer@example.com" };
 export function onAuthStateChanged(a, cb){ setTimeout(() => cb(S.signedIn ? user : null), 0); return () => {} }
 export const getRedirectResult = () => Promise.resolve(null);

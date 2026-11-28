@@ -4368,9 +4368,11 @@ function authErr(e){
   if(c==="auth/popup-closed-by-user"||c==="auth/cancelled-popup-request") return "로그인이 취소되었습니다.";
   return "로그인하지 못했습니다 ("+(c||e.message||"오류")+").";
 }
+// 로그인할 때마다 구글 계정 고르는 창 (계정이 여러 개인 사람이 엉뚱한 계정으로 들어가지 않게). 로그인 유지와는 상관없음
+function gProvider(){ const p=new GoogleAuthProvider(); p.setCustomParameters({prompt:"select_account"}); return p; }
 function loginRedirect(){
   $("loginMsg").textContent="구글 로그인 화면으로 이동합니다…";
-  signInWithRedirect(auth,new GoogleAuthProvider()).catch(e=>$("loginMsg").textContent=authErr(e));
+  signInWithRedirect(auth,gProvider()).catch(e=>$("loginMsg").textContent=authErr(e));
 }
 
 /* ---------- 처음 들어온 사람 안내: 앱 속 브라우저(카톡 등) · 홈 화면 설치 ----------
@@ -4487,7 +4489,7 @@ function bootInner(){
   });
   $("loginBtn").onclick=async()=>{
     $("loginMsg").textContent="";
-    try{ await signInWithPopup(auth,new GoogleAuthProvider()); }
+    try{ await signInWithPopup(auth,gProvider()); }
     catch(e){
       const c=e&&e.code||"";
       // 홈 화면 앱(아이폰)에서 팝업이 막히면 페이지 이동(redirect) 방식으로 다시 시도
