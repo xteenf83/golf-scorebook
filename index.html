@@ -1019,6 +1019,17 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 .rst.new{background:rgba(255,106,26,.14);color:#E5671E}
 .rst.done{background:var(--notice-bg);color:var(--brand-text)}
 .rtype{font-size:12px;font-weight:700;color:var(--t3);flex:none}
+.adminbtn{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:0;min-height:52px;text-align:left;color:var(--t1)}
+.adminbtn .gic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--notice-bg);color:var(--notice-text);flex:none}
+.adminbtn .gic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.adminbtn .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.adminbtn .t b{font-size:17px;font-weight:800}
+.adminbtn .t small{font-size:13px;font-weight:500;color:var(--t3);margin-top:2px}
+.adminbtn .chev{font-size:24px;color:var(--t4);line-height:1}
+.adminbtn .cnt,.adminh .cnt{font-size:13px;font-weight:800;color:#fff;background:#E5671E;border-radius:999px;padding:3px 9px;flex:none}
+.ovcard.inbox{max-width:420px;text-align:left}
+#inboxBox{overflow:auto;max-height:68vh;margin:0 -2px;padding:0 2px}
+h2 .adm{font-size:12px;font-weight:700;color:var(--t3);background:var(--fill);border-radius:7px;padding:3px 7px;margin-left:6px;vertical-align:middle}
 .adminh{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .adminh h2{margin:0}
 .adminh .cnt{font-size:13px;font-weight:800;color:#fff;background:#E5671E;border-radius:999px;padding:3px 9px}
@@ -1320,8 +1331,8 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <input type="file" id="importFile" accept=".json,application/json,text/plain" hidden>
       <p class="msg" id="importMsg" role="status"></p>
     </section>
-    <section class="panel">
-      <h2>체험용 예시 라운드</h2>
+    <section class="panel" id="demoPanel" hidden>
+      <h2>체험용 예시 라운드 <small class="adm">관리자</small></h2>
       <p class="note" style="margin:0 0 12px">고스트·홀 브리핑·배지를 미리 보려면 서원힐스CC 웨스트·사우스로 예시 라운드 3개를 만듭니다. 예시 라운드도 통계·배지에 들어가니 확인한 뒤 꼭 지워 주세요. (목록에 ‘예시’ 표시)</p>
       <div class="row"><button id="demoAdd">예시 라운드 3개 만들기</button><button class="danger" id="demoDel">예시 라운드 모두 지우기</button></div>
       <p class="msg" id="demoMsg" role="status"></p>
@@ -4515,7 +4526,7 @@ $("shareAppBtn").onclick=async()=>{
 const REQ_TYPE={course:"골프장 추가",bug:"불편·오류",idea:"기능 제안"};
 let myReqs=[], allReqs=null, isAdmin=false, reqUser=null;
 function startReqs(user){
-  reqUser=user; isAdmin=false; allReqs=null; myReqs=[]; renderReqs();
+  reqUser=user; isAdmin=false; allReqs=null; myReqs=[]; inboxOpen=false; $("demoPanel").hidden=true; renderReqs();
   $("myUid").textContent=user.uid; $("adminState").textContent="";
   $("uidCopy").onclick=()=>navigator.clipboard&&navigator.clipboard.writeText(user.uid).then(()=>$("uidCopy").textContent="복사됨",()=>{});
   unsubs.push(onSnapshot(query(collection(fs,"requests"),where("uid","==",user.uid)),snap=>{
@@ -4523,7 +4534,7 @@ function startReqs(user){
   },()=>{}));
   // 관리자 확인: 결과를 앱 정보 칸에 한 줄로 (관리자 문서가 있을 때만)
   getDoc(doc(fs,"admins",user.uid)).then(a=>{
-    if(!a.exists()) return; isAdmin=true; $("adminState").textContent="관리자 계정";
+    if(!a.exists()) return; isAdmin=true; $("adminState").textContent="관리자 계정"; $("demoPanel").hidden=false;
     unsubs.push(onSnapshot(collection(fs,"requests"),snap=>{ allReqs=snap.docs.map(d=>({id:d.id,...d.data()})); renderReqs(); },
       e=>{ $("adminState").textContent="관리자 계정 · 요청함을 읽지 못함 ("+(e&&e.code||"오류")+")"; }));
   }).catch(e=>{ $("adminState").textContent="관리자 확인 오류 ("+(e&&e.code||e&&e.message||"오류")+")"; });
@@ -4547,19 +4558,35 @@ function renderReqs(){
   const list=[...allReqs].sort((a,b)=>(a.status==="done")-(b.status==="done")||(b.createdAt||0)-(a.createdAt||0)), nNew=list.filter(r=>r.status!=="done").length;
   ap.hidden=false; $("menuBtn").classList.toggle("dot",nNew>0);
   $("menuBtn").setAttribute("aria-label",nNew?`메뉴 (더보기) · 새 요청 ${nNew}개`:"메뉴 (더보기)");
-  ap.innerHTML=`<div class="adminh"><h2>받은 요청함</h2>${nNew?`<span class="cnt">새 요청 ${nNew}</span>`:""}</div>
-    <p class="note" style="margin:6px 0 0">관리자 계정에만 보여요.</p>
-    ${list.length?`<div class="rlist">${list.slice(0,30).map(r=>reqRow(r,true)).join("")}</div>`:`<p class="note" style="margin:12px 0 0">아직 받은 요청이 없어요.</p>`}`;
+  ap.innerHTML=`<button class="adminbtn" id="inboxBtn"><span class="gic"><svg viewBox="0 0 24 24"><path d="M3.5 13.5 6 5h12l2.5 8.5V19H3.5zM3.5 13.5H8l1.5 2.5h5l1.5-2.5h4.5"/></svg></span>
+    <span class="t"><b>받은 요청함</b><small>${list.length?`전체 ${list.length}개 · 관리자 계정에만 보여요`:"아직 받은 요청이 없어요"}</small></span>
+    ${nNew?`<span class="cnt">새 요청 ${nNew}</span>`:""}<span class="chev">›</span></button>`;
+  $("inboxBtn").onclick=()=>{ inboxOpen=true; drawInbox(); };
+  if(inboxOpen&&!$("ov").hidden&&$("inboxBox")) drawInbox();
+}
+// 받은 요청함 창 (관리자): 새 요청 먼저, 완료 표시·답변
+let inboxOpen=false;
+function drawInbox(){
+  const list=[...(allReqs||[])].sort((a,b)=>(a.status==="done")-(b.status==="done")||(b.createdAt||0)-(a.createdAt||0)), nNew=list.filter(r=>r.status!=="done").length;
+  const keep=$("inboxBox")?$("inboxBox").scrollTop:0;
+  showOv(`<div class="ovcard sheet inbox"><div class="adminh"><h2>받은 요청함</h2>${nNew?`<span class="cnt">새 요청 ${nNew}</span>`:""}</div>
+    <div id="inboxBox">${list.length?`<div class="rlist">${list.slice(0,50).map(r=>reqRow(r,true)).join("")}</div>`:`<p class="note" style="margin:12px 0 0">아직 받은 요청이 없어요.</p>`}</div>
+    <div class="row" style="margin-top:12px"><button class="ghost" id="inboxClose">닫기</button></div></div>`);
+  $("inboxBox").scrollTop=keep;
+  $("inboxClose").onclick=()=>{ inboxOpen=false; closeOv(); };
+  const ap=$("inboxBox");
   ap.querySelectorAll("[data-rq-done]").forEach(b=>b.onclick=()=>bg(()=>updateDoc(doc(fs,"requests",b.dataset.rqDone),{status:"done",doneAt:Date.now()})));
   ap.querySelectorAll("[data-rq-undo]").forEach(b=>b.onclick=()=>bg(()=>updateDoc(doc(fs,"requests",b.dataset.rqUndo),{status:"new"})));
-  ap.querySelectorAll("[data-rq-reply]").forEach(b=>b.onclick=()=>reqReplyOv(allReqs.find(r=>r.id===b.dataset.rqReply)));
+  ap.querySelectorAll("[data-rq-reply]").forEach(b=>b.onclick=()=>{ inboxOpen=false; reqReplyOv(allReqs.find(r=>r.id===b.dataset.rqReply)); });
 }
 function reqReplyOv(r){
   if(!r) return;
   showOv(`<div class="ovcard sheet"><h2 style="margin:0">답변 달기</h2><p class="note" style="margin:0">${esc(REQ_TYPE[r.type]||"")} · ${esc(reqTitle(r))} · ${esc(r.name||"")}</p>
     <div class="reqform"><textarea id="rqReply" maxlength="1000" placeholder="예: 추가했어요! 앱을 껐다 켜면 코스 목록에 보여요.">${esc(r.reply||"")}</textarea></div>
     <div class="row" style="margin-top:14px"><button class="primary" id="rqSave">저장하고 완료 표시</button><button class="ghost" id="ovClose">닫기</button></div></div>`);
-  $("rqSave").onclick=()=>{ const t=$("rqReply").value.trim(); bg(()=>updateDoc(doc(fs,"requests",r.id),{reply:t,status:"done",doneAt:Date.now()})); closeOv(); };
+  const back=()=>{ inboxOpen=true; drawInbox(); };
+  $("ovClose").onclick=back;
+  $("rqSave").onclick=()=>{ const t=$("rqReply").value.trim(); r.reply=t; r.status="done"; bg(()=>updateDoc(doc(fs,"requests",r.id),{reply:t,status:"done",doneAt:Date.now()})); back(); };
 }
 function reqFormOv(type){
   let tp=type;
