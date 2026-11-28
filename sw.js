@@ -1,6 +1,8 @@
 // 오프라인 캐시: 앱 화면 파일·사진은 "인터넷 먼저, 안 되면 저장본", 라이브러리·글꼴(Pretendard)은 "저장본 먼저".
 // 데이터(Firestore)와 로그인 요청은 건드리지 않습니다 — Firestore가 자체적으로 오프라인 저장을 합니다.
-const CACHE = "golf-scorebook-v118";
+// 베타(/beta/)는 같은 사이트 안이라 저장 공간을 함께 쓰므로 이름을 따로 두고, 서로의 저장본을 지우지 않는다
+const IS_BETA = self.registration.scope.includes("/beta/");
+const CACHE = (IS_BETA ? "beta-" : "") + "golf-scorebook-v118";
 const SHELL = ["./", "./index.html", "./firebase-config.js", "./manifest.webmanifest",
   "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png",
   "./images/splash-aerial-bunkers.jpg", "./images/home-live-aerial.jpg", "./images/insights-header-bunker.jpg", "./images/share-card-lush.jpg",
@@ -18,7 +20,7 @@ self.addEventListener("install", e => {
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => k !== CACHE && k.startsWith("beta-") === IS_BETA).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 
@@ -49,6 +51,7 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   if (url.origin === location.origin) {
     if (url.pathname.includes("/__/")) return;
+    if (!IS_BETA && url.pathname.includes("/beta/")) return;   // 정식 앱은 베타 파일을 건드리지 않음
     // 사진·아이콘은 바뀌지 않으므로 저장본 먼저 (시작 화면 사진이 바로 뜨게)
     e.respondWith(/\.(jpg|png)$/.test(url.pathname) ? cacheFirst(req) : networkFirst(req, e));
   } else if (CDN_HOSTS.includes(url.hostname) &&

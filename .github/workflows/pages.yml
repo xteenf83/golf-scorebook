@@ -1,9 +1,12 @@
-# main 브랜치에 변경이 올라오면 GitHub Pages로 자동 배포합니다.
+# main(정식)과 beta(미리보기) 브랜치를 함께 GitHub Pages로 배포합니다.
+#   정식: https://xteenf83.github.io/golf-scorebook/        ← main
+#   베타: https://xteenf83.github.io/golf-scorebook/beta/   ← beta (없으면 건너뜀)
+# 어느 쪽에 푸시해도 두 주소를 같이 다시 올린다(한 사이트라서).
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, beta]
   workflow_dispatch:
 
 permissions:
@@ -23,10 +26,25 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+      - name: Check out beta (if it exists)
+        id: beta
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: beta
+          path: beta
       - name: Collect site files
         run: |
+          FILES="index.html manifest.webmanifest sw.js firebase-config.js icons images"
           mkdir _site
-          cp -r index.html manifest.webmanifest sw.js firebase-config.js icons images _site/
+          (cd main && cp -r $FILES ../_site/)
+          if [ -f beta/index.html ]; then
+            mkdir _site/beta
+            (cd beta && cp -r $FILES ../_site/beta/)
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
