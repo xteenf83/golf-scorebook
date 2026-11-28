@@ -1020,6 +1020,8 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 .wsteps li>span{font-size:14px;line-height:1.5;color:var(--t3)}
 .wsteps li>span b{font-size:inherit;font-weight:700;color:var(--t1)}
 .welcome .handrow .seg button{min-height:44px;min-width:58px}
+.rq .top b.wrap{white-space:normal;word-break:break-word}
+.errsrc{font-family:ui-monospace,Menlo,monospace;font-size:12px!important;color:var(--t4)!important;word-break:break-all}
 .calpick{display:grid;gap:10px;margin-top:4px}
 .calbtn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px 16px;border-radius:16px;background:var(--fill);color:var(--t1);text-decoration:none;min-height:44px;text-align:left}
 .calbtn b{font-size:16px;font-weight:700}
@@ -4582,9 +4584,9 @@ $("shareAppBtn").onclick=async()=>{
    requests/{id} = {uid,name,email,type:"course"|"bug"|"idea",club,region,text,status:"new"|"done",reply,createdAt,doneAt,appVer,device}
    보낸 사람은 자기 요청만 읽고, admins/{uid} 문서가 있는 계정(관리자)만 모두 읽고 답을 단다 (firestore.rules) */
 const REQ_TYPE={course:"골프장 추가",bug:"불편·오류",idea:"기능 제안"};
-let myReqs=[], allReqs=null, isAdmin=false, reqUser=null;
+let myReqs=[], allReqs=null, allErrs=[], isAdmin=false, reqUser=null, inboxTab="req";
 function startReqs(user){
-  reqUser=user; isAdmin=false; allReqs=null; myReqs=[]; inboxOpen=false; $("demoPanel").hidden=true; renderReqs();
+  reqUser=user; isAdmin=false; allReqs=null; allErrs=[]; myReqs=[]; inboxOpen=false; inboxTab="req"; $("demoPanel").hidden=true; renderReqs();
   $("myUid").textContent=user.uid; $("adminState").textContent="";
   $("uidCopy").onclick=()=>navigator.clipboard&&navigator.clipboard.writeText(user.uid).then(()=>$("uidCopy").textContent="복사됨",()=>{});
   unsubs.push(onSnapshot(query(collection(fs,"requests"),where("uid","==",user.uid)),snap=>{
@@ -4593,6 +4595,7 @@ function startReqs(user){
   // 관리자 확인: 결과를 앱 정보 칸에 한 줄로 (관리자 문서가 있을 때만)
   getDoc(doc(fs,"admins",user.uid)).then(a=>{
     if(!a.exists()) return; isAdmin=true; $("adminState").textContent="관리자 계정"; $("demoPanel").hidden=false;
+    unsubs.push(onSnapshot(collection(fs,"errors"),snap=>{ allErrs=snap.docs.map(d=>({id:d.id,...d.data()})); renderReqs(); },()=>{}));
     unsubs.push(onSnapshot(collection(fs,"requests"),snap=>{ allReqs=snap.docs.map(d=>({id:d.id,...d.data()})); renderReqs(); },
       e=>{ $("adminState").textContent="관리자 계정 · 요청함을 읽지 못함 ("+(e&&e.code||"오류")+")"; }));
   }).catch(e=>{ $("adminState").textContent="관리자 확인 오류 ("+(e&&e.code||e&&e.message||"오류")+")"; });
@@ -4617,21 +4620,36 @@ function renderReqs(){
   ap.hidden=false; $("menuBtn").classList.toggle("dot",nNew>0);
   $("menuBtn").setAttribute("aria-label",nNew?`메뉴 (더보기) · 새 요청 ${nNew}개`:"메뉴 (더보기)");
   ap.innerHTML=`<button class="adminbtn" id="inboxBtn"><span class="gic"><svg viewBox="0 0 24 24"><path d="M3.5 13.5 6 5h12l2.5 8.5V19H3.5zM3.5 13.5H8l1.5 2.5h5l1.5-2.5h4.5"/></svg></span>
-    <span class="t"><b>받은 요청함</b><small>${list.length?`전체 ${list.length}개 · 관리자 계정에만 보여요`:"아직 받은 요청이 없어요"}</small></span>
+    <span class="t"><b>받은 요청함</b><small>${list.length?`요청 ${list.length}개`:"요청 없음"}${allErrs.length?` · 오류 기록 ${allErrs.length}건`:""} · 관리자에게만 보여요</small></span>
     ${nNew?`<span class="cnt">새 요청 ${nNew}</span>`:""}<span class="chev">›</span></button>`;
   $("inboxBtn").onclick=()=>{ inboxOpen=true; drawInbox(); };
   if(inboxOpen&&!$("ov").hidden&&$("inboxBox")) drawInbox();
+}
+// 오류 기록을 같은 문구끼리 묶기 (많이 난 것 먼저)
+function errGroups(){
+  const m=new Map();
+  allErrs.forEach(e=>{ const g=m.get(e.msg)||{msg:e.msg,n:0,last:0,u:new Set(),vers:new Set(),devs:new Set(),src:e.src,scr:e.screen};
+    g.n++; g.last=Math.max(g.last,e.at||0); g.u.add(e.uid); if(e.appVer) g.vers.add(e.appVer); if(e.device) g.devs.add(e.device); m.set(e.msg,g) });
+  return [...m.values()].map(g=>({...g,users:g.u.size})).sort((a,b)=>b.last-a.last);
 }
 // 받은 요청함 창 (관리자): 새 요청 먼저, 완료 표시·답변
 let inboxOpen=false;
 function drawInbox(){
   const list=[...(allReqs||[])].sort((a,b)=>(a.status==="done")-(b.status==="done")||(b.createdAt||0)-(a.createdAt||0)), nNew=list.filter(r=>r.status!=="done").length;
   const keep=$("inboxBox")?$("inboxBox").scrollTop:0;
+  const errBody=errGroups().map(g=>`<div class="rq"><div class="top"><span class="rtype">${g.n}회</span><b class="wrap">${esc(g.msg)}</b></div>
+      <span class="meta">${reqDate(g.last)} 마지막 · ${g.users}명 · ${esc([...g.vers].join(", "))} · ${esc([...g.devs].join(", "))}${g.scr?` · ${esc(g.scr)}`:""}</span>
+      ${g.src?`<p class="errsrc">${esc(g.src)}</p>`:""}</div>`).join("");
   showOv(`<div class="ovcard sheet inbox"><div class="adminh"><h2>받은 요청함</h2>${nNew?`<span class="cnt">새 요청 ${nNew}</span>`:""}</div>
-    <div id="inboxBox">${list.length?`<div class="rlist">${list.slice(0,50).map(r=>reqRow(r,true)).join("")}</div>`:`<p class="note" style="margin:12px 0 0">아직 받은 요청이 없어요.</p>`}</div>
+    <div class="seg full" id="inboxTabs" style="margin-top:4px"><button data-t="req" class="${inboxTab==="req"?"on":""}">요청 ${list.length}</button><button data-t="err" class="${inboxTab==="err"?"on":""}">오류 기록 ${allErrs.length}</button></div>
+    <div id="inboxBox">${inboxTab==="err"
+      ?(allErrs.length?`<div class="rlist">${errBody}</div><button class="ghost" id="errClear" style="margin-top:12px;width:100%">오류 기록 모두 지우기</button>`:`<p class="note" style="margin:12px 0 0">기록된 오류가 없어요. 지인 폰에서 앱 오류가 나면 자동으로 여기에 쌓여요.</p>`)
+      :(list.length?`<div class="rlist">${list.slice(0,50).map(r=>reqRow(r,true)).join("")}</div>`:`<p class="note" style="margin:12px 0 0">아직 받은 요청이 없어요.</p>`)}</div>
     <div class="row" style="margin-top:12px"><button class="ghost" id="inboxClose">닫기</button></div></div>`);
   $("inboxBox").scrollTop=keep;
   $("inboxClose").onclick=()=>{ inboxOpen=false; closeOv(); };
+  $("inboxTabs").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{ inboxTab=b.dataset.t; drawInbox(); });
+  if($("errClear")) $("errClear").onclick=()=>{ if(!confirm("오류 기록을 모두 지울까요?")) return; allErrs.forEach(e=>bg(()=>deleteDoc(doc(fs,"errors",e.id)))); };
   const ap=$("inboxBox");
   ap.querySelectorAll("[data-rq-done]").forEach(b=>b.onclick=()=>bg(()=>updateDoc(doc(fs,"requests",b.dataset.rqDone),{status:"done",doneAt:Date.now()})));
   ap.querySelectorAll("[data-rq-undo]").forEach(b=>b.onclick=()=>bg(()=>updateDoc(doc(fs,"requests",b.dataset.rqUndo),{status:"new"})));
@@ -4688,6 +4706,24 @@ function notifyAdmin(r){
 $("reqCourseBtn").onclick=()=>reqFormOv("course");
 $("reqIdeaBtn").onclick=()=>reqFormOv("idea");
 $("reqCourseLink").onclick=()=>reqFormOv("course");
+/* ---------- 오류 자동 보고 ----------
+   앱에서 오류가 나면 errors/{id} = {uid,msg,src,screen,appVer,device,at}로 남긴다 (관리자만 읽음, firestore.rules).
+   같은 오류는 한 번만, 한 번 켤 때 최대 5개. 로그인 전·인터넷 문제·브라우저 확장 등 잡음은 뺀다 */
+const errSent=new Set();
+const ERR_SKIP=/ResizeObserver|Script error|network|Failed to fetch|Load failed|NetworkError|offline|unavailable|permission-denied|AbortError|cancelled/i;
+function reportErr(msg,src){
+  try{
+    msg=String(msg||"").slice(0,300); src=String(src||"").slice(0,300);
+    if(!msg||!fs||!curUid||ERR_SKIP.test(msg)||errSent.has(msg)||errSent.size>=5) return;
+    errSent.add(msg);
+    const scr=(document.querySelector("section.screen:not([hidden])")||{}).id||"";
+    setDoc(doc(collection(fs,"errors")),{uid:curUid,msg,src,screen:scr.slice(0,20),appVer:APP_VERSION,
+      device:/iPhone|iPad/.test(navigator.userAgent)?"iPhone":/Android/.test(navigator.userAgent)?"Android":"기타",at:Date.now()}).catch(()=>{});
+  }catch(e){}
+}
+addEventListener("error",e=>{ if(e&&e.message) reportErr(e.message,(e.filename||"").split("/").pop()+":"+(e.lineno||"")+":"+(e.colno||"")) });
+addEventListener("unhandledrejection",e=>{ const r=e&&e.reason; reportErr(r&&(r.message||r.code)||String(r),r&&r.stack?String(r.stack).split("\n").slice(0,2).join(" | "):"") });
+
 /* ---------- 처음 온 사람 환영 안내 (한 번만) ----------
    라운드가 하나도 없는 계정이 이 폰에서 처음 열 때만. 치는 방향도 여기서 바로 고른다. 닫은 것은 이 폰에만 기억 */
 let welcomeChecked=false;

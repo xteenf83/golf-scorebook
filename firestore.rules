@@ -16,6 +16,16 @@ service cloud.firestore {
     match /admins/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
     }
+    // 오류 기록: 로그인한 사람의 앱이 자기 이름으로 남기기만, 관리자만 읽고 지움
+    match /errors/{id} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid','msg','src','screen','appVer','device','at'])
+        && shortStr(request.resource.data.msg, 300) && shortStr(request.resource.data.src, 300)
+        && shortStr(request.resource.data.screen, 20) && shortStr(request.resource.data.appVer, 10)
+        && shortStr(request.resource.data.device, 10) && request.resource.data.at is number;
+      allow read, delete: if isAdmin();
+    }
     // 요청함: 로그인한 사람은 자기 이름으로 새 요청만 보낼 수 있고, 자기 요청만 읽음. 관리자는 모두 읽고 답변·완료 표시
     match /requests/{id} {
       allow create: if request.auth != null
