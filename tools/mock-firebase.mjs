@@ -25,7 +25,8 @@ export function onAuthStateChanged(a, cb){ setTimeout(() => cb(S.signedIn ? user
 export const getRedirectResult = () => Promise.resolve(null);
 export const signInWithPopup = () => Promise.resolve({ user });
 export const signInWithRedirect = () => Promise.resolve();
-export const signOut = () => Promise.resolve();`,
+export const signOut = () => Promise.resolve();
+export const deleteUser = () => { S.deletedUser = true; return Promise.resolve(); };`,
   "firebase-firestore.js": `${store}
 export const initializeFirestore = () => ({});
 export const persistentLocalCache = () => ({});
@@ -44,7 +45,7 @@ export async function deleteDoc(r){ S.data.delete(r.path); S.fire() }
 export async function getDoc(r){ return snapDoc(r) }
 export async function getDocs(c){ return { docs: kids(c) } }
 export const getDocsFromServer = getDocs;
-export function writeBatch(){ const ops = []; return { set: (r, b, o) => ops.push(() => setDoc(r, b, o)), update: (r, b) => ops.push(() => updateDoc(r, b)), commit: async () => { for (const f of ops) await f() } } }
+export function writeBatch(){ const ops = []; return { set: (r, b, o) => ops.push(() => setDoc(r, b, o)), delete: r => ops.push(() => deleteDoc(r)), update: (r, b) => ops.push(() => updateDoc(r, b)), commit: async () => { for (const f of ops) await f() } } }
 export function onSnapshot(r, ...a){ const fn = a.find(x => typeof x === "function");
   const meta = { hasPendingWrites: false, fromCache: false };
   const run = () => fn(r.type === "col" ? { docs: kids(r), metadata: meta } : { ...snapDoc(r), metadata: meta });

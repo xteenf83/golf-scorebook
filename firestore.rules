@@ -29,7 +29,9 @@ service cloud.firestore {
         && shortStr(request.resource.data.appVer, 10) && shortStr(request.resource.data.device, 10)
         && request.resource.data.createdAt is number;
       allow read: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin();
+      // 계정 삭제 때 자기 요청은 스스로 지울 수 있음
+      allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
     }
   }
 }
