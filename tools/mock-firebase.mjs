@@ -7,6 +7,7 @@ const S = window.__MOCK || (window.__MOCK = (() => {
   (seed.rounds || []).forEach(r => { const {id, ...b} = r; data.set(base + "/rounds/" + id, b) });
   (seed.courses || []).forEach(c => { const {id, ...b} = c; data.set(base + "/courses/" + id, b) });
   data.set(base + "/settings/app", seed.settings || {});
+  (seed.schedules || []).forEach(c => { const {id, ...b} = c; data.set(base + "/schedules/" + id, b) });   // 골프 일정
   (seed.requests || []).forEach(r => { const {id, ...b} = r; data.set("requests/" + id, b) });   // 요청함
   if (seed.admin) data.set("admins/" + U, {});
   if (seed.user !== null) data.set(base, seed.user || {});   // user: null = 계정 문서 없는 새 계정

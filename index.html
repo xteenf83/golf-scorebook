@@ -1004,6 +1004,16 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 #menuBtn{position:relative}
 #menuBtn.dot::after{content:"";position:absolute;top:9px;right:8px;width:9px;height:9px;border-radius:50%;background:#F04438;box-shadow:0 0 0 2px var(--card,#fff)}
 .note a{color:var(--brand-text);font-weight:600;text-decoration:none}
+/* 좁은 폰(갤럭시 360px·아이폰 미니·SE 375px): 새 라운드의 날짜·골프장은 한 줄씩, 분석 기간 막대는 글자를 조금 작게 */
+@media (max-width:389px){
+  #scrSetup #sDateWrap,#scrSetup #sClubWrap{grid-column:1/-1}
+  .pbar{grid-template-columns:minmax(0,1.3fr) minmax(0,1.1fr) minmax(0,.8fr);gap:6px}
+  .pbar>button{font-size:13.5px;padding:0 8px}
+}
+.calpick{display:grid;gap:10px;margin-top:4px}
+.calbtn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px 16px;border-radius:16px;background:var(--fill);color:var(--t1);text-decoration:none;min-height:44px;text-align:left}
+.calbtn b{font-size:16px;font-weight:700}
+.calbtn small{font-size:13px;color:var(--t3);line-height:1.4}
 .privnote{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--t4);text-align:center}
 .privnote .linkbtn{min-height:0;padding:0;font-size:12.5px}
 .ovcard.priv{max-width:420px;text-align:left}
@@ -2709,6 +2719,26 @@ function calShareOv(file){
     <div class="row"><button class="primary" id="calShare">파일로 넘기기</button><button class="ghost" id="ovClose">닫기</button></div></div>`);
   $("calShare").onclick=()=>{ navigator.share({files:[file]}).catch(()=>{}); closeOv() };
 }
+// 갤럭시(안드로이드): 구글 캘린더 앱은 .ics를 바로 못 열어서 고르게 한다.
+//  - 구글 캘린더: 일정 추가 화면 주소(제목·시간·장소·메모를 채워서). 알림은 구글 캘린더 기본 알림
+//  - 삼성 캘린더 등: .ics 파일(전날 20시·2시간 전 알림 포함)을 받아서 연다
+function gcalUrl(x){
+  const loc=d=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}T${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}00`;
+  const st=new Date(`${x.date}T${x.time}`), en=new Date(st.getTime()+5*3600e3);
+  const desc=[courseTxt(x," → "),x.tee?teeKo(x.tee)+" 티":"",x.mates&&x.mates.length?"동반: "+x.mates.join(", "):"",x.memo].filter(Boolean).join("\n");
+  const q=new URLSearchParams({action:"TEMPLATE",text:`골프 · ${x.club} ${x.time} 티오프`,dates:`${loc(st)}/${loc(en)}`,ctz:"Asia/Seoul",location:x.club,details:desc});
+  return "https://calendar.google.com/calendar/render?"+q.toString();
+}
+function calAndroidOv(x,icsUrl){
+  showOv(`<div class="ovcard sheet"><h2 style="margin:0">캘린더에 추가</h2>
+    <p class="note" style="margin:0">쓰는 캘린더를 골라 주세요.</p>
+    <div class="calpick">
+      <a class="calbtn" id="calG" href="${esc(gcalUrl(x))}" target="_blank" rel="noopener"><b>구글 캘린더</b><small>알림은 구글 캘린더 기본 설정</small></a>
+      <a class="calbtn" id="calI" href="${esc(icsUrl)}" target="_blank" rel="noopener"><b>삼성 캘린더 · 기타</b><small>일정 파일 받기 · 전날 저녁 8시와 2시간 전 알림 포함</small></a>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="ghost" id="ovClose">닫기</button></div></div>`);
+  $("calG").onclick=$("calI").onclick=()=>setTimeout(closeOv,300);
+}
 function schedCal(x){
   const ics=schedIcs(x), name=`golf-${x.date}.ics`, file=new File([ics],name,{type:"text/calendar"});
   if(ICS_URL){
@@ -2723,6 +2753,7 @@ function schedCal(x){
       setTimeout(()=>{ document.removeEventListener("visibilitychange",hide); if(!left) calShareOv(file) },1500);
       return;
     }
+    if(/Android/i.test(navigator.userAgent)){ calAndroidOv(x,url); return; }
     window.open(url,"_blank"); return;
   }
   if(navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file]}).catch(()=>{}); return }
