@@ -4354,7 +4354,8 @@ async function seedCourses(uid,force=false){
   });
   batch.set(uref,{coursesSeedVersion:COURSES_SEED_VERSION},{merge:true});
   // 새 계정은 우타로 시작 (기존 계정은 hand 값이 없어 좌타 그대로). 더보기에서 바꿀 수 있음
-  if(newAcct&&!settings.hand) batch.set(doc(fs,"users",uid,"settings","app"),{hand:"R"},{merge:true});
+  // 계정 문서가 지워진 기존 계정(코스가 이미 있음)은 새 계정으로 보지 않는다 → 좌타 설정이 바뀌지 않게
+  if(newAcct&&!existing.length&&!settings.hand) batch.set(doc(fs,"users",uid,"settings","app"),{hand:"R"},{merge:true});
   await batch.commit();
   return {added,fixed,same};
 }
