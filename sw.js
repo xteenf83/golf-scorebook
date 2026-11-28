@@ -2,7 +2,7 @@
 // 데이터(Firestore)와 로그인 요청은 건드리지 않습니다 — Firestore가 자체적으로 오프라인 저장을 합니다.
 // 베타(/beta/)는 같은 사이트 안이라 저장 공간을 함께 쓰므로 이름을 따로 두고, 서로의 저장본을 지우지 않는다
 const IS_BETA = self.registration.scope.includes("/beta/");
-const CACHE = (IS_BETA ? "beta-" : "") + "golf-scorebook-v118";
+const CACHE = (IS_BETA ? "beta-" : "") + "golf-scorebook-v119";
 const SHELL = ["./", "./index.html", "./firebase-config.js", "./manifest.webmanifest",
   "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png",
   "./images/splash-aerial-bunkers.jpg", "./images/home-live-aerial.jpg", "./images/insights-header-bunker.jpg", "./images/share-card-lush.jpg",
