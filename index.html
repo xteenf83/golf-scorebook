@@ -938,6 +938,10 @@ svg.ibars text{font-size:12px;font-weight:700;fill:var(--t5);text-anchor:middle;
 /* 티샷 방향 사진 + 궤적 (사진 색은 라이트/다크 공통) */
 .tshot{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:1189/1323;background:#7FB86A;margin-top:4px}
 .tshot img,.tshot svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tshot img.flip{transform:scaleX(-1)}
+.handrow{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:16px;font-weight:600;color:var(--t1)}
+.handrow small{display:block;font-size:13.5px;font-weight:500;color:var(--t3);margin-top:3px;line-height:1.4}
+.handrow .seg{flex:none}.handrow .seg button{min-height:44px;min-width:60px}
 .tshot text{text-anchor:middle;font-family:var(--font)}
 .tshot .zone text{font-size:40px;font-weight:600;fill:#24443A} .tshot .zone .p{font-size:84px;font-weight:800;fill:#0F2A1E;letter-spacing:-2px} .tshot .zone .p.miss{fill:#D9531A}
 .tshot .tag rect{fill:rgba(255,255,255,.96)} .tshot .tag .v{font-size:50px;font-weight:800;fill:#191F28;letter-spacing:-1px} .tshot .tag .n{font-size:32px;font-weight:600;fill:#4E5968}
@@ -1234,6 +1238,11 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <p class="msg err" id="pastMsg" role="status"></p>
     </section>
     <section class="panel">
+      <h2>내 스윙</h2>
+      <div class="handrow"><span>치는 방향<small>구질 버튼 순서와 티샷 방향 그림이 바뀌어요 · 지난 기록은 그대로</small></span>
+        <div class="seg" id="handSeg" role="radiogroup" aria-label="치는 방향"><button data-hand="L" role="radio">좌타</button><button data-hand="R" role="radio">우타</button></div></div>
+    </section>
+    <section class="panel">
       <h2>재미 기능</h2>
       <label class="tgl"><span>고스트 매치<small>같은 코스의 과거 내 기록과 홀마다 대결</small></span><input type="checkbox" data-set="ghost"></label>
       <label class="tgl"><span>홀 브리핑<small>티샷 전에 그 홀의 내 과거 기록과 코치 팁</small></span><input type="checkbox" data-set="brief"></label>
@@ -1354,7 +1363,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <div class="startrow" id="startRow"></div>
       <div class="field" id="fwField" data-step="fw"><div class="seg full" id="fwBtns"></div></div>
       <div class="field" data-step="shape">
-        <div class="dirlab"><span>← 공이 간 방향</span><span>좌타 기준</span><span>→</span></div>
+        <div class="dirlab"><span>← 공이 간 방향</span><span id="handLab">좌타 기준</span><span>→</span></div>
         <div class="shapes" id="shapeBtns"></div>
       </div>
     </section>
@@ -1875,6 +1884,12 @@ const SHAPE_ROW = [
   ["pull","풀","M12 22 L17 3"],
   ["draw","드로우","M12 22 C12 13 13 8 16 3"],
   ["hook","훅","M12 22 C12 13 15 7 21 5"]];
+// 치는 손: settings.hand "R"이면 우타, 없거나 "L"이면 좌타(기존 계정 그대로).
+// 구질 이름(슬라이스·훅)은 저장 값 그대로 두고, 화면에서 '공이 가는 방향' 순서와 그림만 좌우로 뒤집는다
+const isRighty=()=>settings.hand==="R";
+const handName=()=>isRighty()?"우타":"좌타";
+const mirrorPath=d=>d.replace(/([MLC ])(\d+(?:\.\d+)?) (\d+(?:\.\d+)?)/g,(m,c,x,y)=>`${c}${24-+x} ${y}`);
+const shapeRow=()=>isRighty()?[...SHAPE_ROW].reverse().map(([k,n,d])=>[k,n,mirrorPath(d)]):SHAPE_ROW;
 const TEE_ORDER = ["Black","Gold","Blue","Green","White","Yellow","Silver","Red","Lady"];
 // 티 순서: 긴 티부터 (골프장마다 Gold 등의 위치가 달라서 이름이 아니라 합계 거리로 정렬)
 const teeLen = a => {const v=a.filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+y,0)/v.length:0};   // 빈 홀은 빼고 평균
@@ -1922,7 +1937,7 @@ function relCls(d){return d==null?"even":d<0?"under":d===0?"even":"over"}
 function clone(o){return JSON.parse(JSON.stringify(o))}
 
 let userName="";
-const TITLES={Login:["Golf Scorebook · 좌타","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],
+const TITLES={Login:["Golf Scorebook","나의 골프 스코어북"],Stats:["Statistics","통계 · 추이"],Setup:["New Round","새 라운드"],
   Round:["Scorecard","라운드 기록"],Rounds:["All Rounds","전체 라운드"],Courses:["Courses","골프장 · 코스"],Info:["Edit","라운드 정보 수정"],More:["Settings","더보기"],Badges:["Badges","배지"]};
 const TAB_SCREENS=["Home","Stats","Courses","Badges","More"];
 function scrollTop(){$("scroller").scrollTop=0}
@@ -1937,7 +1952,7 @@ function show(name){
   const sub=["Setup","Rounds","Info","More"].includes(name);
   $("topBar").classList.toggle("nav",name==="Play"); $("topBar").classList.toggle("sub",sub); $("topBack").hidden = name!=="Play"&&!sub;
   $("topBack").setAttribute("aria-label", name==="Play"?"홈으로 (자동 저장됨)":name==="Info"?"돌아가기":"홈으로");
-  const [eb,tt]= name==="Home" ? [`좌타 · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
+  const [eb,tt]= name==="Home" ? [`${handName()} · ${new Date().getFullYear()} 시즌`, userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북"] : (TITLES[name]||TITLES.Login);
   $("topEyebrow").textContent=eb; $("topTitle").textContent=tt; $("topSub").hidden=true;
   if(name==="Play") playHead();
   if(name==="Home") homeHead();
@@ -2045,7 +2060,7 @@ document.addEventListener("click",e=>{ if(!$("rangeMenu").hidden&&!e.target.clos
 function homeHead(){
   const p=playingRound();
   $("homeTitle").textContent = userName?`안녕하세요, ${userName}님`:"나의 골프 스코어북";
-  $("homeSub").innerHTML = p ? `<i class="live"></i>라운드 진행 중 · ${esc(p.club)}` : `좌타 · ${new Date().getFullYear()} 시즌`;
+  $("homeSub").innerHTML = p ? `<i class="live"></i>라운드 진행 중 · ${esc(p.club)}` : `${handName()} · ${new Date().getFullYear()} 시즌`;
 }
 function renderHome(){
   const playing = playingRound(); updFab(); homeHead();
@@ -2238,10 +2253,10 @@ function renderInsights(all,rs){
   if(det.length){ const hs=det.flatMap(r=>r.holes), t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>fwSide(h,"L")).length, H=t.filter(fwHit).length, R=t.filter(h=>fwSide(h,"R")).length, pc=v=>t.length?Math.round(v/t.length*100):0;
     const sent=!t.length?"파4·5 티샷 기록이 없어요":L&&R&&Math.max(L,R)/Math.min(L,R)>=1.15?`${L>R?"왼쪽":"오른쪽"}으로 빠지는 공이<br>${L>R?"오른쪽":"왼쪽"}보다 ${(Math.max(L,R)/Math.min(L,R)).toFixed(1)}배 많아요`:H>=Math.max(L,R)?`티샷 ${pc(H)}%가<br>페어웨이에 떨어졌어요`:`왼쪽·오른쪽 미스가 비슷해요`;
     const fwOf=k=>{const a=hs.filter(h=>h.shape===k&&h.par>=4&&h.fw); return a.length?Math.round(a.filter(fwHit).length/a.length*100)+"%":"–"};
-    const sh=SHAPE_ROW.map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
+    const sh=shapeRow().map(([k,nm])=>[k,nm,Math.round(hs.filter(h=>h.shape===k).length/hs.length*100),fwOf(k)]);
     const pdet=prev.filter(hasDetail), slp=rr=>{const h=rr.flatMap(r=>r.holes); return h.length?Math.round(h.filter(x=>x.shape==="slice").length/h.length*100):null};
     const s0=slp(pdet), s1=slp(det);
-    cards.push(`<section class="panel ic"><small class="lab">티샷 방향 · 좌타 기준</small><div class="ttl">${sent}</div>
+    cards.push(`<section class="panel ic"><small class="lab">티샷 방향 · ${handName()} 기준</small><div class="ttl">${sent}</div>
       ${teeShotView(pc(L),pc(H),pc(R),sh)}
       ${missLine(hs)}
       ${s0!=null&&s1!=null&&s0!==s1?`<div class="tipbox ico"><span class="tic"><svg viewBox="0 0 24 24"><path d="${s1<s0?"M4 17l6-6 4 4 6-7M15 8h5v5":"M4 7l6 6 4-4 6 7M15 16h5v-5"}"/></svg></span><span>슬라이스가 <b>${s0}% → ${s1}%</b>로 ${s1<s0?"줄었어요. 연습이 효과를 내고 있어요.":"늘었어요. 티샷 방향을 다시 점검해 보세요."}</span></div>`:""}</section>`) }
@@ -2839,10 +2854,10 @@ function renderPlay(){
   // 티샷
   $("fwField").hidden=h.par<4;
   $("fwBtns").innerHTML=FW.map(([k,n])=>`<button class="${h.fw===k?"on":""}" data-fw="${k}">${n}</button>`).join("");
-  $("shapeBtns").innerHTML=SHAPE_ROW.map(([k,n,d])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="25" r="2.2"/></svg><span>${n}</span></button>`).join("");
+  $("shapeBtns").innerHTML=shapeRow().map(([k,n,d])=>`<button class="${h.shape===k?"on":""}" data-sh="${k}" aria-label="${SHAPE_NAME[k]}"><svg viewBox="0 0 24 28" aria-hidden="true"><path d="${d}"/><circle cx="12" cy="25" r="2.2"/></svg><span>${n}</span></button>`).join("");
   // 티샷 첫 줄: 왼쪽 출발 · 오른쪽 출발 · 미스샷. 미스샷을 누르면 출발 버튼 자리에 토·아래·힐
   const mis=isMis(h), mOpen=mis||missOpen===hole;
-  $("shapeBtns").classList.toggle("dim",mOpen); $("fwBtns").classList.toggle("dim",mOpen);   // 미스샷 버튼을 누르면 바로 페어웨이·구질 회색(입력 필요 없음, 통계는 페어웨이 미스)
+  $("handLab").textContent=handName()+" 기준"; $("shapeBtns").classList.toggle("dim",mOpen); $("fwBtns").classList.toggle("dim",mOpen);   // 미스샷 버튼을 누르면 바로 페어웨이·구질 회색(입력 필요 없음, 통계는 페어웨이 미스)
   // 출발 방향·미스샷 줄: 설정에서 켠 계정만 (꺼져 있어도 이미 기록된 홀은 보여 줌)
   $("startRow").hidden=!((teeDetailOn()&&h.par>=4)||mis||h.start);   // 파3은 없음 (이미 기록된 홀은 고칠 수 있게 보임)
   $("startRow").classList.toggle("open",mOpen);
@@ -3245,7 +3260,7 @@ function roundShot(r,c){
   const hs=r.holes, t=hs.filter(h=>h.par>=4&&h.fw), L=t.filter(h=>fwSide(h,"L")).length, H=t.filter(fwHit).length, R=t.filter(h=>fwSide(h,"R")).length;
   const head = !t.length?"파4·5 티샷 기록이 없어요" : H>=Math.max(L,R)*2?"페어웨이를 잘 지켰어요" : L>=H&&L>R?"왼쪽 미스가 페어웨이만큼 많았어요" : R>=H&&R>L?"오른쪽 미스가 페어웨이만큼 많았어요"
     : L>R?"미스는 왼쪽으로 더 많이 났어요" : R>L?"미스는 오른쪽으로 더 많이 났어요" : "왼쪽·오른쪽 미스가 비슷했어요";
-  const sc=SHAPE_ROW.map(([k,n])=>[k,n,hs.filter(h=>h.shape===k).length]), smax=Math.max(1,...sc.map(x=>x[2]));
+  const sc=shapeRow().map(([k,n])=>[k,n,hs.filter(h=>h.shape===k).length]), smax=Math.max(1,...sc.map(x=>x[2]));
   // 구질 한 줄: 미션이 구질이면 그 결과, 아니면 슬라이스를 평소와 비교
   const others=eligibleRounds().filter(x=>x.id!==r.id&&hasDetail(x)&&touchedShape(x));
   const sk=r.mission&&(r.mission.type==="slice"||r.mission.type==="hook")?r.mission.type:"slice", n=hs.filter(h=>h.shape===sk).length;
@@ -3263,7 +3278,7 @@ function roundShot(r,c){
       <div class="cb"><i style="width:${Math.min(100,v/max*100).toFixed(1)}%;background:${col}"></i>${m!=null?`<u style="left:${Math.min(100,m/max*100).toFixed(1)}%"></u>`:""}</div></div>` };
   return `<div class="pad"><small class="lab">티샷 방향 · 파4·5 ${t.length}번</small><div class="ttl">${head}</div></div>
     <div class="fwgrid pad"><div><b class="miss">${L}</b><span>왼쪽 미스</span></div><div class="mid"><b>${H}</b><span>페어웨이</span></div><div><b>${R}</b><span>오른쪽 미스</span></div></div>
-    <div class="shh pad"><b>구질</b><small>← 공이 간 방향 (좌타) →</small></div>
+    <div class="shh pad"><b>구질</b><small>← 공이 간 방향 (${handName()}) →</small></div>
     <div class="sbars pad">${sc.map(([k,nm,v])=>`<div><em class="${k==="straight"?"hit":k==="slice"?"miss":""}">${v}</em><i class="${k==="straight"?"hit":k==="slice"?"miss":""}" style="height:${Math.round(v/smax*68)}px"></i><span>${nm}</span></div>`).join("")}</div>
     ${missLine(hs)?`<div class="pad">${missLine(hs)}</div>`:""}
     <div class="tipbox pad2">${line}</div>
@@ -3346,18 +3361,19 @@ function teeShotView(L,H,R,sh){
   const miss=(sh.filter(x=>x[0]!=="straight"&&x[2]>0&&parseInt(x[3])<50).sort((a,b)=>b[2]-a[2])[0]||[])[0];
   const tone=k=>k===miss?"miss":k==="straight"?"hit":"";
   let defs="", trails="", tags="";
-  TS_SHOTS.forEach(([k,[x,y],bend],i)=>{ const [,nm,v]=by[k], t=tone(k);
+  const flip=isRighty(), shots=flip?TS_SHOTS.map(([k,[x,y],b])=>[k,[1189-x,y],b]).reverse():TS_SHOTS;
+  shots.forEach(([k,[x,y],bend],i)=>{ const [,nm,v]=by[k], t=tone(k);
     if(v){ const [g,pth]=tsTrail(TS_TEE,[x,y],bend,"tsg"+i,t); defs+=g; trails+=pth }
     tags+=`<g class="${t}"${v?"":' opacity=".55"'}><rect x="${x-68}" y="${y-170}" width="136" height="118" rx="30"/><text x="${x}" y="${y-115}" class="v">${v}%</text><text x="${x}" y="${y-72}" class="n">${nm}</text></g>` });
   const zm=L!==R?(L>R?"l":"r"):"";
-  return `<div class="tshot"><img src="images/teeshot-lefty.jpg" alt="" width="800" height="890" onerror="this.remove()">
-    <svg viewBox="0 0 1189 1323" role="img" aria-label="티샷 결과: 왼쪽 러프 ${L}퍼센트, 페어웨이 ${H}퍼센트, 오른쪽 러프 ${R}퍼센트. 구질 ${TS_SHOTS.map(([k])=>by[k][1]+" "+by[k][2]+"퍼센트").join(", ")}">
+  return `<div class="tshot"><img src="images/teeshot-lefty.jpg"${flip?' class="flip"':""} alt="" width="800" height="890" onerror="this.remove()">
+    <svg viewBox="0 0 1189 1323" role="img" aria-label="티샷 결과: 왼쪽 러프 ${L}퍼센트, 페어웨이 ${H}퍼센트, 오른쪽 러프 ${R}퍼센트. 구질 ${shots.map(([k])=>by[k][1]+" "+by[k][2]+"퍼센트").join(", ")}">
     <defs>${defs}<filter id="tsds" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity=".35"/></filter></defs>
     <g class="zone"><text x="200" y="110" class="p${zm==="l"?" miss":""}">${L}%</text><text x="200" y="160">왼쪽 러프</text>
       <text x="595" y="110" class="p">${H}%</text><text x="595" y="160">페어웨이</text>
       <text x="990" y="110" class="p${zm==="r"?" miss":""}">${R}%</text><text x="990" y="160">오른쪽 러프</text></g>
     <g filter="url(#tsds)">${trails}</g><g class="tag" filter="url(#tsds)">${tags}</g></svg></div>
-    <div class="tsfw">${TS_SHOTS.map(([k])=>{const [,nm,,fw]=by[k];return `<div class="${tone(k)}"><b>${nm}</b><span>${fw}</span></div>`}).join("")}</div>
+    <div class="tsfw">${shots.map(([k])=>{const [,nm,,fw]=by[k];return `<div class="${tone(k)}"><b>${nm}</b><span>${fw}</span></div>`}).join("")}</div>
     <p class="sbnote">구질 아래 숫자 = 그 구질일 때 페어웨이 적중률</p>`;
 }
 /* ---------- COURSES: 골프장 목록 → 골프장별 홀 파 확인·수정 ---------- */
@@ -3678,7 +3694,12 @@ const setOn=k=>settings[k]!==false;
 // data-def="off"인 설정은 켠 계정에서만 켜짐 (기본 꺼짐)
 const setOnOff=i=>i.dataset.def==="off"?settings[i.dataset.set]===true:setOn(i.dataset.set);
 const teeDetailOn=()=>settings.teeDetail===true;
-function renderSettings(){ document.querySelectorAll("[data-set]").forEach(i=>i.checked=setOnOff(i)) }
+function renderSettings(){ document.querySelectorAll("[data-set]").forEach(i=>i.checked=setOnOff(i));
+  const hd=isRighty()?"R":"L"; document.querySelectorAll("#handSeg [data-hand]").forEach(b=>{const on=b.dataset.hand===hd; b.classList.toggle("on",on); b.setAttribute("aria-checked",on)}) }
+document.querySelectorAll("#handSeg [data-hand]").forEach(b=>b.onclick=()=>{
+  settings.hand=b.dataset.hand; renderSettings();
+  if(curUid) bg(()=>setDoc(doc(fs,"users",curUid,"settings","app"),{hand:b.dataset.hand},{merge:true}));
+});
 document.querySelectorAll("[data-set]").forEach(i=>i.onchange=()=>{
   settings[i.dataset.set]=i.checked;
   if(curUid) bg(()=>setDoc(doc(fs,"users",curUid,"settings","app"),{[i.dataset.set]:i.checked},{merge:true}));
