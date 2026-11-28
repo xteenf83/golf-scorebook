@@ -1306,6 +1306,12 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <p class="note" style="margin:10px 0 0">앱 버전 <b id="appVer"></b> · 새 버전이 나오면 앱을 열 때 자동으로 바뀝니다.</p>
       <p class="note" style="margin:10px 0 0">Photos: Unsplash</p>
     </section>
+    <section class="panel">
+      <h2>앱 공유하기</h2>
+      <p class="note" style="margin:0 0 12px">지인에게 앱 주소를 보냅니다. 각자 구글 계정으로 로그인하면 기록은 따로 저장돼요.</p>
+      <button id="shareAppBtn" class="big">앱 공유하기</button>
+      <p class="msg" id="shareAppMsg" role="status"></p>
+    </section>
   </section>
 
   <!-- STATS (분석) -->
@@ -1535,7 +1541,7 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
    같은 골프장+코스명이 있으면 pars(와 dist)만 덮어쓰고, 없으면 새로 만든다. 목록을 바꾸면 버전을 올릴 것.
    dist: 티별 홀 거리(m). 모르는 홀은 null. */
 const COURSES_SEED_VERSION = 18;
-const APP_VERSION = "v113";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
+const APP_VERSION = "v114";   // sw.js의 CACHE 이름 숫자와 함께 올릴 것
 const DEFAULT_COURSES = [
  {"club":"서원힐스CC","name":"웨스트","pars":[5,4,4,3,4,4,3,5,4],"dist":{
    "Black":[515,425,378,165,367,316,170,565,343],"Blue":[495,398,347,147,343,293,154,536,322],
@@ -4455,6 +4461,15 @@ renderGate();
 // 카톡이면 처음 한 번 바로 외부 브라우저로 넘겨 본다 (안 되면 위 안내가 그대로 남음)
 if(GATE_INAPP==="카카오톡"){ try{ if(!sessionStorage.getItem("gsb.kakaoOut")){ sessionStorage.setItem("gsb.kakaoOut","1"); setTimeout(gateOpenExternal,300); } }catch(e){} }
 
+// 앱 공유: 공유 시트(카톡 등)로 주소 보내기, 공유 시트가 없으면 주소 복사
+$("shareAppBtn").onclick=async()=>{
+  const url=location.origin+location.pathname.replace(/index\.html$/,""), msg=$("shareAppMsg");
+  const text="골프 스코어북 앱이에요. 아이폰은 사파리, 갤럭시는 크롬에서 열어 주세요.";
+  msg.textContent="";
+  if(navigator.share){ try{ await navigator.share({title:"나의 골프 스코어북",text,url}); return }catch(e){ if(e&&e.name==="AbortError") return } }
+  try{ await navigator.clipboard.writeText(url); msg.textContent="주소를 복사했어요. 카톡 등에 붙여 넣어 보내세요."; }
+  catch(e){ msg.textContent=url; }
+};
 (function boot(){ try{ bootInner(); }catch(e){ setSync("err","시작 오류: "+(e.message||e)); show("Login"); splashDone(); $("loginMsg").textContent="앱을 시작하지 못했습니다: "+(e.message||e); } })();
 function bootInner(){
   if(!firebaseConfig || !firebaseConfig.apiKey){
