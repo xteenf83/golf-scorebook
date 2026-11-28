@@ -1588,7 +1588,7 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
     <div class="phead"><img src="images/courses-header-fairways.jpg" alt="" onerror="this.remove()"><div><h1>코스</h1></div></div>
     <section class="panel vmap" id="visitMap"></section>
     <section class="panel">
-      <p class="note" style="margin-top:0">골프장을 누르면 코스별 홀 파를 확인하고 고칠 수 있습니다. 찾는 골프장이 없으면 <button class="linkbtn acc" id="reqCourseLink" style="min-height:0;padding:0">추가 요청 ›</button></p>
+      <p class="note" style="margin-top:0">골프장을 누르면 코스별 홀 파를 확인하고 고칠 수 있습니다. <span id="reqCourseHint">찾는 골프장이 없으면 <button class="linkbtn acc" id="reqCourseLink" style="min-height:0;padding:0">추가 요청 ›</button></span></p>
       <span class="clr" style="margin-bottom:10px"><input id="clSearch" type="search" placeholder="골프장 검색" autocomplete="off" enterkeyhint="search"><button type="button" class="x" aria-label="검색어 지우기">×</button></span>
       <div class="clist" id="courseList"></div>
     </section>
@@ -4601,7 +4601,8 @@ $("shareAppBtn").onclick=async()=>{
 const REQ_TYPE={course:"골프장 추가",bug:"불편·오류",idea:"기능 제안"};
 let myReqs=[], allReqs=null, allErrs=[], isAdmin=false, reqUser=null, inboxTab="req";
 function startReqs(user){
-  reqUser=user; isAdmin=false; allReqs=null; allErrs=[]; myReqs=[]; reqsLoaded=false; reqFresh=new Set(); inboxOpen=false; inboxTab="req"; $("demoPanel").hidden=true; renderReqs();
+  reqUser=user; isAdmin=false; allReqs=null; allErrs=[]; myReqs=[]; reqsLoaded=false; reqFresh=new Set();
+  $("reqPanel").hidden=false; $("reqCourseHint").hidden=false; inboxOpen=false; inboxTab="req"; $("demoPanel").hidden=true; renderReqs();
   $("myUid").textContent=user.uid; $("adminState").textContent="";
   $("uidCopy").onclick=()=>navigator.clipboard&&navigator.clipboard.writeText(user.uid).then(()=>$("uidCopy").textContent="복사됨",()=>{});
   unsubs.push(onSnapshot(query(collection(fs,"requests"),where("uid","==",user.uid)),snap=>{
@@ -4610,6 +4611,8 @@ function startReqs(user){
   // 관리자 확인: 결과를 앱 정보 칸에 한 줄로 (관리자 문서가 있을 때만)
   getDoc(doc(fs,"admins",user.uid)).then(a=>{
     if(!a.exists()) return; isAdmin=true; $("adminState").textContent="관리자 계정"; $("demoPanel").hidden=false;
+    // 관리자는 요청을 받는 사람이라 '요청 · 의견 보내기' 칸과 코스 탭의 '추가 요청' 링크를 숨김
+    $("reqPanel").hidden=true; $("reqCourseHint").hidden=true;
     unsubs.push(onSnapshot(collection(fs,"errors"),snap=>{ allErrs=snap.docs.map(d=>({id:d.id,...d.data()})); renderReqs(); },()=>{}));
     unsubs.push(onSnapshot(collection(fs,"requests"),snap=>{ allReqs=snap.docs.map(d=>({id:d.id,...d.data()})); renderReqs(); },
       e=>{ $("adminState").textContent="관리자 계정 · 요청함을 읽지 못함 ("+(e&&e.code||"오류")+")"; }));
