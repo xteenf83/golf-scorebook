@@ -37,7 +37,7 @@
 ## 요청함 (지인 → 관리자)
 - 더보기 → "요청 · 의견 보내기"(골프장 추가·불편·오류·기능 제안), 코스 탭의 "추가 요청 ›". 보낸 요청과 관리자 답변은 같은 칸에 목록으로.
 - 저장: 최상위 `requests/{id}` = `{uid,name,email,type,club,region,text,status:"new"|"done",reply,createdAt,doneAt,appVer,device}` (사용자 데이터 `users/` 아래 형식은 그대로).
-- 관리자: Firebase 콘솔 → Firestore에 `admins/{관리자 uid}` 빈 문서를 직접 만든 계정. 더보기 맨 위 "받은 요청함"에서 완료 표시·답변.
+- 관리자: Firebase 콘솔 → Firestore에 `admins/{관리자 uid}` 문서를 직접 만든 계정(더보기 → 앱 정보에 내 UID와 "관리자 계정" 표시). 더보기 맨 위 "받은 요청함" 버튼 → 창에서 완료 표시·답변. "체험용 예시 라운드"도 관리자에게만 보임.
 - 보안 규칙(`firestore.rules`): 보낸 사람은 자기 요청만 만들기·읽기(글자 수 제한), 관리자만 전체 읽기·수정. 규칙은 콘솔에 붙여 넣어야 적용됨.
 - 관리자 알림: 새 요청이 있으면 홈 ≡ 버튼에 빨간 점. 보내는 순간 Worker `golf-ics`의 `POST /notify`(`NOTIFY_URL`)가 텔레그램으로 알림 — Firebase 로그인 토큰을 검사하고(이름·이메일은 토큰에서), 같은 사람 10분에 5번까지. 봇 토큰·채팅 번호는 Cloudflare 대시보드 → golf-ics → 설정 → 변수 및 비밀에 `TG_TOKEN`·`TG_CHAT`(비밀)로만 넣는다. 없으면 알림만 꺼짐(503).
 
