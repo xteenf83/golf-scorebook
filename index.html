@@ -1012,17 +1012,25 @@ header.top.sub h1{font-size:22px;font-weight:700;letter-spacing:-0.035em}
 }
 /* 아주 좁은 화면(갤럭시 폴드 접은 화면 ~344px): 페어웨이 버튼 글자가 두 줄로 꺾이지 않게 */
 @media (max-width:359px){ #fwBtns button{font-size:13.5px;padding:6px 4px;white-space:nowrap} }
-.ovcard.welcome{max-width:400px;text-align:left;gap:10px}
-.wsteps{list-style:none;margin:4px 0 6px;padding:0;display:grid;gap:12px;counter-reset:w}
-.wsteps li{display:grid;grid-template-columns:28px 1fr;column-gap:10px;counter-increment:w}
-.wsteps li::before{content:counter(w);grid-row:1/3;width:26px;height:26px;border-radius:50%;background:var(--notice-bg);color:var(--brand-text);font-size:13px;font-weight:800;display:grid;place-items:center}
-.wsteps li>b{font-size:15.5px;font-weight:800;color:var(--t1)}
-.wsteps li>span{font-size:14px;line-height:1.5;color:var(--t3)}
-.wsteps li>span b{font-size:inherit;font-weight:700;color:var(--t1)}
-.welcome .handrow .seg button{min-height:44px;min-width:58px}
-.rq .top b.wrap{white-space:normal;word-break:break-word}
-.errsrc{font-family:ui-monospace,Menlo,monospace;font-size:12px!important;color:var(--t4)!important;word-break:break-all}
-.betatag{position:fixed;top:calc(env(safe-area-inset-top,0px) + 4px);left:50%;transform:translateX(-50%);z-index:60;pointer-events:none;background:#E5671E;color:#fff;font-size:12px;font-weight:800;border-radius:999px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.ovcard.guide{max-width:440px;text-align:left;padding:0;gap:0;max-height:94vh;display:flex;flex-direction:column;overflow:hidden}
+.guide .gtop{display:flex;align-items:center;justify-content:space-between;padding:16px 10px 8px 20px}
+.guide .gtop h2{margin:0;font-size:20px;font-weight:800}
+.guide .gtop .iconbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.guide .gbody{overflow:auto;-webkit-overflow-scrolling:touch;padding:0 20px 8px;display:grid;gap:22px;flex:1;min-height:0}
+.guide .glead{margin:0;font-size:14.5px;color:var(--t3);line-height:1.5}
+.guide .gcard{background:var(--fill);border-radius:16px;padding:12px 12px 12px 14px}
+.guide .gcard .seg button{min-height:44px;min-width:58px}
+.guide section{display:grid;gap:10px}
+.guide h3{margin:0;display:flex;align-items:center;gap:8px;font-size:17px;font-weight:800;color:var(--t1)}
+.guide h3 i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--notice-bg);color:var(--brand-text);font-size:13px;font-weight:800;display:grid;place-items:center;flex:none}
+.guide p,.guide li{margin:0;font-size:14.5px;line-height:1.55;color:var(--t2)}
+.guide ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.guide b{color:var(--t1)}
+.guide em{font-style:normal;font-size:11.5px;font-weight:800;color:var(--brand-text);background:var(--notice-bg);border-radius:6px;padding:1px 6px;margin-left:2px}
+.guide picture img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--line);background:var(--bg)}
+.guide .gtip{background:var(--notice-bg);color:var(--notice-text);border-radius:14px;padding:12px 14px;font-size:14.5px;line-height:1.55}
+.guide .gtip b{color:inherit}
+.guide .gfoot{padding:10px 20px 16px;border-top:1px solid var(--line);margin:0;justify-content:center}
 .calpick{display:grid;gap:10px;margin-top:4px}
 .calbtn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px 16px;border-radius:16px;background:var(--fill);color:var(--t1);text-decoration:none;min-height:44px;text-align:left}
 .calbtn b{font-size:16px;font-weight:700}
@@ -1328,6 +1336,10 @@ svg.ibars .trend{stroke:var(--t2);stroke-width:1.8;stroke-dasharray:6 5;stroke-l
       <button class="ghost" id="logoutBtn">로그아웃</button>
     </section>
     <section class="panel" id="adminPanel" hidden></section>
+    <section class="panel">
+      <button class="adminbtn" id="guideBtn"><span class="gic"><svg viewBox="0 0 24 24"><path d="M5 4.5h10.5L19 8v11.5H5zM8.5 10h7M8.5 13.5h7M8.5 17h4.5"/></svg></span>
+        <span class="t"><b>라운드 기록하는 법</b><small>기록 방식 고르기부터 홀별 입력까지 그림으로</small></span><span class="chev">›</span></button>
+    </section>
     <section class="panel">
       <h2>지난 기록 입력</h2>
       <p class="note" style="margin:0 0 12px">예전에 친 라운드를 홀별 타수만 빠르게 넣습니다. 퍼팅·페어웨이·구질 통계에는 들어가지 않아요.</p>
@@ -4736,25 +4748,52 @@ function maybeWelcome(snap){
   try{ localStorage.setItem("gsb.welcomed","1") }catch(e){}
   setTimeout(welcomeOv,400);
 }
-function welcomeOv(){
+// 사용법: 실제 화면 그림(라이트/다크) + 짧은 설명. 처음 온 사람에게 한 번 자동으로, 더보기 → '라운드 기록하는 법'으로 언제든
+const GIMG=(n,h)=>`<picture><source media="(prefers-color-scheme: dark)" srcset="images/guide/${n}-dark.jpg"><img src="images/guide/${n}-light.jpg" width="780" height="${h}" alt="" loading="lazy"></picture>`;
+function welcomeOv(){ guideOv(true) }
+$("guideBtn").onclick=()=>guideOv(false);
+function guideOv(first){
   const hd=()=>isRighty()?"R":"L";
-  showOv(`<div class="ovcard sheet welcome"><h2 style="margin:0">${userName?userName+"님, ":""}반가워요 ⛳</h2>
-    <p class="note" style="margin:0">세 가지만 알면 바로 쓸 수 있어요.</p>
-    <ol class="wsteps">
-      <li><b>라운드 기록</b><span>아래 초록 ＋ 버튼 → 골프장 고르고 시작. 평범한 홀은 <b>다음 홀</b> 한 번이면 끝나요.</span></li>
-      <li><b>분석</b><span>18홀을 홀별로 기록하면 평균 스코어와 타수를 잃는 곳이 정리돼요.</span></li>
-      <li><b>요청 · 의견</b><span>찾는 골프장이 없으면 더보기 → 요청 · 의견 보내기.</span></li>
-    </ol>
-    <div class="handrow"><span>치는 방향<small>구질 버튼 순서가 바뀌어요 · 더보기에서 언제든 변경</small></span>
-      <div class="seg" id="wHand" role="radiogroup" aria-label="치는 방향"><button data-hand="L" role="radio">좌타</button><button data-hand="R" role="radio">우타</button></div></div>
-    <div class="row" style="margin-top:14px"><button class="primary" id="wStart">첫 라운드 시작</button><button class="ghost" id="ovClose">둘러보기</button></div></div>`);
-  const paint=()=>document.querySelectorAll("#wHand [data-hand]").forEach(b=>{const on=b.dataset.hand===hd(); b.classList.toggle("on",on); b.setAttribute("aria-checked",on)});
-  paint();
-  document.querySelectorAll("#wHand [data-hand]").forEach(b=>b.onclick=()=>{
-    settings.hand=b.dataset.hand; paint(); renderSettings(); homeHead();
-    if(curUid) bg(()=>setDoc(doc(fs,"users",curUid,"settings","app"),{hand:b.dataset.hand},{merge:true}));
-  });
-  $("wStart").onclick=()=>{ closeOv(); const f=document.querySelector("[data-tab=new],#fabTab,.fabbtn"); if(f) f.click(); };
+  showOv(`<div class="ovcard sheet guide">
+    <div class="gtop"><h2>${first?`${userName?userName+"님, ":""}반가워요 ⛳`:"라운드 기록하는 법"}</h2><button class="iconbtn" id="gX" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="gbody" id="gBody">
+      ${first?`<p class="glead">라운드 기록하는 법을 1분이면 볼 수 있어요. 아래로 넘겨 보세요.</p>
+      <div class="handrow gcard"><span>먼저, 치는 방향<small>구질 버튼 순서가 바뀌어요 · 더보기에서 언제든 변경</small></span>
+        <div class="seg" id="wHand" role="radiogroup" aria-label="치는 방향"><button data-hand="L" role="radio">좌타</button><button data-hand="R" role="radio">우타</button></div></div>`:""}
+      <section><h3><i>1</i>새 라운드 시작</h3>
+        <p>홈 아래 초록 <b>＋</b> 버튼을 누르면 '새 라운드' 화면이 열려요.</p></section>
+      <section><h3><i>2</i>기록 방식 고르기</h3>${GIMG("g1-setup",485)}
+        <ul><li><b>홀별 입력</b> <em>추천</em> — 라운드하면서 홀마다 티샷·벌타·퍼팅까지. 분석·배지·고스트 대결에 모두 쓰여요.</li>
+          <li><b>홀별 타수</b> — 지난 라운드를 홀별 점수만 빠르게. 분석에는 스코어만 들어가요.</li>
+          <li><b>총 타수</b> — 합계 타수만.</li>
+          <li><b>18홀 / 9홀</b> — 9홀은 기록만 남고 통계에서는 빠져요.</li></ul></section>
+      <section><h3><i>3</i>날짜 · 골프장 · 코스</h3>
+        <ul><li><b>날짜</b>: 오늘이면 바로 시작, 다음 날짜면 <b>골프 일정</b>으로 저장돼요(홈에 D-day, 당일에 '라운드 시작').</li>
+          <li><b>골프장</b>: 이름 일부를 쓰면 목록에서 골라요. 전반·후반 코스를 고르면 홀별 파가 자동으로 들어가요.</li>
+          <li>티·고스트·미션·동반자는 안 골라도 돼요.</li></ul></section>
+      <section><h3><i>4</i>홀마다 기록 (홀별 입력)</h3>
+        <div class="gtip">처음부터 <b>파 · 2퍼트 · 페어웨이 · 직진</b>이 채워져 있어요. <b>평범한 홀은 '다음 홀'만</b> 누르고, 다른 것만 바꾸세요. 자동으로 저장돼요.</div>
+        ${GIMG("g5-next",196)}
+        <p>위 숫자 줄로 다른 홀에 갈 수 있고, 홀 카드에 파·거리와 그 홀의 내 지난 기록이 보여요.</p>${GIMG("g2-hole",630)}
+        <p><b>티샷</b> (파4·5): 공이 페어웨이에 갔는지, 그리고 공이 날아간 모양(구질)을 눌러요.</p>${GIMG("g3-tee",443)}
+        <p><b>벌타 · 퍼팅 · 스코어</b>: OB·해저드는 ＋, 퍼팅 수를 누르고, 스코어는 벌타까지 포함한 타수예요.</p>${GIMG("g4-score",778)}
+        <p>18번 홀에서는 버튼이 <b>라운드 완료</b>로 바뀌어요. 중간에 앱을 닫아도 홈에서 '이어서 기록'할 수 있어요.</p></section>
+      <section><h3><i>5</i>홀별 타수로 빠르게 넣을 때</h3>${GIMG("g6-score",706)}
+        <p>홀을 고르고 점수 버튼을 누르면 다음 홀로 넘어가요. 다 넣으면 <b>라운드 저장</b>.</p></section>
+      <section><h3><i>6</i>다 치고 나면</h3>
+        <p>라운드 기록에서 스코어카드·샷 요약·공유 이미지를, <b>분석</b> 탭에서 평균 스코어와 타수를 잃는 곳을 볼 수 있어요.</p></section>
+    </div>
+    <div class="row gfoot">${first?`<button class="primary" id="wStart">첫 라운드 시작</button><button class="ghost" id="ovClose">둘러보기</button>`:`<button class="ghost" id="ovClose">닫기</button>`}</div></div>`);
+  $("gX").onclick=closeOv;
+  if(first){
+    const paint=()=>document.querySelectorAll("#wHand [data-hand]").forEach(b=>{const on=b.dataset.hand===hd(); b.classList.toggle("on",on); b.setAttribute("aria-checked",on)});
+    paint();
+    document.querySelectorAll("#wHand [data-hand]").forEach(b=>b.onclick=()=>{
+      settings.hand=b.dataset.hand; paint(); renderSettings(); homeHead();
+      if(curUid) bg(()=>setDoc(doc(fs,"users",curUid,"settings","app"),{hand:b.dataset.hand},{merge:true}));
+    });
+    $("wStart").onclick=()=>{ closeOv(); const f=document.querySelector("[data-tab=new],#fabTab,.fabbtn"); if(f) f.click(); };
+  }
 }
 /* ---------- 개인정보 안내 · 계정 삭제 ---------- */
 function privacyOv(){
