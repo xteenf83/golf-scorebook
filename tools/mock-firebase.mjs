@@ -7,7 +7,7 @@ const S = window.__MOCK || (window.__MOCK = (() => {
   (seed.rounds || []).forEach(r => { const {id, ...b} = r; data.set(base + "/rounds/" + id, b) });
   (seed.courses || []).forEach(c => { const {id, ...b} = c; data.set(base + "/courses/" + id, b) });
   data.set(base + "/settings/app", seed.settings || {});
-  data.set(base, seed.user || {});
+  if (seed.user !== null) data.set(base, seed.user || {});   // user: null = 계정 문서 없는 새 계정
   let n = 0;
   return { data, subs, U, signedIn: seed.signedIn !== false, newId: () => "m" + (++n),
     fire() { setTimeout(() => subs.forEach(f => f()), 0) } };
